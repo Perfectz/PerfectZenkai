@@ -10,13 +10,22 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   projects: [
     {
-      name: 'chromium',
+      name: 'Mobile Chrome',
       use: { 
-        ...devices['Desktop Chrome'],
+        ...devices['Pixel 5'],
+        viewport: { width: 375, height: 667 }, // Mobile-first testing
+      },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { 
+        ...devices['iPhone 12'],
         viewport: { width: 375, height: 667 }, // Mobile-first testing
       },
     },
@@ -26,5 +35,6 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes timeout
   },
 }) 

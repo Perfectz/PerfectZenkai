@@ -279,28 +279,34 @@ Create src/modules/weight/store.test.ts that:
 ---
 
 ### 2.2 Weight Add Sheet
-**User Story:** *I can quickly log my weight via FAB sheet.*
+**User Story:** *I can quickly log my weight via cyber-styled FAB sheet.*
 
 **Acceptance Criteria:**
-- FAB on /weight routes opens shadcn Sheet
-- Form with date input (default today) and kg input (positive numbers only)
-- Submit adds entry & closes sheet
-- Uses shadcn Sheet component
+- FAB on /weight routes opens cyber-styled Sheet with glow effects
+- Form with cyber input styling and neon focus states
+- Date input (default today) and kg input (positive numbers only) with JetBrains Mono font
+- Submit adds entry & closes sheet with success animation
+- Uses CyberCard and CyberInput components
 
 **Test Cases:** Playwright AddWeight.e2e
 
 **Implementation Prompt:**
 ```
 Create src/modules/weight/components/WeightSheet.tsx using:
-- shadcn Sheet component
-- Form with date input (default today) and number input for kg
-- Validation: kg > 0, date required
+- CyberCard component for sheet container with subtle glow
+- CyberInput for weight input with JetBrains Mono font for numbers
+- Ki-Green focus glow effects on inputs
+- Date picker with cyber styling
+- CyberButton for submit with loading state
+- Validation: kg > 0, date required with cyber error styling
+- Success animation with particle effects
 - onSubmit calls weight store addWeight action
 
 Update src/app/GlobalFab.tsx to:
 - Show when location.pathname startsWith '/weight'
-- onClick opens WeightSheet
-- Use lucide Plus icon
+- Hyper-Magenta background with glow effect
+- onClick opens WeightSheet with slide-up animation
+- Use cyber-styled Plus icon
 
 Wire up the sheet state management between FAB and Sheet.
 ```
@@ -319,13 +325,14 @@ Create e2e/AddWeight.e2e.ts that:
 ---
 
 ### 2.3 Weight List Page
-**User Story:** *I can view and manage my weight history with touch interactions.*
+**User Story:** *I can view and manage my weight history with cyber aesthetics and smooth interactions.*
 
 **Acceptance Criteria:**
-- `/weight` route lists entries newest‑first
-- Each row shows date and kg with proper formatting
-- Long‑press row (200ms) → confirm delete dialog
-- Uses react-swipeable for touch interactions
+- `/weight` route lists entries newest‑first with cyber card styling
+- Each row shows date and kg with JetBrains Mono font and neon accents
+- Long‑press row (200ms) → cyber-styled confirm delete dialog with glow effects
+- Uses react-swipeable for touch interactions with red glow feedback
+- Empty state with cyber-themed illustration and encouraging message
 
 **Test Cases:** Playwright DeleteWeight.e2e
 
@@ -333,13 +340,18 @@ Create e2e/AddWeight.e2e.ts that:
 ```
 Create src/modules/weight/pages/WeightPage.tsx with:
 - List of weight entries sorted by date (newest first)
-- WeightRow component using react-swipeable
-- Long-press (200ms) triggers delete confirmation dialog
-- Empty state when no weights
-- Proper date formatting (e.g., "Dec 15, 2024")
-- Weight formatting (e.g., "75.0 kg")
+- CyberCard containers for each entry with subtle glow
+- WeightRow component using react-swipeable with cyber styling
+- Long-press (200ms) triggers cyber-styled delete confirmation dialog
+- Empty state with cyber-themed scale illustration and "Start your journey" message
+- Proper date formatting with Inter font
+- Weight formatting in JetBrains Mono with Ki-Green accent (e.g., "75.0 kg")
+- Stagger animations for list items
 
-Create src/modules/weight/components/WeightRow.tsx with swipe-to-delete functionality.
+Create src/modules/weight/components/WeightRow.tsx with:
+- Swipe-to-delete functionality with red glow feedback
+- Hover effects with scale and glow animations
+- Cyber typography and spacing
 
 Add route to src/modules/weight/routes.ts and export from index.ts.
 ```
@@ -358,26 +370,30 @@ Create e2e/DeleteWeight.e2e.ts that:
 ---
 
 ### 2.4 Nav Link
-**User Story:** *I can navigate to weight tracking via bottom nav.*
+**User Story:** *I can navigate to weight tracking via cyber-styled bottom nav.*
 
 **Acceptance Criteria:**
-- Bottom nav shows "Weight" with BarChart3 lucide icon
-- Clicking navigates to /weight route
-- Active state styling when on weight pages
+- Bottom nav shows "Weight" with cyber-styled scale icon and glow effects
+- Clicking navigates to /weight route with smooth transition
+- Active state styling with Ki-Green color and glow when on weight pages
+- Press Start 2P font for nav labels
 
 **Test Cases:** Playwright nav spec
 
 **Implementation Prompt:**
 ```
 Update src/app/NavigationBar.tsx to include:
-- Weight nav item with lucide BarChart3 icon
-- Text "Weight"
-- Active state when pathname startsWith '/weight'
-- Proper shadcn NavigationBar styling
+- Weight nav item with custom cyber-styled scale icon (24px)
+- Text "Weight" in Press Start 2P font, 0.75rem
+- Active state: Ki-Green color with glow effect (0 0 8px rgba(34, 255, 183, 0.4))
+- Inactive state: Gray-500 color
+- Smooth transitions (150ms ease-out)
+- Proper touch targets (44px minimum)
+- Cyber navigation bar styling with Gray-900 background
 
 Import and merge weightRoutes from src/modules/weight into src/app/routes.ts.
 
-Ensure proper routing setup with React Router.
+Ensure proper routing setup with React Router and page transitions.
 ```
 
 **Test‑Code Prompt:**
@@ -439,29 +455,35 @@ Create src/modules/tasks/store.test.ts that:
 ---
 
 ### 3.2 Todo Page
-**User Story:** *I can manage my tasks offline with intuitive interactions.*
+**User Story:** *I can manage my tasks offline with cyber aesthetics and smooth interactions.*
 
 **Acceptance Criteria:**
-- `/todo` route with input to add new todos
-- Checkbox to toggle completion status
-- Swipe-to-delete functionality
+- `/todo` route with cyber-styled input to add new todos with glow effects
+- Custom cyber checkbox to toggle completion status with Ki-Green check animation
+- Swipe-to-delete functionality with red glow feedback
 - Works offline with Dexie persistence
-- Shows completed vs incomplete todos
+- Shows completed vs incomplete todos with cyber section styling
+- XP gain animation on task completion
 
 **Test Cases:** Playwright TodoOffline.e2e (offline persistence)
 
 **Implementation Prompt:**
 ```
 Create src/modules/tasks/pages/TodoPage.tsx with:
-- Input field to add new todos (Enter to submit)
-- TodoRow components with:
-  - Checkbox for done/undone toggle
-  - Text with strikethrough when completed
-  - react-swipeable for delete
-- Separate sections for incomplete and completed todos
-- Empty states for each section
+- CyberInput field to add new todos (Enter to submit with glow effect)
+- TodoRow components with cyber styling:
+  - Custom cyber checkbox with Ki-Green check animation
+  - Text with cyber typography and strikethrough animation when completed
+  - react-swipeable for delete with red glow feedback
+  - XP gain animation (+5 XP) on completion
+- Separate sections for incomplete and completed todos with CyberCard containers
+- Empty states with cyber-themed illustrations and encouraging messages
+- Stagger animations for list items
 
-Create src/modules/tasks/components/TodoRow.tsx with proper touch interactions.
+Create src/modules/tasks/components/TodoRow.tsx with:
+- Cyber checkbox design with smooth animations
+- Hover effects with scale and glow
+- Proper touch interactions and accessibility
 
 Add routes to src/modules/tasks/routes.ts.
 ```
@@ -482,28 +504,32 @@ Create e2e/TodoOffline.e2e.ts that:
 ---
 
 ### 3.3 Nav & FAB wiring
-**User Story:** *I can navigate to tasks and access quick actions.*
+**User Story:** *I can navigate to tasks and access quick actions with cyber styling.*
 
 **Acceptance Criteria:**
-- Bottom nav "Tasks" with CheckSquare lucide icon
-- FAB shows on /todo routes with appropriate action
-- Proper active state styling
+- Bottom nav "Tasks" with cyber-styled checklist icon and glow effects
+- FAB shows on /todo routes with Hyper-Magenta styling and appropriate action
+- Proper active state styling with Ki-Green color and glow
+- Smooth transitions and hover effects
 
 **Test Cases:** Playwright nav spec
 
 **Implementation Prompt:**
 ```
 Update src/app/NavigationBar.tsx to add:
-- Tasks nav item with lucide CheckSquare icon
-- Text "Tasks"
-- Active state when pathname startsWith '/todo'
+- Tasks nav item with custom cyber-styled checklist icon (24px)
+- Text "Tasks" in Press Start 2P font, 0.75rem
+- Active state: Ki-Green color with glow effect
+- Inactive state: Gray-500 color
+- Smooth transitions (150ms ease-out)
 
 Update src/app/GlobalFab.tsx to:
-- Show on /todo routes
-- Focus on todo input when clicked (or show add todo sheet)
-- Use appropriate icon (Plus or PlusCircle)
+- Show on /todo routes with Hyper-Magenta background and glow
+- Focus on todo input when clicked with smooth animation
+- Use cyber-styled Plus icon (24px white)
+- Hover and press animations with scale effects
 
-Merge taskRoutes into src/app/routes.ts.
+Merge taskRoutes into src/app/routes.ts with proper page transitions.
 ```
 
 **Test‑Code Prompt:**
@@ -521,28 +547,33 @@ Create e2e/NavToTasks.e2e.ts that:
 ## MVP 4 — Dashboard Module (home cards)
 
 ### 4.1 Sparkline Card
-**User Story:** *I can see my weight trend at a glance with interactive chart.*
+**User Story:** *I can see my weight trend at a glance with cyber-styled interactive chart.*
 
 **Acceptance Criteria:**
-- Shows last 30 days weight data as sparkline
-- Uses React.lazy to load Recharts
-- Click navigates to /weight
-- Handles empty data gracefully
+- Shows last 30 days weight data as sparkline with Ki-Green stroke and glow
+- Uses React.lazy to load Recharts with cyber styling
+- Click navigates to /weight with smooth transition
+- Handles empty data gracefully with cyber-themed illustration
+- Hover effects with card glow and scale animation
 
 **Test Cases:** Vitest SVG path present
 
 **Implementation Prompt:**
 ```
 Create src/modules/dashboard/components/WeightSparkCard.tsx with:
-- shadcn Card with rounded-2xl shadow-sm
-- React.lazy loaded Recharts LineChart/Sparkline
+- CyberCard component with subtle glow and hover effects
+- React.lazy loaded Recharts LineChart/Sparkline with:
+  - Ki-Green stroke color (#22FFB7)
+  - Gradient fill from Ki-Green to Plasma-Cyan
+  - Glow effect on line (filter: drop-shadow)
 - Last 30 days of weight data from weight store
-- Loading state while chart loads
-- Empty state with placeholder when no data
-- onClick handler to navigate to /weight
-- Proper responsive sizing
+- CyberSkeleton loading state while chart loads
+- Empty state with cyber-themed scale illustration and "Start tracking" message
+- onClick handler to navigate to /weight with page transition
+- Hover: scale(1.02) with increased glow
+- Proper responsive sizing with cyber typography
 
-Use Recharts with minimal styling for clean sparkline appearance.
+Use Recharts with cyber color palette and glow effects.
 ```
 
 **Test‑Code Prompt:**
@@ -559,25 +590,29 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 ---
 
 ### 4.2 Today Weight Card
-**User Story:** *I can see today's weight status prominently.*
+**User Story:** *I can see today's weight status prominently with cyber styling.*
 
 **Acceptance Criteria:**
-- Displays latest weight entry or placeholder
-- Shows date and weight with proper formatting
-- Indicates if no weight logged today
-- Links to weight entry
+- Displays latest weight entry or placeholder with cyber aesthetics
+- Shows date and weight with JetBrains Mono font and Ki-Green accents
+- Indicates if no weight logged today with encouraging cyber message
+- Links to weight entry with smooth transition
+- Hover effects with glow and scale animations
 
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
 ```
 Create src/modules/dashboard/components/TodayWeightCard.tsx with:
-- shadcn Card styling
+- CyberCard component with subtle glow and hover effects
 - Reads latest weight entry from weight store
-- Shows "Today: 75.0 kg" or "No weight logged today"
-- Proper date comparison for "today"
-- Click to navigate to /weight
-- Loading state while data loads
+- Weight display in JetBrains Mono font with Ki-Green accent
+- Shows "Today: 75.0 kg" with cyber styling or "Ready to track?" with encouraging message
+- Proper date comparison for "today" with Inter font for date
+- Click to navigate to /weight with page transition
+- CyberSkeleton loading state while data loads
+- Hover: scale(1.02) with increased glow
+- Subtle background pattern or gradient
 ```
 
 **Test‑Code Prompt:**
@@ -593,25 +628,30 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 ---
 
 ### 4.3 Todo Summary Card
-**User Story:** *I can see my task progress at a glance.*
+**User Story:** *I can see my task progress at a glance with cyber-styled progress visualization.*
 
 **Acceptance Criteria:**
-- Shows count of incomplete todos
-- Shows total todos count
-- Progress indicator or percentage
-- Links to todo page
+- Shows count of incomplete todos with cyber typography
+- Shows total todos count with Press Start 2P font
+- Circular progress ring with Ki-Green to Plasma-Cyan gradient
+- Links to todo page with smooth transition
+- Animated progress updates with glow effects
 
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
 ```
 Create src/modules/dashboard/components/TodoSummaryCard.tsx with:
-- shadcn Card styling
+- CyberCard component with subtle glow and hover effects
 - Reads todos from tasks store
-- Shows "3 of 5 tasks complete" format
-- Progress bar or circular progress indicator
-- Click to navigate to /todo
-- Handles zero todos gracefully
+- Circular progress ring with gradient (Ki-Green to Plasma-Cyan)
+- Shows "3 of 5" in center with Press Start 2P font
+- "TASKS COMPLETE" subtitle in smaller Press Start 2P
+- Progress ring with glow effect (0 0 12px rgba(34, 255, 183, 0.5))
+- Animated progress updates (500ms ease-out)
+- Click to navigate to /todo with page transition
+- Handles zero todos gracefully with "Start your quests" message
+- Hover: scale(1.02) with increased glow
 ```
 
 **Test‑Code Prompt:**
@@ -627,23 +667,27 @@ Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 ---
 
 ### 4.4 Streak Card (stub)
-**User Story:** *I can see my consistency streak placeholder.*
+**User Story:** *I can see my consistency streak placeholder with cyber styling.*
 
 **Acceptance Criteria:**
-- Static "0 day streak" for now
-- Proper card styling matching other cards
-- Placeholder for future streak logic
+- Static "0 DAY STREAK" with Press Start 2P font and cyber aesthetics
+- Cyber-styled flame icon with glow effect
+- Proper card styling matching other cyber cards
+- Placeholder for future streak logic with motivational message
 
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
 ```
 Create src/modules/dashboard/components/StreakCard.tsx with:
-- shadcn Card styling matching other cards
-- Static text "0 day streak"
-- Placeholder icon (Calendar or Flame)
-- Same click behavior as other cards (maybe to settings)
-- Comment indicating future enhancement
+- CyberCard component with subtle glow and hover effects
+- Static text "0 DAY STREAK" in Press Start 2P font
+- Cyber-styled flame icon with Ki-Green glow effect
+- "BUILD YOUR MOMENTUM" subtitle in smaller Press Start 2P
+- Same hover behavior as other cards: scale(1.02) with increased glow
+- Placeholder click behavior (maybe to settings or achievements)
+- Comment indicating future streak calculation enhancement
+- Motivational cyber-themed styling
 ```
 
 **Test‑Code Prompt:**
@@ -756,12 +800,13 @@ Create e2e/OfflineWeight.e2e.ts that:
 ---
 
 ### 5.2 Online Status Banner
-**User Story:** *I know when I'm offline with clear visual indicator.*
+**User Story:** *I know when I'm offline with cyber-styled visual indicator.*
 
 **Acceptance Criteria:**
 - useOnline hook detects connection status
-- Red banner appears when offline
-- Banner disappears when back online
+- Cyber-styled banner appears when offline with red glow and warning styling
+- Banner disappears when back online with smooth animation
+- Press Start 2P font for offline message
 
 **Test Cases:** Vitest hook; Playwright toggle offline
 
@@ -773,12 +818,15 @@ Create src/shared/hooks/useOnline.ts that:
 - Returns boolean connection status
 
 Create src/app/components/OfflineBanner.tsx with:
-- Red banner with "You're offline" message
-- Fixed positioning at top
-- Smooth show/hide animation
+- Cyber-styled banner with red background and glow effect
+- "CONNECTION LOST" message in Press Start 2P font
+- Fixed positioning at top with proper z-index
+- Smooth slide-down/slide-up animation (300ms ease-out)
+- Red glow effect: 0 0 20px rgba(239, 68, 68, 0.6)
 - Uses useOnline hook
+- Cyber warning icon with glow
 
-Add OfflineBanner to AppShell.tsx.
+Add OfflineBanner to AppShell.tsx with proper positioning.
 ```
 
 **Test‑Code Prompt:**
@@ -867,6 +915,609 @@ Create e2e/InstallPrompt.e2e.ts that:
 - Reloads page
 - Expects Sheet NOT to show again
 - Tests "Install" button triggers prompt
+```
+
+---
+
+## MVP 7 — Design System Foundation
+
+### 7.1 Cyber Theme Setup
+**User Story:** *App has cyber-ninja aesthetic with neon colors and proper typography.*
+
+**Acceptance Criteria:**
+- Tailwind config includes cyber color palette (Ki-Green #22FFB7, Hyper-Magenta #FF2EEA, Plasma-Cyan #1BE7FF)
+- Press Start 2P font loaded for headings
+- Inter and JetBrains Mono fonts configured
+- CSS custom properties for glow effects and animations
+
+**Test Cases:** Visual regression tests for color tokens
+
+**Implementation Prompt:**
+```
+Update tailwind.config.ts to include cyber color palette:
+- Ki-Green: #22FFB7 (primary CTA)
+- Hyper-Magenta: #FF2EEA (accent)  
+- Plasma-Cyan: #1BE7FF (secondary)
+- Dark Navy: #111827 (background)
+- Extended gray scale from style guide
+
+Add Google Fonts for Press Start 2P, Inter, JetBrains Mono.
+Create src/shared/styles/cyber-theme.css with:
+- CSS custom properties for glow effects
+- Animation keyframes for neon pulses
+- Utility classes for cyber aesthetics
+
+Update index.css to import cyber-theme.css and set font families.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/test/theme.test.ts that:
+- Tests CSS custom properties are defined
+- Verifies font families are loaded
+- Checks color token accessibility (contrast ratios)
+- Tests glow effect utilities render correctly
+```
+
+---
+
+### 7.2 Component Library Setup
+**User Story:** *Shared UI components follow cyber-ninja design system.*
+
+**Acceptance Criteria:**
+- CyberButton component with glow effects and hover states
+- CyberCard component with neon borders and shadows
+- CyberInput component with focus glow
+- All components use design tokens from style guide
+
+**Test Cases:** Storybook stories for each component
+
+**Implementation Prompt:**
+```
+Create src/shared/ui/cyber/ folder with:
+
+1. CyberButton.tsx:
+   - Primary variant with Ki-Green background and glow
+   - Secondary variant with Plasma-Cyan border
+   - Ghost variant with hover effects
+   - Hover scale (1.02) and pressed scale (0.96)
+   - Loading state with spinner
+
+2. CyberCard.tsx:
+   - Gray-800 background with Gray-700 border
+   - Subtle Ki-Green glow (0 0 1px rgba(34, 255, 183, 0.1))
+   - 12px border radius, proper padding
+   - Elevated variant with stronger shadow
+
+3. CyberInput.tsx:
+   - Gray-900 background, Gray-700 border
+   - Ki-Green focus border with glow effect
+   - Error state with red glow
+   - Proper typography and spacing
+
+Export all components from src/shared/ui/index.ts.
+```
+
+**Test‑Code Prompt:**
+```
+Create Storybook stories for each cyber component:
+- src/shared/ui/cyber/CyberButton.stories.tsx
+- src/shared/ui/cyber/CyberCard.stories.tsx  
+- src/shared/ui/cyber/CyberInput.stories.tsx
+
+Test all variants, states, and interactions.
+Add visual regression tests with Chromatic.
+```
+
+---
+
+### 7.3 Icon System Integration
+**User Story:** *App uses consistent cyber-themed icons with glow effects.*
+
+**Acceptance Criteria:**
+- Custom icon components with proper sizing (16px, 24px, 32px)
+- Active state glow effects for navigation icons
+- Icon library integrated with design system colors
+- Proper accessibility attributes
+
+**Test Cases:** Icon rendering and accessibility tests
+
+**Implementation Prompt:**
+```
+Create src/shared/ui/icons/ system:
+
+1. CyberIcon.tsx base component:
+   - Size variants (sm: 16px, md: 24px, lg: 32px)
+   - Color variants (default: white, active: Ki-Green)
+   - Glow effect when active
+   - Proper ARIA labels
+
+2. Navigation icon components:
+   - WeightIcon, TasksIcon, DashboardIcon, ProfileIcon
+   - Use custom SVG paths or Lucide icons as base
+   - Apply cyber styling consistently
+
+3. UI icon components:
+   - AddIcon, EditIcon, DeleteIcon, SettingsIcon
+   - Status icons with semantic colors
+   - Loading spinner with Ki-Green color
+
+Update existing components to use new icon system.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/shared/ui/icons/icons.test.tsx that:
+- Tests icon rendering at different sizes
+- Verifies glow effects apply correctly
+- Checks accessibility attributes
+- Tests color variants
+- Ensures proper ARIA labels
+```
+
+---
+
+## MVP 8 — Navigation & Layout Redesign
+
+### 8.1 Cyber Navigation Bar
+**User Story:** *Bottom navigation has cyber-ninja styling with glow effects.*
+
+**Acceptance Criteria:**
+- Gray-900 background with Gray-700 top border
+- Active nav items have Ki-Green color with glow
+- Smooth transitions between states
+- Press Start 2P font for labels
+- Proper touch targets (44px minimum)
+
+**Test Cases:** Navigation interaction and visual tests
+
+**Implementation Prompt:**
+```
+Redesign src/app/NavigationBar.tsx with cyber aesthetics:
+
+- Background: Gray-900 (#0F172A)
+- Border top: 1px solid Gray-700 (#334155)
+- Height: 72px with proper padding
+- Nav items with:
+  - Custom cyber icons (24px)
+  - Press Start 2P font, 0.75rem
+  - Active: Ki-Green with glow effect
+  - Inactive: Gray-500
+  - Smooth transitions (150ms)
+
+Add hover effects and pressed states.
+Ensure accessibility with proper ARIA labels.
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberNavigation.e2e.ts that:
+- Tests navigation item styling
+- Verifies active state glow effects
+- Tests touch interactions on mobile
+- Checks accessibility attributes
+- Takes visual regression screenshots
+```
+
+---
+
+### 8.2 Floating Action Button Redesign
+**User Story:** *FAB has cyber styling with Hyper-Magenta glow and animations.*
+
+**Acceptance Criteria:**
+- Hyper-Magenta background (#FF2EEA)
+- Strong glow effect with shadow
+- Hover and press animations
+- Context-aware visibility
+- 56px diameter with proper positioning
+
+**Test Cases:** FAB interaction and animation tests
+
+**Implementation Prompt:**
+```
+Redesign src/app/GlobalFab.tsx with cyber aesthetics:
+
+- Background: Hyper-Magenta (#FF2EEA)
+- Size: 56px diameter
+- Shadow: 0 6px 20px rgba(255, 46, 234, 0.4)
+- Icon: 24px white icon
+- Position: Fixed bottom-right, 20px margins
+- Animations:
+  - Hover: scale(1.05) with increased glow
+  - Press: scale(0.95) with reduced glow
+  - Entrance: slide up with bounce
+
+Add context awareness for different routes.
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberFab.e2e.ts that:
+- Tests FAB visibility on different routes
+- Verifies hover and press animations
+- Checks glow effects render correctly
+- Tests accessibility and touch targets
+- Captures animation screenshots
+```
+
+---
+
+### 8.3 App Header Redesign
+**User Story:** *Header shows cyber-styled Perfect Zenkai branding with level badge.*
+
+**Acceptance Criteria:**
+- Press Start 2P font for "Perfect Zenkai" title
+- Optional level badge with Hyper-Magenta background
+- Subtle background pattern or glow
+- Responsive design for mobile and desktop
+- Proper spacing and typography scale
+
+**Test Cases:** Header responsive and visual tests
+
+**Implementation Prompt:**
+```
+Redesign src/app/AppShell.tsx header section:
+
+- Title: "Perfect Zenkai" in Press Start 2P, 1.5rem
+- Background: Gray-900 with subtle pattern
+- Optional level badge:
+  - Background: Hyper-Magenta
+  - Text: "LVL 1" in Press Start 2P, 0.75rem
+  - Glow: 0 0 10px rgba(255, 46, 234, 0.6)
+- Height: 64px with proper padding
+- Responsive typography scaling
+
+Add subtle animations and micro-interactions.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/test/AppHeader.test.tsx that:
+- Tests header rendering and typography
+- Verifies responsive behavior
+- Tests level badge display logic
+- Checks accessibility and semantic HTML
+- Visual regression tests for styling
+```
+
+---
+
+## MVP 9 — Dashboard Cyber Redesign
+
+### 9.1 Cyber Dashboard Cards
+**User Story:** *Dashboard cards have cyber aesthetics with neon accents and data visualization.*
+
+**Acceptance Criteria:**
+- Cards use CyberCard component with glow effects
+- Progress rings with Ki-Green to Plasma-Cyan gradients
+- Hover effects with scale and glow animations
+- Proper data visualization with cyber styling
+- Empty states with encouraging cyber-themed illustrations
+
+**Test Cases:** Dashboard card interaction and visual tests
+
+**Implementation Prompt:**
+```
+Redesign dashboard cards in src/modules/dashboard/components/:
+
+1. WeightSparkCard.tsx:
+   - CyberCard wrapper with subtle glow
+   - Recharts LineChart with Ki-Green stroke
+   - Gradient fill from Ki-Green to Plasma-Cyan
+   - Hover: scale(1.02) with increased glow
+   - Empty state with cyber-themed illustration
+
+2. TodayWeightCard.tsx:
+   - Large weight display in JetBrains Mono
+   - Ki-Green accent for current weight
+   - Subtle background pattern
+   - Progress indicator if applicable
+
+3. TodoSummaryCard.tsx:
+   - Progress ring with gradient fill
+   - Completion percentage in center
+   - Task count in Press Start 2P font
+   - Animated progress updates
+
+4. StreakCard.tsx:
+   - Flame icon with glow effect
+   - Streak count in large Press Start 2P
+   - Motivational subtitle
+   - Particle effects for high streaks
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberDashboard.e2e.ts that:
+- Tests card hover animations
+- Verifies progress ring rendering
+- Checks data visualization accuracy
+- Tests empty state illustrations
+- Captures visual regression screenshots
+```
+
+---
+
+### 9.2 XP Progress System
+**User Story:** *Dashboard shows XP progress with cyber-styled progress rings and level badges.*
+
+**Acceptance Criteria:**
+- Circular progress ring with gradient (Ki-Green to Plasma-Cyan)
+- Current XP and level display
+- Animated progress updates
+- Particle effects on level up
+- Integration with existing data
+
+**Test Cases:** XP system calculation and animation tests
+
+**Implementation Prompt:**
+```
+Create src/shared/components/XPProgressRing.tsx:
+
+- Circular SVG progress ring (80px diameter)
+- Gradient stroke from Ki-Green to Plasma-Cyan
+- Stroke width: 6px
+- Glow effect: 0 0 12px rgba(34, 255, 183, 0.5)
+- Animated progress updates (500ms ease-out)
+- Center content: current XP / next level XP
+
+Create XP calculation logic:
+- Weight entries = 10 XP each
+- Completed tasks = 5 XP each
+- Daily streaks = 20 XP bonus
+- Level = Math.floor(totalXP / 100) + 1
+
+Add to dashboard with proper data integration.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/shared/components/XPProgressRing.test.tsx that:
+- Tests progress calculation accuracy
+- Verifies animation timing
+- Tests gradient rendering
+- Checks accessibility attributes
+- Tests level up detection
+```
+
+---
+
+## MVP 10 — Form & Input Cyber Styling
+
+### 10.1 Weight Entry Cyber Form
+**User Story:** *Weight entry form has cyber styling with glow effects and smooth animations.*
+
+**Acceptance Criteria:**
+- CyberInput components with focus glow
+- Number pad with cyber button styling
+- Date picker with neon accents
+- Form validation with cyber error states
+- Success animation with particle effects
+
+**Test Cases:** Form interaction and validation tests
+
+**Implementation Prompt:**
+```
+Redesign src/modules/weight/components/WeightSheet.tsx:
+
+- Use CyberCard for sheet container
+- CyberInput for weight input:
+  - JetBrains Mono font for numbers
+  - Ki-Green focus glow
+  - Error state with red glow
+- Custom number pad with CyberButton components
+- Date picker with cyber styling
+- Submit button with loading animation
+- Success state with particle effects
+
+Add form validation with cyber-styled error messages.
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberWeightForm.e2e.ts that:
+- Tests form input interactions
+- Verifies validation error styling
+- Tests number pad functionality
+- Checks success animations
+- Tests accessibility compliance
+```
+
+---
+
+### 10.2 Task Entry Cyber Form
+**User Story:** *Task creation and editing has cyber aesthetics with smooth interactions.*
+
+**Acceptance Criteria:**
+- Inline task creation with cyber input styling
+- Task items with cyber checkbox design
+- Swipe-to-delete with neon feedback
+- Completion animations with XP gain display
+- Bulk actions with cyber confirmation dialogs
+
+**Test Cases:** Task form and interaction tests
+
+**Implementation Prompt:**
+```
+Redesign src/modules/tasks/components/:
+
+1. TodoRow.tsx:
+   - Custom cyber checkbox with Ki-Green check
+   - Text with cyber typography
+   - Strikethrough animation for completed
+   - Swipe-to-delete with red glow feedback
+   - XP gain animation on completion
+
+2. Task input:
+   - Inline CyberInput for new tasks
+   - Enter key submission with glow effect
+   - Auto-focus and smooth transitions
+
+3. Bulk actions:
+   - Cyber-styled action bar
+   - Confirmation dialogs with CyberCard
+   - Batch operations with progress indicators
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberTaskForm.e2e.ts that:
+- Tests task creation flow
+- Verifies completion animations
+- Tests swipe interactions
+- Checks XP gain display
+- Tests bulk action confirmations
+```
+
+---
+
+## MVP 11 — Micro-Interactions & Polish
+
+### 11.1 Loading States & Skeletons
+**User Story:** *Loading states have cyber aesthetics with pixel-scan shimmer effects.*
+
+**Acceptance Criteria:**
+- Skeleton loaders with cyber styling
+- Pixel-scan shimmer animation
+- Loading spinners with Ki-Green color
+- Smooth transitions between loading and loaded states
+- Context-aware loading indicators
+
+**Test Cases:** Loading state visual and timing tests
+
+**Implementation Prompt:**
+```
+Create src/shared/components/loading/:
+
+1. CyberSkeleton.tsx:
+   - Gray-800 background matching component shapes
+   - Pixel-scan shimmer with Plasma-Cyan gradient
+   - Animation: 1.5s duration, smooth timing
+   - Variants for text, cards, buttons, images
+
+2. CyberSpinner.tsx:
+   - Ki-Green color with glow effect
+   - Sizes: 16px, 24px, 32px, 48px
+   - Smooth rotation animation
+   - Optional text label
+
+3. Loading transitions:
+   - Fade-in for loaded content
+   - Stagger animations for lists
+   - Skeleton-to-content morphing
+
+Apply to all existing components with loading states.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/shared/components/loading/loading.test.tsx that:
+- Tests skeleton animation timing
+- Verifies shimmer effect rendering
+- Tests spinner size variants
+- Checks loading transition smoothness
+- Tests accessibility attributes
+```
+
+---
+
+### 11.2 Success & Error Feedback
+**User Story:** *User feedback has cyber styling with appropriate animations and effects.*
+
+**Acceptance Criteria:**
+- Success notifications with Ki-Green glow and particle effects
+- Error states with red glow and shake animations
+- Warning states with amber cyber styling
+- Toast notifications with cyber card design
+- Haptic feedback integration for mobile
+
+**Test Cases:** Feedback system interaction tests
+
+**Implementation Prompt:**
+```
+Create src/shared/components/feedback/:
+
+1. CyberToast.tsx:
+   - CyberCard base with semantic color accents
+   - Success: Ki-Green border and glow
+   - Error: Red border and glow
+   - Warning: Amber border and glow
+   - Auto-dismiss with progress bar
+   - Slide-in animation from top
+
+2. Particle effects:
+   - Success: Green particles floating up
+   - Level up: Multi-color particle burst
+   - Achievement: Golden sparkle effect
+
+3. Micro-animations:
+   - Button press: scale + glow pulse
+   - Form success: checkmark draw animation
+   - Error shake: subtle horizontal shake
+
+Integrate with existing form submissions and actions.
+```
+
+**Test‑Code Prompt:**
+```
+Create e2e/CyberFeedback.e2e.ts that:
+- Tests toast notification display
+- Verifies particle effect rendering
+- Tests micro-animation timing
+- Checks accessibility announcements
+- Tests haptic feedback on mobile
+```
+
+---
+
+### 11.3 Transition Animations
+**User Story:** *Page transitions and route changes have cyber-themed animations.*
+
+**Acceptance Criteria:**
+- Page transitions with diagonal rain sweep effect
+- Route changes with smooth slide animations
+- Modal/sheet animations with glow effects
+- Stagger animations for list items
+- Reduced motion support for accessibility
+
+**Test Cases:** Animation performance and accessibility tests
+
+**Implementation Prompt:**
+```
+Create src/shared/animations/:
+
+1. PageTransition.tsx:
+   - Diagonal rain sweep overlay (15° angle)
+   - Slide transitions: translateX(100%) → translateX(0)
+   - Duration: 300ms ease-out
+   - Stagger for multiple elements
+
+2. ModalTransition.tsx:
+   - Scale and fade animations
+   - Backdrop blur with glow effect
+   - Spring-based easing for natural feel
+
+3. ListTransition.tsx:
+   - Stagger animations for list items
+   - Slide-up with fade-in
+   - 50ms delay between items
+
+4. Reduced motion:
+   - Respect prefers-reduced-motion
+   - Fallback to simple fade transitions
+   - Maintain functionality without motion
+
+Apply to router transitions and component animations.
+```
+
+**Test‑Code Prompt:**
+```
+Create src/shared/animations/animations.test.tsx that:
+- Tests animation timing and easing
+- Verifies reduced motion compliance
+- Tests performance with many elements
+- Checks animation cleanup
+- Tests accessibility impact
 ```
 
 ---

@@ -6,6 +6,7 @@ export default function GlobalFab() {
     <Button
       size="icon"
       className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-primary opacity-60 shadow-lg"
+      data-testid="global-fab"
       onClick={() => {
         // FAB actions will be added in later MVPs
         console.log('FAB clicked')

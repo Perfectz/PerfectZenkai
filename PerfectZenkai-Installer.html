@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Zenkai PWA Installer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .install-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .install-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .install-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .qr-code {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .warning { background: rgba(255, 193, 7, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Perfect Zenkai</h1>
+        <p class="subtitle">Progressive Web App Installer</p>
+        
+        <div id="status" class="status warning">
+            📱 Ready to install on your device
+        </div>
+
+        <button id="installBtn" class="install-btn" onclick="installPWA()">
+            📲 Install Perfect Zenkai
+        </button>
+
+        <div class="instructions">
+            <h3>📋 Installation Instructions</h3>
+            
+            <div class="step">
+                <strong>🤖 Android (Chrome/Edge):</strong><br>
+                1. Open this page in Chrome or Edge<br>
+                2. Look for "Add to Home Screen" popup<br>
+                3. Or tap menu (⋮) → "Install app"
+            </div>
+            
+            <div class="step">
+                <strong>🍎 iPhone/iPad (Safari):</strong><br>
+                1. Open this page in Safari<br>
+                2. Tap Share button (□↗)<br>
+                3. Select "Add to Home Screen"
+            </div>
+            
+            <div class="step">
+                <strong>💻 Desktop (Chrome/Edge):</strong><br>
+                1. Look for install icon in address bar<br>
+                2. Or click the install button above
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🌐 Network Installation</h3>
+            <p>If you're on the same network as the host computer:</p>
+            <div class="step">
+                <strong>URL:</strong> http://100.80.217.15:8080<br>
+                <small>Make sure both devices are on the same WiFi network</small>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📦 Offline Installation</h3>
+            <div class="step">
+                1. Extract the <strong>PerfectZenkai-PWA.zip</strong> file<br>
+                2. Open <strong>index.html</strong> in your browser<br>
+                3. Follow the installation prompts
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const status = document.getElementById('status');
+
+        // Check if PWA is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            status.textContent = '✅ Perfect Zenkai is already installed!';
+            status.className = 'status success';
+            installBtn.style.display = 'none';
+        }
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+            status.textContent = '📱 Ready to install - click the button below!';
+            status.className = 'status success';
+        });
+
+        // Install PWA function
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    status.textContent = '🎉 Perfect Zenkai installed successfully!';
+                    status.className = 'status success';
+                    installBtn.style.display = 'none';
+                } else {
+                    status.textContent = '❌ Installation cancelled';
+                    status.className = 'status error';
+                }
+                deferredPrompt = null;
+            } else {
+                // Fallback instructions
+                status.textContent = '📋 Please follow the manual installation instructions above';
+                status.className = 'status warning';
+            }
+        }
+
+        // Listen for successful installation
+        window.addEventListener('appinstalled', () => {
+            status.textContent = '🎉 Perfect Zenkai installed successfully!';
+            status.className = 'status success';
+            installBtn.style.display = 'none';
+        });
+
+        // Service Worker registration for PWA functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(() => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html> 

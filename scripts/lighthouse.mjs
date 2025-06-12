@@ -42,7 +42,12 @@ async function runLighthouse() {
       'autorun',
       '--collect.url=http://localhost:4173',
       '--collect.numberOfRuns=1',
-      '--assert.preset=lighthouse:no-pwa',
+      '--assert.preset=lighthouse:recommended',
+      '--assert.assertions.pwa=0.9',
+      '--assert.assertions.performance=0.8',
+      '--assert.assertions.accessibility=0.9',
+      '--assert.assertions.best-practices=0.9',
+      '--assert.assertions.seo=0.8',
       '--upload.target=temporary-public-storage'
     ])
     
