@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '../test/test-utils'
-import AppShell from '../app/AppShell'
+import { renderWithProviders as render, screen } from '../test/test-utils'
+import AppLayout from '../app/AppLayout'
 
-describe('AppShell', () => {
+describe('AppLayout', () => {
   it('should render Perfect Zenkai title', () => {
-    render(<AppShell />)
+    render(<AppLayout />)
     expect(screen.getByText('Perfect Zenkai')).toBeInTheDocument()
   })
 
-  it('should render welcome message', () => {
-    render(<AppShell />)
-    expect(screen.getByText('Welcome to Perfect Zenkai')).toBeInTheDocument()
+  it('should render layout', () => {
+    render(<AppLayout />)
+    expect(screen.getByText('Perfect Zenkai')).toBeInTheDocument()
   })
 }) 

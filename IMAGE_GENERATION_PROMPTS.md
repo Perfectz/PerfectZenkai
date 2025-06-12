@@ -7,15 +7,16 @@ This file contains all prompts needed to generate images for the Perfect Zenkai 
 ### 1. Main App Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a minimalist app icon for "Perfect Zenkai" fitness tracking app. Design should be:
-- Circular or rounded square format suitable for iOS/Android
-- Dark navy blue background (#111827)
-- White/silver geometric symbol representing growth, progress, and zen
-- Clean, modern flat design with subtle gradient
-- Scalable vector style
-- No text, just the symbol
-- Think: upward arrow, mountain peak, or abstract "Z" shape
-- 1024x1024px resolution
+Create a cyber-ninja app icon for "Perfect Zenkai" AI-powered fitness tracker:
+- Circular ninja-Z emblem with cyber aesthetics
+- Dark navy background (#111827) with subtle digital grid pattern
+- Ki-Green (#22FFB7) neon glow around a stylized "Z" or ninja shuriken
+- Cel-shaded style with neon rim lighting
+- Geometric, angular design with sharp edges
+- Subtle Plasma-Cyan (#1BE7FF) accent highlights
+- Synthwave/cyberpunk aesthetic
+- 1024x1024px resolution, suitable for iOS/Android
+- No text, pure symbol design
 ```
 
 **Photoshop Editing:**
@@ -32,14 +33,15 @@ Create a minimalist app icon for "Perfect Zenkai" fitness tracking app. Design s
 ### 2. Weight Scale Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Design a minimalist weight scale icon for mobile app navigation:
-- Simple line art style, single stroke weight
-- Digital scale with clean geometric lines
-- White/light color on transparent background
+Design a cyber-themed weight scale icon for navigation:
+- Futuristic digital scale with angular, geometric design
+- Ki-Green (#22FFB7) neon outline with subtle glow effect
+- 2px stroke weight, clean vector lines
+- Cyberpunk aesthetic with sharp edges and tech details
 - 24x24px optimal size, scalable vector
-- Modern, friendly appearance
-- No shadows or 3D effects
-- Suitable for dark theme UI
+- Transparent background
+- Suitable for dark cyber UI theme
+- Optional: small digital display or holographic elements
 ```
 
 **Photoshop Editing:**
@@ -52,14 +54,15 @@ Design a minimalist weight scale icon for mobile app navigation:
 ### 3. Tasks/Checklist Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a clean checklist icon for task management:
-- Minimalist checkbox with checkmark
-- Simple line art, consistent stroke weight
-- White/light color on transparent background
-- Modern, geometric style
+Create a cyber-ninja quest/task icon:
+- Futuristic checklist or mission briefing interface
+- Ki-Green (#22FFB7) neon checkmarks with glow effect
+- Angular, geometric checkbox design with tech details
+- 2px stroke weight, cyberpunk aesthetic
 - 24x24px optimal, vector scalable
-- Friendly and approachable design
-- No gradients or shadows
+- Transparent background
+- Sharp edges and digital/holographic styling
+- Suggests ninja missions or cyber quests
 ```
 
 **Photoshop Editing:**
@@ -68,14 +71,15 @@ Create a clean checklist icon for task management:
 ### 4. Dashboard/Home Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Design a modern dashboard/home icon:
-- Abstract representation of charts or grid layout
-- Clean geometric shapes (squares, lines)
-- Minimalist line art style
-- White/light color on transparent background
+Design a cyber-ninja command center/dashboard icon:
+- Futuristic HUD interface with angular grid layout
+- Ki-Green (#22FFB7) neon lines forming data visualization
+- Geometric shapes suggesting holographic displays
+- 2px stroke weight, cyberpunk aesthetic
 - 24x24px optimal, vector scalable
-- Suggests data visualization and overview
-- Modern, professional appearance
+- Transparent background
+- Sharp, angular design with tech details
+- Suggests ninja command center or cyber interface
 ```
 
 **Photoshop Editing:**
@@ -88,14 +92,15 @@ Design a modern dashboard/home icon:
 ### 5. Weight Card Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a weight tracking card icon for dashboard:
-- Stylized scale or weight symbol
-- Slightly larger than navigation icons (32x32px optimal)
-- Light gray color (#9CA3AF) for subtle appearance
-- Clean line art, 2px stroke weight
-- Suitable for card headers
-- Professional, health-focused design
+Create a cyber-themed weight tracking card icon:
+- Futuristic digital scale with holographic display
+- 32x32px optimal size with more detail than nav icons
+- Ki-Green (#22FFB7) neon glow with subtle Plasma-Cyan accents
+- Angular, geometric design with tech details
+- 2px stroke weight, cyberpunk aesthetic
+- Suitable for dashboard card headers
 - Vector scalable, transparent background
+- Optional: floating data points or energy readings
 ```
 
 **Photoshop Editing:**
@@ -107,14 +112,15 @@ Create a weight tracking card icon for dashboard:
 ### 6. Tasks Card Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Design a tasks/productivity card icon:
-- Checklist or task symbol
-- 32x32px optimal size
-- Light gray color (#9CA3AF)
-- Clean, professional line art
-- Slightly more detailed than navigation version
-- Suggests productivity and completion
+Design a cyber-ninja quest card icon:
+- Futuristic mission briefing or quest scroll with tech elements
+- 32x32px optimal size with enhanced detail
+- Ki-Green (#22FFB7) neon glow with Plasma-Cyan highlights
+- Angular, geometric design with cyberpunk aesthetics
+- 2px stroke weight, sharp edges
+- Suggests ninja missions and cyber quests
 - Vector scalable, transparent background
+- Optional: holographic checkmarks or data streams
 ```
 
 **Photoshop Editing:**
@@ -123,14 +129,15 @@ Design a tasks/productivity card icon:
 ### 7. Streak Card Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a consistency streak icon:
-- Stylized flame, fire, or streak symbol
-- Represents consistency and momentum
+Create a cyber-ninja momentum/streak icon:
+- Futuristic flame or energy streak with neon glow
+- Angular, geometric flame design with sharp edges
 - 32x32px optimal size
-- Light gray color (#9CA3AF)
-- Dynamic, energetic feel while remaining minimal
-- Clean line art style
+- Ki-Green (#22FFB7) neon core with Hyper-Magenta (#FF2EEA) outer glow
+- Dynamic, energetic cyberpunk aesthetic
+- 2px stroke weight with glow effects
 - Vector scalable, transparent background
+- Suggests digital energy and ninja momentum
 ```
 
 **Photoshop Editing:**
@@ -143,37 +150,39 @@ Create a consistency streak icon:
 ### 8. Main Logo
 **ChatGPT/Midjourney Prompt:**
 ```
-Design the Perfect Zenkai logo:
-- Horizontal layout with text "Perfect Zenkai"
-- Clean, modern sans-serif font (similar to Inter or Roboto)
-- Geometric accent mark or symbol to the left
-- Dark navy (#111827) and white versions
-- Professional, fitness/wellness aesthetic
+Design the Perfect Zenkai cyber-ninja logo:
+- Horizontal layout with "Perfect Zenkai" in Press Start 2P pixel font
+- Geometric ninja-Z symbol to the left with Ki-Green (#22FFB7) glow
+- Dark navy (#111827) background and white text versions
+- Cyberpunk/synthwave aesthetic with neon accents
+- Sharp, angular design elements
 - Scalable for various sizes
-- Suitable for app headers and marketing
+- Suitable for app headers and cyber-themed marketing
+- Optional: subtle digital grid pattern or glow effects
 ```
 
 **Photoshop Editing:**
-1. **Typography**: Use system fonts (Inter, SF Pro, Roboto)
-2. **Versions**: Create white and dark versions
+1. **Typography**: Use Press Start 2P font for cyber aesthetic
+2. **Versions**: Create white and dark versions with neon glow variants
 3. **Formats**: SVG for web, PNG for raster needs
 4. **Sizes**: Multiple sizes (logo-sm, logo-md, logo-lg)
-5. **Spacing**: Proper letter spacing and padding
+5. **Glow Effects**: Add Ki-Green glow layers for neon effect
 
 ### 9. Wordmark Only
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a text-only wordmark for "Perfect Zenkai":
-- Clean, modern typography
-- Slightly bold weight for readability
-- Professional, tech-forward appearance
-- Dark and light versions
+Create a cyber-ninja wordmark for "Perfect Zenkai":
+- Press Start 2P pixel font for retro-futuristic feel
+- Bold, blocky letterforms with excellent readability
+- Cyberpunk aesthetic with optional neon glow effects
+- Dark navy and white versions
 - Suitable for headers and splash screens
-- Excellent legibility at small sizes
+- Ki-Green (#22FFB7) accent version for special use
+- Maintains legibility at small sizes despite pixel styling
 ```
 
 **Photoshop Editing:**
-- Same as Main Logo above, text only
+- Same as Main Logo above, text only with glow effects
 
 ---
 
@@ -182,38 +191,40 @@ Create a text-only wordmark for "Perfect Zenkai":
 ### 10. No Weight Data
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a friendly empty state illustration for weight tracking:
-- Simple line art of a scale with dotted lines suggesting "no data"
-- Encouraging, positive mood (not sad or negative)
-- Minimal color palette: navy accent on light background
+Create a cyber-ninja empty state for weight tracking:
+- Futuristic digital scale with holographic display showing "NO DATA"
+- Encouraging, motivational cyberpunk aesthetic
+- Dark navy (#111827) background with Ki-Green (#22FFB7) neon accents
 - 200x200px optimal size
-- Friendly, approachable style
-- Suggests potential and opportunity
-- Clean, modern illustration style
+- Cel-shaded style with neon rim lighting
+- Diagonal rain effect at 15° angle
+- Suggests digital potential and cyber journey beginning
+- Angular, geometric illustration with glow effects
 ```
 
 **Photoshop Editing:**
 1. **Size**: 200x200px base, create 150x150 and 100x100 variants
-2. **Colors**: Use app color palette (navy #111827, light grays)
+2. **Colors**: Use cyber color palette (Ki-Green, Plasma-Cyan, navy)
 3. **Format**: SVG preferred for scalability
-4. **Opacity**: Design for 60% opacity usage
-5. **Background**: Transparent
+4. **Glow Effects**: Add neon glow layers for cyberpunk feel
+5. **Background**: Transparent with optional rain overlay
 
 ### 11. No Todos/Tasks
 **ChatGPT/Midjourney Prompt:**
 ```
-Design an empty state for task list:
-- Clean illustration of empty clipboard or checklist
-- Positive, encouraging feeling
-- Simple line art style matching weight illustration
-- Minimal color palette with navy accent
+Create a cyber-ninja empty quest state:
+- Futuristic mission terminal or quest interface showing "NO ACTIVE QUESTS"
+- Encouraging cyberpunk aesthetic with motivational message
+- Dark navy (#111827) background with Ki-Green (#22FFB7) and Plasma-Cyan accents
 - 200x200px optimal size
-- Suggests productivity potential
-- Friendly, motivational appearance
+- Cel-shaded style with neon rim lighting
+- Angular, geometric design with holographic elements
+- Diagonal rain effect at 15° angle
+- Suggests ninja missions waiting to be discovered
 ```
 
 **Photoshop Editing:**
-- Same as No Weight Data above
+- Same as No Weight Data above with cyber quest theming
 
 ---
 
@@ -222,37 +233,39 @@ Design an empty state for task list:
 ### 12. Install Prompt Illustration
 **ChatGPT/Midjourney Prompt:**
 ```
-Create an app installation prompt illustration:
-- Smartphone with Perfect Zenkai app icon on screen
-- Welcoming, friendly style
-- Minimal color palette with navy accent
+Create a cyber-ninja app installation illustration:
+- Futuristic smartphone with Perfect Zenkai app icon glowing on screen
+- Cyberpunk aesthetic with neon accents and glow effects
+- Dark navy background with Ki-Green (#22FFB7) and Plasma-Cyan highlights
 - 300x200px landscape format
-- Modern, clean illustration style
-- Suggests ease of installation
-- Positive, encouraging mood
+- Cel-shaded style with neon rim lighting
+- Diagonal rain effect at 15° angle
+- Angular, geometric design suggesting digital transformation
+- Encouraging cyber-themed installation message
 ```
 
 **Photoshop Editing:**
 1. **Format**: Landscape 300x200px
-2. **Colors**: Match app branding
-3. **Export**: SVG and PNG versions
-4. **Mobile**: Ensure readability on small screens
+2. **Colors**: Match cyber color palette
+3. **Export**: SVG and PNG versions with glow effects
+4. **Mobile**: Ensure readability with high contrast neon elements
 
 ### 13. Welcome Screen
 **ChatGPT/Midjourney Prompt:**
 ```
-Design a welcome screen illustration:
-- Abstract representation of fitness tracking and progress
-- Upward trending elements (charts, arrows)
-- Minimal, modern style
-- Navy and light color palette
+Design a cyber-ninja welcome screen illustration:
+- Abstract ninja silhouette with digital transformation elements
+- Upward trending holographic charts and data streams
+- Cyberpunk aesthetic with synthwave gradients
+- Ki-Green (#22FFB7) to Plasma-Cyan (#1BE7FF) gradient elements
 - 400x300px format
-- Inspiring and motivational feeling
-- Clean, professional appearance
+- Cel-shaded style with neon rim lighting
+- Diagonal rain effect and particle systems
+- Inspiring cyber-ninja transformation theme
 ```
 
 **Photoshop Editing:**
-- Same as Install Prompt above, different dimensions
+- Same as Install Prompt above, different dimensions with gradient effects
 
 ---
 
@@ -261,65 +274,67 @@ Design a welcome screen illustration:
 ### 14. Push Notification Icon
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a small notification icon for daily reminders:
-- Simple scale or wellness symbol
-- High contrast for notification display
+Create a cyber-ninja notification icon for daily reminders:
+- Futuristic scale or ninja shuriken symbol
+- High contrast cyberpunk design
 - 24x24px and 48x48px versions
-- Black and white or single color
+- Ki-Green (#22FFB7) on dark background or white on system background
+- Angular, geometric design with sharp edges
 - Clear at very small sizes
-- Professional, health-focused
-- Suitable for system notifications
+- Suitable for system notifications with cyber aesthetic
 ```
 
 **Photoshop Editing:**
 1. **Sizes**: 24x24px and 48x48px
 2. **Format**: PNG with transparency
-3. **Contrast**: High contrast for visibility
-4. **Colors**: Black, white, or single brand color
-5. **Testing**: Test at actual notification size
+3. **Contrast**: High contrast for visibility with neon accents
+4. **Colors**: Ki-Green primary, white fallback
+5. **Testing**: Test at actual notification size with glow effects
 
 ---
 
 ## 🎭 Background Elements
 
-### 15. Subtle Pattern
+### 15. Cyber Grid Pattern
 **ChatGPT/Midjourney Prompt:**
 ```
-Design a subtle background pattern:
-- Very low opacity geometric pattern
-- Dark theme compatible
-- Minimal, non-distracting
-- Repeatable tile pattern
+Design a cyber-ninja background grid pattern:
+- Subtle digital grid with neon line intersections
+- Very low opacity geometric pattern (5-10%)
+- Dark theme compatible with cyberpunk aesthetic
+- Repeatable tile pattern with seamless edges
 - 200x200px tile size
-- Enhances UI without overwhelming
-- Modern, tech aesthetic
+- Ki-Green (#22FFB7) accent lines with glow
+- Angular, geometric grid suggesting digital space
+- Enhances UI without overwhelming content
 ```
 
 **Photoshop Editing:**
 1. **Opacity**: 5-10% maximum opacity
-2. **Tiling**: Ensure seamless tiling
-3. **Format**: SVG or PNG
+2. **Tiling**: Ensure seamless tiling with grid alignment
+3. **Format**: SVG or PNG with transparency
 4. **Testing**: Test with actual UI content
-5. **Colors**: Very subtle, muted tones
+5. **Glow**: Subtle glow effects on grid intersections
 
-### 16. Progress Background
+### 16. Diagonal Rain Overlay
 **ChatGPT/Midjourney Prompt:**
 ```
-Create a subtle background for progress charts:
-- Abstract upward trending elements
-- Very subtle, low opacity
-- Suggests growth and improvement
-- 400x200px format
+Create a cyber-ninja diagonal rain effect:
+- Diagonal lines at 15° angle suggesting digital rain
+- Very subtle, low opacity (10-15%)
+- Ki-Green (#22FFB7) and Plasma-Cyan (#1BE7FF) accent lines
+- 400x400px seamless pattern
 - Compatible with dark theme
-- Enhances data visualization
-- Minimal, professional style
+- Enhances cyberpunk atmosphere
+- Minimal, non-distracting overlay effect
 ```
 
 **Photoshop Editing:**
 1. **Opacity**: 10-15% maximum
-2. **Format**: SVG preferred
-3. **Colors**: Subtle gradients or single color
-4. **Testing**: Test with actual chart data
+2. **Format**: SVG preferred for scalability
+3. **Colors**: Subtle neon gradients
+4. **Testing**: Test with actual content for readability
+5. **Animation**: Consider animated version for special effects
 
 ---
 
@@ -329,49 +344,62 @@ Create a subtle background for progress charts:
 1. **Import**: Import AI-generated images at highest resolution
 2. **Clean Up**: Remove artifacts, ensure clean edges
 3. **Vectorize**: Convert to vector shapes when possible
-4. **Color Palette**: Apply consistent brand colors
+4. **Cyber Styling**: Apply consistent neon glow effects and sharp edges
 5. **Export**: Multiple formats and sizes as needed
 
+### Cyber-Specific Editing:
+- **Glow Effects**: Use outer glow with Ki-Green (#22FFB7) color
+- **Sharp Edges**: Maintain angular, geometric shapes
+- **Color Grading**: Apply cyberpunk color palette consistently
+- **Rain Effects**: Add diagonal line overlays at 15° angle
+- **Neon Accents**: Use drop shadows and outer glows for neon feel
+
 ### Export Settings:
-- **SVG**: For icons and scalable graphics
+- **SVG**: For icons and scalable graphics with glow effects
 - **PNG**: For raster images, use PNG-24 with transparency
 - **ICO**: For favicons, include multiple sizes in one file
 - **WebP**: For web optimization when supported
 
 ### Quality Checklist:
-- [ ] Consistent stroke weights across all icons
-- [ ] Proper padding/safe areas
-- [ ] Brand color compliance
+- [ ] Consistent cyber color palette (Ki-Green, Hyper-Magenta, Plasma-Cyan)
+- [ ] Angular, geometric shapes with sharp edges
+- [ ] Appropriate glow effects and neon styling
+- [ ] Press Start 2P font for text elements
+- [ ] Diagonal rain effects where appropriate
+- [ ] High contrast for accessibility
+- [ ] Seamless tiling for patterns
 - [ ] Multiple size variants
 - [ ] Transparent backgrounds where needed
 - [ ] Optimized file sizes
 - [ ] Cross-platform compatibility
 
 ### File Naming Convention:
-- Icons: `weight.svg`, `tasks.svg`, `dashboard.svg`
-- Illustrations: `no-weight-data.svg`, `install-prompt.svg`
-- Branding: `logo.svg`, `wordmark.svg`
-- Sizes: `icon-192.png`, `icon-512.png`
+- Icons: `cyber-weight.svg`, `cyber-tasks.svg`, `cyber-dashboard.svg`
+- Illustrations: `cyber-no-weight-data.svg`, `cyber-install-prompt.svg`
+- Branding: `cyber-logo.svg`, `cyber-wordmark.svg`
+- Patterns: `cyber-grid-pattern.svg`, `diagonal-rain-overlay.svg`
+- Sizes: `cyber-icon-192.png`, `cyber-icon-512.png`
 
 ---
 
-## 📱 Testing Your Images
+## 📱 Testing Your Cyber Images
 
 After editing, test your images:
 1. **Import** into the app using the folder structure
 2. **Run** `pnpm dev` to check for errors
-3. **View** on actual mobile devices
-4. **Check** dark/light theme compatibility
-5. **Verify** PWA installation works with icons
+3. **View** on actual mobile devices in dark mode
+4. **Check** glow effects render correctly across devices
+5. **Verify** PWA installation works with cyber icons
 6. **Test** notification icons in system notifications
+7. **Validate** accessibility with high contrast mode
 
-## 🎨 Color Reference
+## 🎨 Cyber Color Reference
 
 Use these colors consistently:
-- **Primary Navy**: #111827
-- **Light Gray**: #E5E7EB
-- **Medium Gray**: #9CA3AF
-- **White**: #FFFFFF
-- **Accent**: Use sparingly for highlights
+- **Ki-Green**: #22FFB7 (primary CTA, success, active states)
+- **Hyper-Magenta**: #FF2EEA (accent, FAB, level badges)
+- **Plasma-Cyan**: #1BE7FF (secondary actions, links, gradients)
+- **Dark Navy**: #111827 (backgrounds, containers)
+- **White**: #FFFFFF (primary text, icons)
 
-Generate all images with these prompts, edit them in Photoshop following the guidelines, and place them in the folder structure created earlier!
+Generate all images with these cyber-ninja prompts, edit them in Photoshop following the cyberpunk guidelines, and place them in the folder structure for the ultimate cyber fitness experience!
