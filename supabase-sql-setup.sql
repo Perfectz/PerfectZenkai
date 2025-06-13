@@ -26,7 +26,54 @@ BEGIN
 END $$;
 
 -- =====================================================
--- 2. CREATE SECURE USER LOOKUP VIEW
+-- 2. CREATE DATA TABLES FOR USER CONTENT
+-- =====================================================
+
+-- Weight entries table
+CREATE TABLE IF NOT EXISTS public.weight_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  date_iso DATE NOT NULL,
+  kg DECIMAL(5,2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, date_iso) -- One weight entry per day per user
+);
+
+-- Tasks/Todos table
+CREATE TABLE IF NOT EXISTS public.todos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  text TEXT NOT NULL,
+  done BOOLEAN DEFAULT FALSE,
+  priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+  category TEXT DEFAULT 'other' CHECK (category IN ('work', 'personal', 'health', 'learning', 'other')),
+  due_date DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Subtasks table
+CREATE TABLE IF NOT EXISTS public.subtasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  todo_id UUID REFERENCES public.todos(id) ON DELETE CASCADE NOT NULL,
+  text TEXT NOT NULL,
+  done BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Notes table
+CREATE TABLE IF NOT EXISTS public.notes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  content TEXT DEFAULT '',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- =====================================================
+-- 3. CREATE SECURE USER LOOKUP VIEW
 -- =====================================================
 -- This view allows public username lookups without exposing sensitive data
 DROP VIEW IF EXISTS public.user_lookup;
@@ -40,11 +87,15 @@ JOIN public.profiles p ON au.id = p.id
 WHERE p.username IS NOT NULL;
 
 -- =====================================================
--- 3. ROW LEVEL SECURITY SETUP
+-- 4. ROW LEVEL SECURITY SETUP
 -- =====================================================
 
--- Enable RLS on profiles table
+-- Enable RLS on all tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.weight_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.todos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.subtasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist (handle all possible variations)
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
@@ -77,8 +128,38 @@ CREATE POLICY "Public username availability check"
   FOR SELECT 
   USING (true);
 
+-- Weight entries policies
+CREATE POLICY "Users can access their own weight entries" 
+  ON public.weight_entries 
+  FOR ALL 
+  USING (auth.uid() = user_id);
+
+-- Todos policies
+CREATE POLICY "Users can access their own todos" 
+  ON public.todos 
+  FOR ALL 
+  USING (auth.uid() = user_id);
+
+-- Subtasks policies (access through parent todo)
+CREATE POLICY "Users can access subtasks of their todos" 
+  ON public.subtasks 
+  FOR ALL 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.todos 
+      WHERE todos.id = subtasks.todo_id 
+      AND todos.user_id = auth.uid()
+    )
+  );
+
+-- Notes policies
+CREATE POLICY "Users can access their own notes" 
+  ON public.notes 
+  FOR ALL 
+  USING (auth.uid() = user_id);
+
 -- =====================================================
--- 4. AUTOMATIC PROFILE CREATION TRIGGER
+-- 5. AUTOMATIC PROFILE CREATION TRIGGER
 -- =====================================================
 
 -- Function to create profile automatically
@@ -103,78 +184,76 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- =====================================================
--- 5. PERFORMANCE INDEXES
+-- 6. UPDATED_AT TRIGGERS
+-- =====================================================
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add updated_at triggers to all tables
+CREATE TRIGGER handle_profiles_updated_at
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER handle_weight_entries_updated_at
+  BEFORE UPDATE ON public.weight_entries
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER handle_todos_updated_at
+  BEFORE UPDATE ON public.todos
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER handle_notes_updated_at
+  BEFORE UPDATE ON public.notes
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- =====================================================
+-- 7. PERFORMANCE INDEXES
 -- =====================================================
 
 -- Index for username lookups
 CREATE INDEX IF NOT EXISTS profiles_username_idx ON public.profiles(username);
-CREATE INDEX IF NOT EXISTS profiles_username_lower_idx ON public.profiles(LOWER(username));
+
+-- Indexes for weight entries
+CREATE INDEX IF NOT EXISTS weight_entries_user_id_idx ON public.weight_entries(user_id);
+CREATE INDEX IF NOT EXISTS weight_entries_date_idx ON public.weight_entries(date_iso);
+
+-- Indexes for todos
+CREATE INDEX IF NOT EXISTS todos_user_id_idx ON public.todos(user_id);
+CREATE INDEX IF NOT EXISTS todos_created_at_idx ON public.todos(created_at);
+CREATE INDEX IF NOT EXISTS todos_due_date_idx ON public.todos(due_date);
+
+-- Indexes for subtasks
+CREATE INDEX IF NOT EXISTS subtasks_todo_id_idx ON public.subtasks(todo_id);
+
+-- Indexes for notes
+CREATE INDEX IF NOT EXISTS notes_user_id_idx ON public.notes(user_id);
+CREATE INDEX IF NOT EXISTS notes_created_at_idx ON public.notes(created_at);
 
 -- =====================================================
--- 6. GRANT PERMISSIONS
+-- 8. GRANT PERMISSIONS
 -- =====================================================
 
--- Grant permissions for authenticated users
+-- Grant necessary permissions
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
-GRANT SELECT, INSERT, UPDATE ON public.profiles TO authenticated;
-GRANT SELECT ON public.user_lookup TO anon, authenticated;
-
--- Grant usage on sequences if any
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
 -- =====================================================
--- 7. TEST DATA VERIFICATION
+-- SETUP COMPLETE
 -- =====================================================
-
--- Check if test users exist and create profiles if missing
-DO $$
-DECLARE
-  test_user_1 UUID;
-  test_user_2 UUID;
-BEGIN
-  -- Find test user 1
-  SELECT id INTO test_user_1 
-  FROM auth.users 
-  WHERE email = 'testuser1@perfectzenkai.test';
-  
-  -- Create profile for test user 1 if user exists but profile doesn't
-  IF test_user_1 IS NOT NULL THEN
-    INSERT INTO public.profiles (id, username)
-    VALUES (test_user_1, 'testuser1')
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
-  
-  -- Find test user 2
-  SELECT id INTO test_user_2 
-  FROM auth.users 
-  WHERE email = 'testuser2@perfectzenkai.test';
-  
-  -- Create profile for test user 2 if user exists but profile doesn't
-  IF test_user_2 IS NOT NULL THEN
-    INSERT INTO public.profiles (id, username)
-    VALUES (test_user_2, 'testuser2')
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
-  
-  -- Find the perfectz user and create profile if missing
-  SELECT id INTO test_user_1 
-  FROM auth.users 
-  WHERE email = 'pzgambo@gmail.com';
-  
-  IF test_user_1 IS NOT NULL THEN
-    INSERT INTO public.profiles (id, username)
-    VALUES (test_user_1, 'perfectz')
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
-END $$;
-
--- =====================================================
--- 8. VERIFICATION QUERIES
--- =====================================================
-
--- Verify the setup
-SELECT 'Profiles table exists' as status, count(*) as profile_count FROM public.profiles;
-SELECT 'User lookup view works' as status, count(*) as lookup_count FROM public.user_lookup;
-
--- Show test users
-SELECT 'Test users' as status, username, email FROM public.user_lookup WHERE username IN ('testuser1', 'testuser2', 'perfectz'); 
+-- Your database is now ready for PerfectZenkai!
+-- 
+-- Next steps:
+-- 1. Update your app to use Supabase repositories
+-- 2. Test the authentication flow
+-- 3. Verify data is being saved to Supabase tables
+-- 
+-- You can view your data in the Supabase dashboard:
+-- https://supabase.com/dashboard/project/kslvxxoykdkstnkjgpnd/editor 

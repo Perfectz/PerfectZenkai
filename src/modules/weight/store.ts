@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { WeightEntry } from './types'
-import { weightRepo } from './repo'
+import { hybridWeightRepo } from './repo'
+import { useAuthStore } from '@/modules/auth'
 
 interface WeightState {
   weights: WeightEntry[]
@@ -24,7 +25,11 @@ export const useWeightStore = create<WeightState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      const newEntry = await weightRepo.addWeight(entry)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      const newEntry = await hybridWeightRepo.addWeight(entry, userId)
 
       set((state) => ({
         weights: [newEntry, ...state.weights].sort(
@@ -39,7 +44,14 @@ export const useWeightStore = create<WeightState>((set, get) => ({
       if (newEntry.dateISO === today) {
         localStorage.setItem(`weight-logged-${today}`, 'true')
       }
+
+      console.log('✅ Weight saved successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        entry: newEntry 
+      })
     } catch (error) {
+      console.error('❌ Failed to save weight:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to add weight',
         isLoading: false,
@@ -52,13 +64,24 @@ export const useWeightStore = create<WeightState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      await weightRepo.deleteWeight(id)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridWeightRepo.deleteWeight(id, userId)
 
       set((state) => ({
         weights: state.weights.filter((w) => w.id !== id),
         isLoading: false,
       }))
+
+      console.log('✅ Weight deleted successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        id 
+      })
     } catch (error) {
+      console.error('❌ Failed to delete weight:', error)
       set({
         error:
           error instanceof Error ? error.message : 'Failed to delete weight',
@@ -72,10 +95,21 @@ export const useWeightStore = create<WeightState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      const weights = await weightRepo.getAllWeights()
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      const weights = await hybridWeightRepo.getAllWeights(userId)
 
       set({ weights, isLoading: false })
+
+      console.log('✅ Weights loaded successfully:', { 
+        count: weights.length,
+        source: userId ? 'Supabase' : 'Local',
+        userId 
+      })
     } catch (error) {
+      console.error('❌ Failed to load weights:', error)
       set({
         error:
           error instanceof Error ? error.message : 'Failed to load weights',

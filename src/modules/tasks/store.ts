@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
-import { tasksRepo } from './repo'
+import { hybridTasksRepo, tasksRepo } from './repo'
+import { useAuthStore } from '@/modules/auth'
 
 interface TasksState {
   todos: Todo[]
@@ -51,13 +52,31 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      const newTodo = await tasksRepo.addTodo(todo)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      // Add the missing fields for the repository
+      const todoWithTimestamps = {
+        ...todo,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
+      const newTodo = await hybridTasksRepo.addTodo(todoWithTimestamps, userId)
 
       set((state) => ({
         todos: [newTodo, ...state.todos],
         isLoading: false,
       }))
+
+      console.log('✅ Todo saved successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        todo: newTodo 
+      })
     } catch (error) {
+      console.error('❌ Failed to save todo:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to add todo',
         isLoading: false,
@@ -70,7 +89,11 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      await tasksRepo.updateTodo(id, updates)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridTasksRepo.updateTodo(id, updates, userId)
 
       set((state) => ({
         todos: state.todos.map((todo) =>
@@ -80,7 +103,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         ),
         isLoading: false,
       }))
+
+      console.log('✅ Todo updated successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        id, updates 
+      })
     } catch (error) {
+      console.error('❌ Failed to update todo:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to update todo',
         isLoading: false,
@@ -93,13 +123,24 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      await tasksRepo.deleteTodo(id)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridTasksRepo.deleteTodo(id, userId)
 
       set((state) => ({
         todos: state.todos.filter((todo) => todo.id !== id),
         isLoading: false,
       }))
+
+      console.log('✅ Todo deleted successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        id 
+      })
     } catch (error) {
+      console.error('❌ Failed to delete todo:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to delete todo',
         isLoading: false,
@@ -119,10 +160,21 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     try {
       set({ isLoading: true, error: null })
 
-      const todos = await tasksRepo.getAllTodos()
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      const todos = await hybridTasksRepo.getAllTodos(userId)
 
       set({ todos, isLoading: false })
+
+      console.log('✅ Todos loaded successfully:', { 
+        count: todos.length,
+        source: userId ? 'Supabase' : 'Local',
+        userId 
+      })
     } catch (error) {
+      console.error('❌ Failed to load todos:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to load todos',
         isLoading: false,
@@ -133,10 +185,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   // Subtask Actions
   addSubtask: async (todoId, subtaskText) => {
     try {
-      await tasksRepo.addSubtask(todoId, subtaskText)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridTasksRepo.addSubtask(todoId, subtaskText, userId)
 
       // Refresh the specific todo
-      const updatedTodo = await tasksRepo.getTodoById(todoId)
+      const updatedTodo = await hybridTasksRepo.getTodoById(todoId, userId)
       if (updatedTodo) {
         set((state) => ({
           todos: state.todos.map((todo) =>
@@ -144,7 +200,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
           ),
         }))
       }
+
+      console.log('✅ Subtask added successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        todoId, subtaskText 
+      })
     } catch (error) {
+      console.error('❌ Failed to add subtask:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to add subtask',
       })
@@ -154,10 +217,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   updateSubtask: async (todoId, subtaskId, updates) => {
     try {
-      await tasksRepo.updateSubtask(todoId, subtaskId, updates)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridTasksRepo.updateSubtask(todoId, subtaskId, updates, userId)
 
       // Refresh the specific todo
-      const updatedTodo = await tasksRepo.getTodoById(todoId)
+      const updatedTodo = await hybridTasksRepo.getTodoById(todoId, userId)
       if (updatedTodo) {
         set((state) => ({
           todos: state.todos.map((todo) =>
@@ -165,7 +232,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
           ),
         }))
       }
+
+      console.log('✅ Subtask updated successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        todoId, subtaskId, updates 
+      })
     } catch (error) {
+      console.error('❌ Failed to update subtask:', error)
       set({
         error:
           error instanceof Error ? error.message : 'Failed to update subtask',
@@ -176,10 +250,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   deleteSubtask: async (todoId, subtaskId) => {
     try {
-      await tasksRepo.deleteSubtask(todoId, subtaskId)
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      await hybridTasksRepo.deleteSubtask(todoId, subtaskId, userId)
 
       // Refresh the specific todo
-      const updatedTodo = await tasksRepo.getTodoById(todoId)
+      const updatedTodo = await hybridTasksRepo.getTodoById(todoId, userId)
       if (updatedTodo) {
         set((state) => ({
           todos: state.todos.map((todo) =>
@@ -187,7 +265,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
           ),
         }))
       }
+
+      console.log('✅ Subtask deleted successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        todoId, subtaskId 
+      })
     } catch (error) {
+      console.error('❌ Failed to delete subtask:', error)
       set({
         error:
           error instanceof Error ? error.message : 'Failed to delete subtask',
