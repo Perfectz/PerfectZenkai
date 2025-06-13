@@ -181,3 +181,5 @@ pnpm-lock.yaml
 # Lighthouse reports
 lighthouse-report.html
 lighthouse-report.json 
+# Local Netlify folder
+.netlify

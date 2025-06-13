@@ -33,9 +33,16 @@ describe('Data Export Utils', () => {
         exportDate: '2024-01-15T10:00:00.000Z',
         appVersion: '1.0.0',
         data: {
-          weights: [{ id: '1' }, { id: '2' }],
-          tasks: [{ id: '1' }],
-          notes: [{ id: '1' }, { id: '2' }, { id: '3' }]
+          weights: [
+            { id: '1', kg: 75, dateISO: '2024-01-15' }, 
+            { id: '2', kg: 76, dateISO: '2024-01-16' }
+          ],
+          tasks: [{ id: '1', text: 'Test task', done: false, createdAt: '2024-01-15T10:00:00.000Z' }],
+          notes: [
+            { id: '1', title: 'Note 1', content: 'Content 1', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
+            { id: '2', title: 'Note 2', content: 'Content 2', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
+            { id: '3', title: 'Note 3', content: 'Content 3', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }
+          ]
         }
       }
 

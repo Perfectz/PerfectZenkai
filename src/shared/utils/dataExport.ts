@@ -1,14 +1,17 @@
 import { weightRepo } from '@/modules/weight/repo'
 import { tasksRepo } from '@/modules/tasks/repo'
 import { notesRepo } from '@/modules/notes/repo'
+import type { WeightEntry } from '@/modules/weight/types'
+import type { Todo } from '@/modules/tasks/types'
+import type { Note } from '@/modules/notes/types'
 
 export interface AppDataExport {
   exportDate: string
   appVersion: string
   data: {
-    weights: any[]
-    tasks: any[]
-    notes: any[]
+    weights: WeightEntry[]
+    tasks: Todo[]
+    notes: Note[]
   }
 }
 

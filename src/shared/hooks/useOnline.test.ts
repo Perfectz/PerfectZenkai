@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi, type SpyInstance } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useOnline } from './useOnline'
 
@@ -9,8 +9,8 @@ Object.defineProperty(navigator, 'onLine', {
 })
 
 describe('useOnline', () => {
-  let addEventListenerSpy: any
-  let removeEventListenerSpy: any
+  let addEventListenerSpy: SpyInstance
+  let removeEventListenerSpy: SpyInstance
 
   beforeEach(() => {
     // Reset navigator.onLine to true before each test

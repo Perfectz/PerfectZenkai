@@ -1,5 +1,5 @@
 import { useWeightStore } from '../store'
-import { useToast } from '@/shared/ui/toast'
+import { useToast } from '@/shared/hooks/useToast'
 import { WeightEntry } from '../types'
 
 export function useWeightActions() {

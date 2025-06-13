@@ -45,7 +45,11 @@ export default function SimpleLoginPage() {
     }
 
     if (isRegisterMode) {
-      // Register
+      // Register - validate email is required
+      if (!formData.email.trim()) {
+        return
+      }
+      
       if (formData.password.length < 6) {
         // This will be handled by the store's error state
         return
@@ -54,7 +58,7 @@ export default function SimpleLoginPage() {
       register({
         username: formData.username.trim(),
         password: formData.password,
-        email: formData.email.trim() || undefined,
+        email: formData.email.trim(),
         name: formData.name.trim() || undefined
       })
     } else {
@@ -177,7 +181,7 @@ export default function SimpleLoginPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email (optional)</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       name="email"
@@ -185,6 +189,7 @@ export default function SimpleLoginPage() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="Enter your email"
+                      required
                       disabled={isLoading}
                     />
                   </div>
@@ -194,7 +199,12 @@ export default function SimpleLoginPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading || !formData.username.trim() || !formData.password.trim()}
+                disabled={
+                  isLoading || 
+                  !formData.username.trim() || 
+                  !formData.password.trim() ||
+                  (isRegisterMode && !formData.email.trim())
+                }
                 className="w-full h-12 text-base font-medium"
               >
                 {isLoading ? (

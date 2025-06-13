@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
-import { localAuthService } from '../services/localAuth'
+import { supabaseAuth } from '../services/supabaseAuth'
 import { initializeUserDatabases, clearUserDatabases, sanitizeUserId } from '../utils/dataIsolation'
 
 interface LoginCredentials {
@@ -12,7 +12,7 @@ interface LoginCredentials {
 interface RegisterData {
   username: string
   password: string
-  email?: string
+  email: string // Required for Supabase
   name?: string
 }
 
@@ -41,11 +41,22 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
         
         try {
-          const { user, token } = await localAuthService.login(credentials)
+          const { user, error } = await supabaseAuth.loginWithUsername(
+            credentials.username, 
+            credentials.password
+          )
+          
+          if (error) {
+            throw new Error(error.message)
+          }
+
+          if (!user) {
+            throw new Error('Login failed')
+          }
           
           set({
             user,
-            token,
+            token: user.id, // Use user ID as token for simplicity
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -55,8 +66,6 @@ export const useAuthStore = create<AuthStore>()(
           const sanitizedUserId = sanitizeUserId(user.id)
           initializeUserDatabases(sanitizedUserId)
 
-          // Note: Navigation will be handled by React Router
-          // No need for manual redirect here
         } catch (error) {
           console.error('Login error:', error)
           set({
@@ -78,28 +87,32 @@ export const useAuthStore = create<AuthStore>()(
             throw new Error('Password must be at least 6 characters long')
           }
 
-          const user = await localAuthService.register(data)
+          const { user, error } = await supabaseAuth.register(
+            data.username,
+            data.email,
+            data.password
+          )
           
-          // Auto-login after registration
-          const { user: loginUser, token } = await localAuthService.login({
-            username: data.username,
-            password: data.password
-          })
+          if (error) {
+            throw new Error(error.message)
+          }
+
+          if (!user) {
+            throw new Error('Registration failed')
+          }
           
           set({
-            user: loginUser,
-            token,
+            user,
+            token: user.id, // Use user ID as token for simplicity
             isAuthenticated: true,
             isLoading: false,
             error: null,
           })
 
           // Initialize user-specific databases for data isolation
-          const sanitizedUserId = sanitizeUserId(loginUser.id)
+          const sanitizedUserId = sanitizeUserId(user.id)
           initializeUserDatabases(sanitizedUserId)
 
-          // Note: Navigation will be handled by React Router
-          // No need for manual redirect here
         } catch (error) {
           console.error('Registration error:', error)
           set({
@@ -113,22 +126,22 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: async () => {
-        const { user } = get()
+        const state = get()
         
         set({ isLoading: true })
 
         // Clear user-specific databases if user exists
-        if (user?.id) {
+        if (state.user?.id) {
           try {
-            const sanitizedUserId = sanitizeUserId(user.id)
+            const sanitizedUserId = sanitizeUserId(state.user.id)
             await clearUserDatabases(sanitizedUserId)
           } catch (error) {
             console.error('Error clearing user databases:', error)
           }
         }
 
-        // Logout from local auth service
-        localAuthService.logout()
+        // Logout from Supabase
+        await supabaseAuth.logout()
 
         // Clear local state
         set({
@@ -141,36 +154,36 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear localStorage
         localStorage.clear()
-
-        // Note: Redirect will be handled by ProtectedRoute
-        // No need for manual redirect here
       },
 
       clearError: () => {
         set({ error: null })
       },
 
-      checkAuthStatus: () => {
-        const currentSession = localAuthService.getCurrentUser()
-        
-        if (!currentSession) {
+      checkAuthStatus: async () => {
+        try {
+          const user = await supabaseAuth.getCurrentUser()
+          
+          if (!user) {
+            set({ isAuthenticated: false, user: null, token: null })
+            return
+          }
+
+          // Update state with current session
+          set({ 
+            isAuthenticated: true, 
+            user, 
+            token: user.id
+          })
+          
+          // Initialize user databases if user exists and is authenticated
+          if (user?.id) {
+            const sanitizedUserId = sanitizeUserId(user.id)
+            initializeUserDatabases(sanitizedUserId)
+          }
+        } catch (error) {
+          console.error('Check auth status error:', error)
           set({ isAuthenticated: false, user: null, token: null })
-          return
-        }
-
-        const { user, token } = currentSession
-
-        // Update state with current session
-        set({ 
-          isAuthenticated: true, 
-          user, 
-          token 
-        })
-        
-        // Initialize user databases if user exists and is authenticated
-        if (user?.id) {
-          const sanitizedUserId = sanitizeUserId(user.id)
-          initializeUserDatabases(sanitizedUserId)
         }
       },
 
@@ -199,5 +212,12 @@ export const useAuthStore = create<AuthStore>()(
   )
 )
 
-// Initialize auth status check on store creation
-useAuthStore.getState().checkAuthStatus() 
+// Set up auth state listener
+supabaseAuth.onAuthStateChange((user) => {
+  const store = useAuthStore.getState()
+  if (user && !store.isAuthenticated) {
+    store.setUser(user, user.id)
+  } else if (!user && store.isAuthenticated) {
+    store.logout()
+  }
+}) 
