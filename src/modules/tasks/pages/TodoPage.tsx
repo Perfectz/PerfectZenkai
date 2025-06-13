@@ -292,7 +292,7 @@ export default function TodoPage() {
                     key={sort.value}
                     variant={sortBy === sort.value ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSortBy(sort.value as any)}
+                    onClick={() => setSortBy(sort.value as 'created' | 'priority' | 'dueDate')}
                     className="text-xs"
                   >
                     {sort.label}
