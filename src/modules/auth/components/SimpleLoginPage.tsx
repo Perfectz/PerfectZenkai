@@ -413,7 +413,7 @@ export default function SimpleLoginPage() {
                 {!isRegisterMode && (
                   <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
                     <p className="text-sm text-blue-700 dark:text-blue-300 text-center">
-                      <strong>Demo:</strong> Create an account to get started with your fitness journey
+                      <strong>Cross-Device Sync:</strong> Your account works on any device with cloud backup via Supabase
                     </p>
                   </div>
                 )}
@@ -422,16 +422,16 @@ export default function SimpleLoginPage() {
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">PWA</div>
-                      <div className="text-xs text-gray-500">Ready</div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">Cloud</div>
+                      <div className="text-xs text-gray-500">Sync</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">100%</div>
-                      <div className="text-xs text-gray-500">Offline</div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">∞</div>
+                      <div className="text-xs text-gray-500">Devices</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">0</div>
-                      <div className="text-xs text-gray-500">Ads</div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">Secure</div>
+                      <div className="text-xs text-gray-500">Backup</div>
                     </div>
                   </div>
                 </div>
