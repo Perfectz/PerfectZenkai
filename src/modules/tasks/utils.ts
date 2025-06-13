@@ -54,7 +54,7 @@ export const isDueSoon = (todo: Todo, days: number = 3): boolean => {
 }
 
 export const getCompletionPercentage = (todo: Todo): number => {
-  if (todo.subtasks.length === 0) return todo.done ? 100 : 0
+  if (!todo.subtasks || todo.subtasks.length === 0) return todo.done ? 100 : 0
   const completedSubtasks = todo.subtasks.filter((s) => s.done).length
   return Math.round((completedSubtasks / todo.subtasks.length) * 100)
 }

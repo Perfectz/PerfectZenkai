@@ -163,8 +163,20 @@ export class SupabaseAuthService {
 
       console.log('🎉 Registration successful:', user)
       return { user, error: null }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration exception:', error)
+      
+      // Handle "User already registered" error specifically
+      if (error?.message?.includes('User already registered')) {
+        return {
+          user: null,
+          error: {
+            code: 'USER_ALREADY_EXISTS',
+            message: 'An account with this email already exists. Please try logging in instead.',
+          }
+        }
+      }
+      
       return {
         user: null,
         error: this.handleNetworkError(error),

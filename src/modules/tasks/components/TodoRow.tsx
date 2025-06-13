@@ -95,7 +95,7 @@ export function TodoRow({ todo }: TodoRowProps) {
           {/* Main todo row */}
           <div className="flex items-center gap-3">
             {/* Expand button for subtasks */}
-            {todo.subtasks.length > 0 && (
+            {todo.subtasks && todo.subtasks.length > 0 && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="rounded p-0.5 transition-colors hover:bg-muted"
@@ -145,7 +145,7 @@ export function TodoRow({ todo }: TodoRowProps) {
               </p>
 
               {/* Progress bar for subtasks */}
-              {todo.subtasks.length > 0 && (
+              {todo.subtasks && todo.subtasks.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Progress
                     value={completionPercentage}
@@ -209,7 +209,7 @@ export function TodoRow({ todo }: TodoRowProps) {
           </div>
 
           {/* Subtasks section */}
-          {isExpanded && todo.subtasks.length > 0 && (
+          {isExpanded && todo.subtasks && todo.subtasks.length > 0 && (
             <div className="ml-8 space-y-2">
               {todo.subtasks.map((subtask) => (
                 <div
