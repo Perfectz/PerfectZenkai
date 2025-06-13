@@ -10,6 +10,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setupTests.ts'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
+    env: {
+      VITE_SUPABASE_URL: 'https://test.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test_anon_key_1234567890abcdef',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

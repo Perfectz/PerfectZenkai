@@ -4,6 +4,21 @@ import * as matchers from '@testing-library/jest-dom/matchers'
 // Extend Vitest's expect with jest-dom matchers
 expect.extend(matchers)
 
+// Setup test environment variables
+if (!import.meta.env.VITE_SUPABASE_URL) {
+  Object.defineProperty(import.meta.env, 'VITE_SUPABASE_URL', {
+    value: 'https://test.supabase.co',
+    writable: true,
+  })
+}
+
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  Object.defineProperty(import.meta.env, 'VITE_SUPABASE_ANON_KEY', {
+    value: 'test_anon_key_1234567890abcdef',
+    writable: true,
+  })
+}
+
 // Global test setup
 beforeEach(() => {
   // Clear any mocks between tests

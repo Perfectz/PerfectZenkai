@@ -1,31 +1,56 @@
 # Perfect Zenkai
 
-A modern PWA for weight tracking and task management, built with React 18, TypeScript, and Tailwind CSS.
+A modern Progressive Web App (PWA) for weight tracking and task management, built with React 18, TypeScript, and Tailwind CSS. Features a clean, modern UI with offline-first capabilities and user-specific data isolation.
 
-## Features
+## 🌟 Features
 
-- 📱 **Progressive Web App** - Install on any device
-- 🌙 **Dark Theme** - Easy on the eyes
-- 📊 **Weight Tracking** - Log and visualize your progress
-- ✅ **Task Management** - Stay organized with todos
-- 🔄 **Offline First** - Works without internet connection
-- 📈 **Dashboard** - Overview of your progress
+- 📱 **Progressive Web App** - Install on any device, works offline
+- 🔐 **Simple Authentication** - Username/password login with secure local storage
+- 🌙 **Dark Theme** - Modern dark interface that's easy on the eyes
+- 📊 **Weight Tracking** - Log daily weights and visualize progress with sparkline charts
+- ✅ **Task Management** - Organize your day with a comprehensive todo system
+- 📝 **Notes System** - Capture thoughts and ideas with rich text notes
+- 🔄 **Offline First** - Full functionality without internet connection
+- 📈 **Dashboard** - Comprehensive overview of your progress and daily stats
+- 👤 **User Isolation** - Each user has their own secure, isolated data storage
+- 🎯 **Streak Tracking** - Monitor consistency across different activities
+- 📤 **Data Export** - Export your data for backup or analysis
 
-## Tech Stack
+## 🚀 Tech Stack
 
 - **Frontend:** Vite + React 18 + TypeScript
-- **Styling:** Tailwind CSS 3 + shadcn/ui
-- **State:** Zustand
-- **Database:** Dexie (IndexedDB)
-- **PWA:** @vite-pwa/react + Workbox
+- **Styling:** Tailwind CSS 3 + shadcn/ui components
+- **State Management:** Zustand with persistence
+- **Database:** Dexie (IndexedDB) with user-specific isolation
+- **Authentication:** Local username/password with secure hashing
+- **PWA:** @vite-pwa/react + Workbox for offline capabilities
 - **Testing:** Vitest + Playwright + Testing Library
+- **UI Components:** Lucide React icons + Custom component library
 
-## Prerequisites
+## 🏗️ Architecture
+
+```
+src/
+├── app/                 # App shell, navigation, global components
+├── modules/             # Feature modules
+│   ├── auth/           # Authentication system
+│   ├── weight/         # Weight tracking
+│   ├── tasks/          # Task management
+│   ├── notes/          # Notes system
+│   └── dashboard/      # Dashboard and analytics
+├── shared/             # Shared UI components, hooks, utilities
+├── types/              # Global TypeScript definitions
+└── test/               # Test utilities and setup
+```
+
+**Module Isolation Rule:** Modules may import `shared/` but never each other. The app shell imports only module routes.
+
+## 🔧 Prerequisites
 
 - **Node.js 18+** - [Download from nodejs.org](https://nodejs.org/)
-- **pnpm** (recommended) - `npm install -g pnpm`
+- **npm** or **pnpm** (recommended) - `npm install -g pnpm`
 
-## Development
+## 💻 Development
 
 ```bash
 # Install dependencies
@@ -57,14 +82,26 @@ pnpm build
 npm run preview
 # or with pnpm
 pnpm preview
+
+# Run linting
+npm run lint
+# or with pnpm
+pnpm lint
+
+# Format code
+npm run format
+# or with pnpm
+pnpm format
 ```
 
-## Mobile Testing
+## 📱 Mobile Testing
 
 To test the PWA on your mobile device:
 
 1. **Start dev server with LAN access:**
    ```bash
+   npm run dev -- --host
+   # or with pnpm
    pnpm dev -- --host
    ```
 
@@ -79,27 +116,68 @@ To test the PWA on your mobile device:
    - Tap the "Install app" option when prompted
    - The app will be added to your home screen
 
-## Quality Gates
+## 🔐 Authentication
+
+Perfect Zenkai uses a simple but secure local authentication system:
+
+- **Registration:** Create account with username, email, and password
+- **Login:** Username and password authentication
+- **Security:** Passwords are hashed using secure algorithms
+- **Data Isolation:** Each user gets their own isolated database
+- **Session Management:** Secure session handling with automatic expiry
+
+## 💾 Data Management
+
+- **Local Storage:** All data stored locally using IndexedDB via Dexie
+- **User Isolation:** Each user has separate database instances
+- **Offline First:** Full functionality without internet connection
+- **Data Export:** Built-in export functionality for data portability
+- **Automatic Cleanup:** Session management with automatic cleanup
+
+## 🎯 Quality Gates
 
 - ✅ **Test Coverage:** ≥80%
 - ✅ **PWA Score:** ≥90 (Lighthouse)
 - ✅ **TypeScript:** Strict mode, no `any` types
 - ✅ **ESLint:** Zero warnings/errors
 - ✅ **Mobile-First:** Optimized for 375×667 viewport
+- ✅ **Accessibility:** WCAG 2.1 AA compliance
+- ✅ **Performance:** <3s load time, 60fps animations
 
-## Architecture
+## 🚀 Deployment
 
-```
-src/
-├── app/           # App shell, navigation, global components
-├── modules/       # Feature modules (weight, tasks, dashboard)
-├── shared/        # Shared UI components, hooks, utilities
-├── types/         # Global TypeScript definitions
-└── test/          # Test utilities and setup
-```
+The app is configured for deployment on:
 
-**Module Isolation Rule:** Modules may import `shared/` but never each other. The app shell imports only module routes.
+- **Netlify** - Primary deployment platform
+- **Vercel** - Alternative deployment option
+- **GitHub Pages** - Static hosting option
 
-## License
+Build artifacts are generated in the `dist/` directory and include all PWA assets.
 
-MIT 
+## 🔄 Recent Updates
+
+- **Authentication System:** Migrated from Google OAuth to simple local authentication
+- **UI Improvements:** Enhanced dashboard with uniform card layouts
+- **Navigation Fixes:** Resolved React Router conflicts with protected routes
+- **User Experience:** Improved registration flow with success feedback
+- **Data Isolation:** Enhanced user-specific database separation
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📚 Additional Documentation
+
+- [Authentication Guide](AUTHENTICATION.md)
+- [MVP Sync Documentation](MVP_SUPABASE_SYNC.md)
+- [Style Guide](style-guide.md)
+- [Security Policy](SECURITY.md)
+- [Image Generation Guide](IMAGE_GENERATION_PROMPTS.md) 

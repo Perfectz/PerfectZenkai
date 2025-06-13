@@ -4,12 +4,30 @@ import type { User, AuthError } from '../types/auth'
 export class SupabaseAuthService {
   
   /**
+   * Check if Supabase client is available
+   */
+  private isSupabaseAvailable(): boolean {
+    return supabase !== null
+  }
+
+  /**
+   * Get error for unavailable Supabase
+   */
+  private getUnavailableError(): AuthError {
+    return { code: 'SERVICE_UNAVAILABLE', message: 'Authentication service is not available' }
+  }
+
+  /**
    * Register a new user with email and password
    */
   async register(username: string, email: string, password: string): Promise<{ user: User | null, error: AuthError | null }> {
+    if (!this.isSupabaseAvailable()) {
+      return { user: null, error: this.getUnavailableError() }
+    }
+
     try {
       // Check if username is already taken
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile } = await supabase!
         .from('profiles')
         .select('username')
         .eq('username', username)
@@ -23,13 +41,14 @@ export class SupabaseAuthService {
       }
 
       // Register user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase!.auth.signUp({
         email,
         password,
         options: {
           data: {
             username
-          }
+          },
+          emailRedirectTo: undefined // Disable email confirmation for development
         }
       })
 
@@ -48,11 +67,12 @@ export class SupabaseAuthService {
       }
 
       // Create user profile
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabase!
         .from('profiles')
         .insert({
           id: authData.user.id,
-          username
+          username,
+          email
         })
 
       if (profileError) {
@@ -78,13 +98,22 @@ export class SupabaseAuthService {
    * Login user with email and password
    */
   async login(email: string, password: string): Promise<{ user: User | null, error: AuthError | null }> {
+    if (!this.isSupabaseAvailable()) {
+      return { user: null, error: this.getUnavailableError() }
+    }
+
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      console.log('🔐 Starting login with email:', email)
+      
+      const { data: authData, error: authError } = await supabase!.auth.signInWithPassword({
         email,
         password
       })
 
+      console.log('🔑 Supabase auth result:', { authData, authError })
+
       if (authError) {
+        console.log('❌ Auth error:', authError)
         return {
           user: null,
           error: { code: 'LOGIN_ERROR', message: authError.message }
@@ -92,18 +121,23 @@ export class SupabaseAuthService {
       }
 
       if (!authData.user) {
+        console.log('❌ No user in auth data')
         return {
           user: null,
           error: { code: 'LOGIN_FAILED', message: 'Login failed' }
         }
       }
 
+      console.log('✅ Auth successful, fetching profile for user:', authData.user.id)
+
       // Get user profile
-      const { data: profile } = await supabase
+      const { data: profile } = await supabase!
         .from('profiles')
         .select('username')
         .eq('id', authData.user.id)
         .single()
+
+      console.log('👤 Profile data:', profile)
 
       const user: User = {
         id: authData.user.id,
@@ -111,8 +145,11 @@ export class SupabaseAuthService {
         email: authData.user.email || email
       }
 
+      console.log('🎉 Login successful, user object:', user)
+
       return { user, error: null }
     } catch (error) {
+      console.error('💥 Login error:', error)
       return {
         user: null,
         error: { code: 'LOGIN_ERROR', message: error instanceof Error ? error.message : 'Login failed' }
@@ -124,37 +161,59 @@ export class SupabaseAuthService {
    * Login with username instead of email
    */
   async loginWithUsername(username: string, password: string): Promise<{ user: User | null, error: AuthError | null }> {
+    if (!this.isSupabaseAvailable()) {
+      console.error('❌ Supabase client not available')
+      return { user: null, error: this.getUnavailableError() }
+    }
+
     try {
-      // First, find the email associated with this username
-      const { data: profile, error: profileError } = await supabase
+      console.log('🔍 Starting login with username:', username)
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Login timeout after 10 seconds')), 10000)
+      })
+      
+      // First, find the profile with this username and get the associated email
+      const profilePromise = supabase!
         .from('profiles')
-        .select('id')
+        .select('id, username, email')
         .eq('username', username)
         .single()
+      
+      const { data: profile, error: profileError } = await Promise.race([profilePromise, timeoutPromise])
+
+      console.log('📋 Profile query result:', { profile, profileError })
 
       if (profileError || !profile) {
+        console.log('❌ Profile not found or error:', profileError)
         return {
           user: null,
           error: { code: 'INVALID_CREDENTIALS', message: 'Invalid username or password' }
         }
       }
 
-      // Get the user's email from auth.users
-      const { data: { user: authUser }, error: userError } = await supabase.auth.admin.getUserById(profile.id)
+      if (!profile.email) {
+        console.log('❌ Profile found but no email stored')
+        return {
+          user: null,
+          error: { code: 'INVALID_CREDENTIALS', message: 'Account configuration error' }
+        }
+      }
+
+      console.log('✅ Profile found, attempting login with email:', profile.email)
       
-      if (userError || !authUser?.email) {
-        return {
-          user: null,
-          error: { code: 'INVALID_CREDENTIALS', message: 'Invalid username or password' }
-        }
-      }
-
-      // Now login with email and password
-      return this.login(authUser.email, password)
+      // Now login with the stored email and password
+      const loginPromise = this.login(profile.email, password)
+      const loginResult = await Promise.race([loginPromise, timeoutPromise])
+      console.log('🔐 Login result:', loginResult)
+      
+      return loginResult
     } catch (error) {
+      console.error('💥 Login with username error:', error)
       return {
         user: null,
-        error: { code: 'LOGIN_ERROR', message: 'Invalid username or password' }
+        error: { code: 'LOGIN_ERROR', message: error instanceof Error ? error.message : 'Login failed' }
       }
     }
   }
@@ -163,15 +222,19 @@ export class SupabaseAuthService {
    * Get current user session
    */
   async getCurrentUser(): Promise<User | null> {
+    if (!this.isSupabaseAvailable()) {
+      return null
+    }
+
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
+      const { data: { user: authUser } } = await supabase!.auth.getUser()
       
       if (!authUser) {
         return null
       }
 
       // Get user profile
-      const { data: profile } = await supabase
+      const { data: profile } = await supabase!
         .from('profiles')
         .select('username')
         .eq('id', authUser.id)
@@ -192,14 +255,22 @@ export class SupabaseAuthService {
    * Logout user
    */
   async logout(): Promise<void> {
-    await supabase.auth.signOut()
+    if (!this.isSupabaseAvailable()) {
+      return
+    }
+    await supabase!.auth.signOut()
   }
 
   /**
    * Listen to auth state changes
    */
   onAuthStateChange(callback: (user: User | null) => void) {
-    return supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (!this.isSupabaseAvailable()) {
+      // Return a no-op unsubscribe function
+      return { data: { subscription: null }, error: null }
+    }
+
+    return supabase!.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const user = await this.getCurrentUser()
         callback(user)

@@ -41,18 +41,26 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
         
         try {
+          console.log('🚀 Starting login process for:', credentials.username)
+          
           const { user, error } = await supabaseAuth.loginWithUsername(
             credentials.username, 
             credentials.password
           )
           
+          console.log('🔍 Login result:', { user, error })
+          
           if (error) {
+            console.error('❌ Login error from service:', error)
             throw new Error(error.message)
           }
 
           if (!user) {
-            throw new Error('Login failed')
+            console.error('❌ No user returned from login')
+            throw new Error('Login failed - no user returned')
           }
+          
+          console.log('✅ Login successful, setting user state')
           
           set({
             user,
@@ -65,9 +73,11 @@ export const useAuthStore = create<AuthStore>()(
           // Initialize user-specific databases for data isolation
           const sanitizedUserId = sanitizeUserId(user.id)
           initializeUserDatabases(sanitizedUserId)
+          
+          console.log('🎉 Login process completed successfully')
 
         } catch (error) {
-          console.error('Login error:', error)
+          console.error('💥 Login error in store:', error)
           set({
             isLoading: false,
             error: error instanceof Error ? error.message : 'Login failed',
@@ -101,17 +111,15 @@ export const useAuthStore = create<AuthStore>()(
             throw new Error('Registration failed')
           }
           
+          // For registration, we'll just set loading to false and not authenticate
+          // This allows the UI to handle the success state and redirect to login
           set({
-            user,
-            token: user.id, // Use user ID as token for simplicity
-            isAuthenticated: true,
+            user: null,
+            token: null,
+            isAuthenticated: false,
             isLoading: false,
             error: null,
           })
-
-          // Initialize user-specific databases for data isolation
-          const sanitizedUserId = sanitizeUserId(user.id)
-          initializeUserDatabases(sanitizedUserId)
 
         } catch (error) {
           console.error('Registration error:', error)
