@@ -1,6 +1,6 @@
 # MVP 3 — Tasks Module v1 (to-dos)
 
-**Status:** 🔴 Not Started  
+**Status:** ✅ Complete  
 **Sprint:** Core Feature - Task Management  
 **Estimated Effort:** 6-8 hours  
 **Dependencies:** MVP 1 (Test Suite Foundation)  
@@ -26,15 +26,15 @@ This MVP implements task management functionality, allowing users to create, com
 ### 3.1 Tasks Store + Repo
 **Priority:** P0 (Blocker)  
 **Story Points:** 3  
-**Status:** 🔴 Not Started
+**Status:** ✅ Complete
 
 **User Story:** *As a user, I want my tasks to persist locally with full CRUD operations.*
 
 **Acceptance Criteria:**
-- [ ] Zustand + Dexie following same pattern as weight module
-- [ ] Todo type: `{id: string, text: string, done: boolean, createdAt: string}`
-- [ ] Full CRUD methods with proper error handling
-- [ ] Module isolation maintained
+- ✅ Zustand + Dexie following same pattern as weight module
+- ✅ Todo type: `{id: string, text: string, done: boolean, createdAt: string}`
+- ✅ Full CRUD methods with proper error handling
+- ✅ Module isolation maintained
 
 **Technical Details:**
 ```typescript
@@ -95,17 +95,17 @@ Create src/modules/tasks/store.test.ts that:
 ### 3.2 Todo Page
 **Priority:** P0 (Blocker)  
 **Story Points:** 4  
-**Status:** 🔴 Not Started
+**Status:** ✅ Complete
 
 **User Story:** *As a user, I can manage my tasks offline with intuitive interactions.*
 
 **Acceptance Criteria:**
-- [ ] `/todo` route with input to add new todos
-- [ ] Checkbox to toggle completion status
-- [ ] Swipe-to-delete functionality
-- [ ] Works offline with Dexie persistence
-- [ ] Shows completed vs incomplete todos
-- [ ] Empty states for both sections
+- ✅ `/todo` route with input to add new todos
+- ✅ Checkbox to toggle completion status
+- ✅ Swipe-to-delete functionality
+- ✅ Works offline with Dexie persistence
+- ✅ Shows completed vs incomplete todos
+- ✅ Empty states for both sections
 
 **UI Specifications:**
 ```

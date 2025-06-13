@@ -1,6 +1,6 @@
 # MVP 2 — Weight Module v1 (log & list)
 
-**Status:** 🟡 In Progress  
+**Status:** ✅ Complete  
 **Sprint:** Core Feature - Weight Tracking  
 **Estimated Effort:** 8-10 hours  
 **Dependencies:** MVP 1 (Test Suite Foundation)  

@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { initializeWeightStore } from './modules/weight'
+import { initializeTasksStore } from './modules/tasks'
+import { initializeNotesStore } from './modules/notes'
 import { BrowserRouter } from 'react-router-dom'
 
 // Initialize stores
 initializeWeightStore()
+initializeTasksStore()
+initializeNotesStore()
 
 if (import.meta.env.MODE === 'production' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

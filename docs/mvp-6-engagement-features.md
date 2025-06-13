@@ -1,6 +1,6 @@
 # MVP 6 — Engagement Features (push + install)
 
-**Status:** 🔴 Not Started  
+**Status:** ✅ Complete  
 **Sprint:** User Engagement - Retention Features  
 **Estimated Effort:** 6-8 hours  
 **Dependencies:** MVP 5 (Offline Polish)  
@@ -161,8 +161,8 @@ Create e2e/InstallPrompt.e2e.ts that:
 
 ### Sprint Velocity
 - **Planned Story Points:** 7
-- **Completed Story Points:** 0
-- **Sprint Progress:** 0%
+- **Completed Story Points:** 7
+- **Sprint Progress:** 100%
 
 ### Task Status
 | Task | Status | Assignee | Estimated Hours | Actual Hours |

@@ -32,6 +32,12 @@ export const useWeightStore = create<WeightState>((set, get) => ({
         ),
         isLoading: false
       }))
+
+      // Mark that weight was logged today (for notification logic)
+      const today = new Date().toISOString().split('T')[0]
+      if (newEntry.dateISO === today) {
+        localStorage.setItem(`weight-logged-${today}`, 'true')
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to add weight',
