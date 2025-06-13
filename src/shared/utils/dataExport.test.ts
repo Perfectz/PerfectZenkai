@@ -6,20 +6,20 @@ import { exportAllData, getDataSummary, AppDataExport } from './dataExport'
 // Mock the repositories
 vi.mock('@/modules/weight/repo', () => ({
   weightRepo: {
-    getAllWeights: vi.fn()
-  }
+    getAllWeights: vi.fn(),
+  },
 }))
 
 vi.mock('@/modules/tasks/repo', () => ({
   tasksRepo: {
-    getAllTodos: vi.fn()
-  }
+    getAllTodos: vi.fn(),
+  },
 }))
 
 vi.mock('@/modules/notes/repo', () => ({
   notesRepo: {
-    getAllNotes: vi.fn()
-  }
+    getAllNotes: vi.fn(),
+  },
 }))
 
 describe('Data Export Utils', () => {
@@ -34,16 +34,45 @@ describe('Data Export Utils', () => {
         appVersion: '1.0.0',
         data: {
           weights: [
-            { id: '1', kg: 75, dateISO: '2024-01-15' }, 
-            { id: '2', kg: 76, dateISO: '2024-01-16' }
+            { id: '1', kg: 75, dateISO: '2024-01-15' },
+            { id: '2', kg: 76, dateISO: '2024-01-16' },
           ],
-          tasks: [{ id: '1', text: 'Test task', done: false, priority: 'medium' as const, category: 'personal' as const, subtasks: [], createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }],
+          tasks: [
+            {
+              id: '1',
+              text: 'Test task',
+              done: false,
+              priority: 'medium' as const,
+              category: 'personal' as const,
+              subtasks: [],
+              createdAt: '2024-01-15T10:00:00.000Z',
+              updatedAt: '2024-01-15T10:00:00.000Z',
+            },
+          ],
           notes: [
-            { id: '1', title: 'Note 1', content: 'Content 1', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
-            { id: '2', title: 'Note 2', content: 'Content 2', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
-            { id: '3', title: 'Note 3', content: 'Content 3', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }
-          ]
-        }
+            {
+              id: '1',
+              title: 'Note 1',
+              content: 'Content 1',
+              createdAt: '2024-01-15T10:00:00.000Z',
+              updatedAt: '2024-01-15T10:00:00.000Z',
+            },
+            {
+              id: '2',
+              title: 'Note 2',
+              content: 'Content 2',
+              createdAt: '2024-01-15T10:00:00.000Z',
+              updatedAt: '2024-01-15T10:00:00.000Z',
+            },
+            {
+              id: '3',
+              title: 'Note 3',
+              content: 'Content 3',
+              createdAt: '2024-01-15T10:00:00.000Z',
+              updatedAt: '2024-01-15T10:00:00.000Z',
+            },
+          ],
+        },
       }
 
       const summary = getDataSummary(mockExportData)
@@ -53,7 +82,7 @@ describe('Data Export Utils', () => {
         totalTasks: 1,
         totalNotes: 3,
         exportDate: '1/15/2024',
-        appVersion: '1.0.0'
+        appVersion: '1.0.0',
       })
     })
 
@@ -64,8 +93,8 @@ describe('Data Export Utils', () => {
         data: {
           weights: [],
           tasks: [],
-          notes: []
-        }
+          notes: [],
+        },
       }
 
       const summary = getDataSummary(mockExportData)
@@ -75,7 +104,7 @@ describe('Data Export Utils', () => {
         totalTasks: 0,
         totalNotes: 0,
         exportDate: '1/15/2024',
-        appVersion: '1.0.0'
+        appVersion: '1.0.0',
       })
     })
   })
@@ -88,8 +117,27 @@ describe('Data Export Utils', () => {
       const { notesRepo } = await import('@/modules/notes/repo')
 
       const mockWeights = [{ id: '1', kg: 75, dateISO: '2024-01-15' }]
-      const mockTasks = [{ id: '1', text: 'Test task', done: false, priority: 'medium' as const, category: 'personal' as const, subtasks: [], createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }]
-      const mockNotes = [{ id: '1', title: 'Test note', content: 'Content', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }]
+      const mockTasks = [
+        {
+          id: '1',
+          text: 'Test task',
+          done: false,
+          priority: 'medium' as const,
+          category: 'personal' as const,
+          subtasks: [],
+          createdAt: '2024-01-15T10:00:00.000Z',
+          updatedAt: '2024-01-15T10:00:00.000Z',
+        },
+      ]
+      const mockNotes = [
+        {
+          id: '1',
+          title: 'Test note',
+          content: 'Content',
+          createdAt: '2024-01-15T10:00:00.000Z',
+          updatedAt: '2024-01-15T10:00:00.000Z',
+        },
+      ]
 
       vi.mocked(weightRepo.getAllWeights).mockResolvedValue(mockWeights)
       vi.mocked(tasksRepo.getAllTodos).mockResolvedValue(mockTasks)
@@ -102,8 +150,8 @@ describe('Data Export Utils', () => {
         data: {
           weights: mockWeights,
           tasks: mockTasks,
-          notes: mockNotes
-        }
+          notes: mockNotes,
+        },
       })
       expect(result.exportDate).toBeDefined()
       expect(new Date(result.exportDate)).toBeInstanceOf(Date)
@@ -111,10 +159,12 @@ describe('Data Export Utils', () => {
 
     it('should handle export errors', async () => {
       const { weightRepo } = await import('@/modules/weight/repo')
-      
-      vi.mocked(weightRepo.getAllWeights).mockRejectedValue(new Error('Database error'))
+
+      vi.mocked(weightRepo.getAllWeights).mockRejectedValue(
+        new Error('Database error')
+      )
 
       await expect(exportAllData()).rejects.toThrow('Failed to export app data')
     })
   })
-}) 
+})

@@ -9,4 +9,4 @@ export const authRoutes: RouteObject[] = [
     path: '/login',
     element: <SimpleLoginPage />,
   },
-] 
+]

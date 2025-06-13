@@ -6,7 +6,7 @@ interface NotesState {
   notes: Note[]
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   addNote: (note: Omit<Note, 'id'>) => Promise<void>
   updateNote: (id: string, updates: Partial<Omit<Note, 'id'>>) => Promise<void>
@@ -24,22 +24,22 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   addNote: async (note) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const now = new Date().toISOString()
       const newNote = await notesRepo.addNote({
         ...note,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       })
-      
+
       set((state) => ({
         notes: [newNote, ...state.notes],
-        isLoading: false
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to add note',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -48,21 +48,26 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   updateNote: async (id, updates) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       await notesRepo.updateNote(id, updates)
-      
+
       set((state) => ({
-        notes: state.notes.map(note => 
-          note.id === id 
-            ? { ...note, ...updates, updatedAt: new Date().toISOString() }
-            : note
-        ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
-        isLoading: false
+        notes: state.notes
+          .map((note) =>
+            note.id === id
+              ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+              : note
+          )
+          .sort(
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          ),
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to update note',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -71,17 +76,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   deleteNote: async (id) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       await notesRepo.deleteNote(id)
-      
+
       set((state) => ({
-        notes: state.notes.filter(note => note.id !== id),
-        isLoading: false
+        notes: state.notes.filter((note) => note.id !== id),
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to delete note',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -90,14 +95,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   loadNotes: async () => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const notes = await notesRepo.getAllNotes()
-      
+
       set({ notes, isLoading: false })
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to load notes',
-        isLoading: false 
+        isLoading: false,
       })
     }
   },
@@ -108,10 +113,10 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   clearError: () => {
     set({ error: null })
-  }
+  },
 }))
 
 // Initialize store hydration
 export const initializeNotesStore = async () => {
   await useNotesStore.getState().hydrate()
-} 
+}

@@ -1,25 +1,35 @@
 import { Priority, Category, Todo } from './types'
 
-export const PRIORITIES: { value: Priority; label: string; icon: string; color: string }[] = [
+export const PRIORITIES: {
+  value: Priority
+  label: string
+  icon: string
+  color: string
+}[] = [
   { value: 'high', label: 'High', icon: '🔥', color: 'text-red-500' },
   { value: 'medium', label: 'Medium', icon: '⚡', color: 'text-yellow-500' },
-  { value: 'low', label: 'Low', icon: '💤', color: 'text-blue-500' }
+  { value: 'low', label: 'Low', icon: '💤', color: 'text-blue-500' },
 ]
 
-export const CATEGORIES: { value: Category; label: string; icon: string; color: string }[] = [
+export const CATEGORIES: {
+  value: Category
+  label: string
+  icon: string
+  color: string
+}[] = [
   { value: 'work', label: 'Work', icon: '💼', color: 'text-purple-500' },
   { value: 'personal', label: 'Personal', icon: '🏠', color: 'text-green-500' },
   { value: 'health', label: 'Health', icon: '💪', color: 'text-red-500' },
   { value: 'learning', label: 'Learning', icon: '📚', color: 'text-blue-500' },
-  { value: 'other', label: 'Other', icon: '📋', color: 'text-gray-500' }
+  { value: 'other', label: 'Other', icon: '📋', color: 'text-gray-500' },
 ]
 
 export const getPriorityConfig = (priority: Priority) => {
-  return PRIORITIES.find(p => p.value === priority) || PRIORITIES[1]
+  return PRIORITIES.find((p) => p.value === priority) || PRIORITIES[1]
 }
 
 export const getCategoryConfig = (category: Category) => {
-  return CATEGORIES.find(c => c.value === category) || CATEGORIES[4]
+  return CATEGORIES.find((c) => c.value === category) || CATEGORIES[4]
 }
 
 export const isOverdue = (todo: Todo): boolean => {
@@ -45,7 +55,7 @@ export const isDueSoon = (todo: Todo, days: number = 3): boolean => {
 
 export const getCompletionPercentage = (todo: Todo): number => {
   if (todo.subtasks.length === 0) return todo.done ? 100 : 0
-  const completedSubtasks = todo.subtasks.filter(s => s.done).length
+  const completedSubtasks = todo.subtasks.filter((s) => s.done).length
   return Math.round((completedSubtasks / todo.subtasks.length) * 100)
 }
 
@@ -64,17 +74,19 @@ export const formatDueDate = (dueDate: string): string => {
   } else if (dueDate === tomorrow.toISOString().split('T')[0]) {
     return 'Tomorrow'
   } else {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
-      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
     })
   }
 }
 
 export const sortTodosByPriority = (todos: Todo[]): Todo[] => {
   const priorityOrder = { high: 3, medium: 2, low: 1 }
-  return [...todos].sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
+  return [...todos].sort(
+    (a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]
+  )
 }
 
 export const sortTodosByDueDate = (todos: Todo[]): Todo[] => {
@@ -84,4 +96,4 @@ export const sortTodosByDueDate = (todos: Todo[]): Todo[] => {
     if (!b.dueDate) return -1
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
   })
-} 
+}

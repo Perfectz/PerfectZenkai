@@ -10,7 +10,8 @@ const NOTIFICATION_REQUEST_KEY = 'perfect-zenkai-notification-requested'
 
 export default function WeightPage() {
   const { weights, loadWeights, isLoading } = useWeightStore()
-  const { permission, isSupported, requestPermission, scheduleDailyReminder } = useNotifications()
+  const { permission, isSupported, requestPermission, scheduleDailyReminder } =
+    useNotifications()
 
   useEffect(() => {
     if (weights.length === 0) {
@@ -21,13 +22,13 @@ export default function WeightPage() {
   useEffect(() => {
     // Request notification permission on first visit to weight page
     const hasRequestedBefore = localStorage.getItem(NOTIFICATION_REQUEST_KEY)
-    
+
     if (isSupported && permission === 'default' && !hasRequestedBefore) {
       // Small delay to let the page load first
       const timer = setTimeout(async () => {
         const result = await requestPermission()
         localStorage.setItem(NOTIFICATION_REQUEST_KEY, 'true')
-        
+
         if (result === 'granted') {
           scheduleDailyReminder()
         }
@@ -41,7 +42,9 @@ export default function WeightPage() {
   }, [isSupported, permission, requestPermission, scheduleDailyReminder])
 
   const handleFabClick = () => {
-    const fabElement = document.querySelector('[data-testid="global-fab"]') as HTMLButtonElement
+    const fabElement = document.querySelector(
+      '[data-testid="global-fab"]'
+    ) as HTMLButtonElement
     if (fabElement) {
       fabElement.click()
     }
@@ -52,7 +55,7 @@ export default function WeightPage() {
       {/* Cyber-styled header */}
       <div className="mb-6">
         <h1 className="cyber-title gradient-text-ki mb-2">WEIGHT TRACKING</h1>
-        <p className="text-gray-400 font-mono text-sm">
+        <p className="font-mono text-sm text-gray-400">
           Progress monitoring system • {weights.length} entries logged
         </p>
       </div>
@@ -61,11 +64,11 @@ export default function WeightPage() {
       {isLoading && (
         <div className="space-y-4">
           <div className="cyber-card p-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-full bg-gray-700 shimmer"></div>
+            <div className="mb-4 flex items-center gap-3">
+              <div className="shimmer h-8 w-8 rounded-full bg-gray-700"></div>
               <div>
-                <div className="w-24 h-4 bg-gray-700 rounded shimmer mb-2"></div>
-                <div className="w-16 h-3 bg-gray-700 rounded shimmer"></div>
+                <div className="shimmer mb-2 h-4 w-24 rounded bg-gray-700"></div>
+                <div className="shimmer h-3 w-16 rounded bg-gray-700"></div>
               </div>
             </div>
           </div>
@@ -75,47 +78,54 @@ export default function WeightPage() {
 
       {/* Enhanced empty state */}
       {!isLoading && weights.length === 0 && (
-        <div className="text-center py-16">
-          <div className="cyber-card max-w-md mx-auto">
+        <div className="py-16 text-center">
+          <div className="cyber-card mx-auto max-w-md">
             <div className="flex flex-col items-center space-y-6">
               {/* Animated icon */}
               <div className="relative">
-                <div className="w-20 h-20 rounded-xl bg-gray-900 border border-gray-700 flex items-center justify-center">
-                  <Scale className="h-10 w-10 text-ki-green cyber-icon animate-pulse" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-gray-700 bg-gray-900">
+                  <Scale className="text-ki-green cyber-icon h-10 w-10 animate-pulse" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-hyper-magenta rounded-full flex items-center justify-center">
+                <div className="bg-hyper-magenta absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full">
                   <Plus className="h-4 w-4 text-white" />
                 </div>
               </div>
 
               {/* Title and description */}
               <div className="space-y-3">
-                <h3 className="cyber-subtitle text-gray-300">Begin Weight Journey</h3>
-                <p className="text-gray-500 font-mono text-sm leading-relaxed">
-                  Track your progress with precision.<br />
+                <h3 className="cyber-subtitle text-gray-300">
+                  Begin Weight Journey
+                </h3>
+                <p className="font-mono text-sm leading-relaxed text-gray-500">
+                  Track your progress with precision.
+                  <br />
                   Every entry brings you closer to your goal.
                 </p>
               </div>
 
               {/* Action button */}
-              <Button 
-                variant="cyber-ki" 
+              <Button
+                variant="cyber-ki"
                 onClick={handleFabClick}
                 className="w-full"
               >
-                <Scale className="h-4 w-4 mr-2" />
+                <Scale className="mr-2 h-4 w-4" />
                 LOG FIRST WEIGHT
               </Button>
 
               {/* Features preview */}
-              <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-6 border-t border-gray-700">
+              <div className="mt-6 grid w-full grid-cols-2 gap-4 border-t border-gray-700 pt-6">
                 <div className="text-center">
-                  <TrendingUp className="h-6 w-6 text-plasma-cyan mx-auto mb-2 cyber-icon" />
-                  <div className="text-xs text-gray-400 font-mono">Trend Analysis</div>
+                  <TrendingUp className="text-plasma-cyan cyber-icon mx-auto mb-2 h-6 w-6" />
+                  <div className="font-mono text-xs text-gray-400">
+                    Trend Analysis
+                  </div>
                 </div>
                 <div className="text-center">
-                  <Target className="h-6 w-6 text-hyper-magenta mx-auto mb-2 cyber-icon" />
-                  <div className="text-xs text-gray-400 font-mono">Goal Tracking</div>
+                  <Target className="text-hyper-magenta cyber-icon mx-auto mb-2 h-6 w-6" />
+                  <div className="font-mono text-xs text-gray-400">
+                    Goal Tracking
+                  </div>
                 </div>
               </div>
             </div>
@@ -127,28 +137,29 @@ export default function WeightPage() {
       {!isLoading && weights.length > 0 && (
         <div className="space-y-3">
           {/* Summary stats */}
-          <div className="cyber-card p-4 mb-6">
+          <div className="cyber-card mb-6 p-4">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-lg font-bold gradient-text-ki metric-display">
+                <div className="gradient-text-ki metric-display text-lg font-bold">
                   {weights.length}
                 </div>
-                <div className="text-xs text-gray-400 font-mono">Entries</div>
+                <div className="font-mono text-xs text-gray-400">Entries</div>
               </div>
               <div>
-                <div className="text-lg font-bold gradient-text-cyan metric-display">
+                <div className="gradient-text-cyan metric-display text-lg font-bold">
                   {weights[0]?.kg || 0}kg
                 </div>
-                <div className="text-xs text-gray-400 font-mono">Latest</div>
+                <div className="font-mono text-xs text-gray-400">Latest</div>
               </div>
               <div>
-                <div className="text-lg font-bold gradient-text-magenta metric-display">
-                  {Math.max(...weights.map(w => w.kg)) - Math.min(...weights.map(w => w.kg)) >= 0.1 
-                    ? `${(Math.max(...weights.map(w => w.kg)) - Math.min(...weights.map(w => w.kg))).toFixed(1)}kg`
-                    : '0kg'
-                  }
+                <div className="gradient-text-magenta metric-display text-lg font-bold">
+                  {Math.max(...weights.map((w) => w.kg)) -
+                    Math.min(...weights.map((w) => w.kg)) >=
+                  0.1
+                    ? `${(Math.max(...weights.map((w) => w.kg)) - Math.min(...weights.map((w) => w.kg))).toFixed(1)}kg`
+                    : '0kg'}
                 </div>
-                <div className="text-xs text-gray-400 font-mono">Range</div>
+                <div className="font-mono text-xs text-gray-400">Range</div>
               </div>
             </div>
           </div>
@@ -161,4 +172,4 @@ export default function WeightPage() {
       )}
     </div>
   )
-} 
+}

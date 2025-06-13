@@ -11,8 +11,8 @@ vi.mock('./repo', () => ({
     deleteNote: vi.fn(),
     getAllNotes: vi.fn(),
     getNoteById: vi.fn(),
-    clearAll: vi.fn()
-  }
+    clearAll: vi.fn(),
+  },
 }))
 
 const mockNotesRepo = vi.mocked(notesRepo)
@@ -23,9 +23,9 @@ describe('Notes Store', () => {
     useNotesStore.setState({
       notes: [],
       isLoading: false,
-      error: null
+      error: null,
     })
-    
+
     // Clear all mocks
     vi.clearAllMocks()
   })
@@ -37,18 +37,18 @@ describe('Notes Store', () => {
         title: 'Test Note',
         content: 'Test content',
         createdAt: '2024-01-15T10:00:00.000Z',
-        updatedAt: '2024-01-15T10:00:00.000Z'
+        updatedAt: '2024-01-15T10:00:00.000Z',
       }
 
       mockNotesRepo.addNote.mockResolvedValue(mockNote)
 
       const { addNote } = useNotesStore.getState()
-      
+
       await addNote({
         title: 'Test Note',
         content: 'Test content',
         createdAt: '2024-01-15T10:00:00.000Z',
-        updatedAt: '2024-01-15T10:00:00.000Z'
+        updatedAt: '2024-01-15T10:00:00.000Z',
       })
 
       // Should call repo with note without id
@@ -56,7 +56,7 @@ describe('Notes Store', () => {
         title: 'Test Note',
         content: 'Test content',
         createdAt: expect.any(String),
-        updatedAt: expect.any(String)
+        updatedAt: expect.any(String),
       })
 
       // Should update store with new note
@@ -72,13 +72,15 @@ describe('Notes Store', () => {
       mockNotesRepo.addNote.mockRejectedValue(error)
 
       const { addNote } = useNotesStore.getState()
-      
-      await expect(addNote({
-        title: 'Test Note',
-        content: 'Test content',
-        createdAt: '2024-01-15T10:00:00.000Z',
-        updatedAt: '2024-01-15T10:00:00.000Z'
-      })).rejects.toThrow('Database error')
+
+      await expect(
+        addNote({
+          title: 'Test Note',
+          content: 'Test content',
+          createdAt: '2024-01-15T10:00:00.000Z',
+          updatedAt: '2024-01-15T10:00:00.000Z',
+        })
+      ).rejects.toThrow('Database error')
 
       const state = useNotesStore.getState()
       expect(state.error).toBe('Database error')
@@ -95,19 +97,19 @@ describe('Notes Store', () => {
         title: 'Test Note',
         content: 'Test content',
         createdAt: '2024-01-15T10:00:00.000Z',
-        updatedAt: '2024-01-15T10:00:00.000Z'
+        updatedAt: '2024-01-15T10:00:00.000Z',
       }
-      
+
       useNotesStore.setState({ notes: [initialNote] })
       mockNotesRepo.updateNote.mockResolvedValue()
 
       const { updateNote } = useNotesStore.getState()
-      
+
       await updateNote('test-id', { title: 'Updated Note' })
 
       // Should call repo with correct id and updates
       expect(mockNotesRepo.updateNote).toHaveBeenCalledWith('test-id', {
-        title: 'Updated Note'
+        title: 'Updated Note',
       })
 
       // Should update note in store
@@ -124,8 +126,10 @@ describe('Notes Store', () => {
       mockNotesRepo.updateNote.mockRejectedValue(error)
 
       const { updateNote } = useNotesStore.getState()
-      
-      await expect(updateNote('test-id', { title: 'Updated Note' })).rejects.toThrow('Update failed')
+
+      await expect(
+        updateNote('test-id', { title: 'Updated Note' })
+      ).rejects.toThrow('Update failed')
 
       const state = useNotesStore.getState()
       expect(state.error).toBe('Update failed')
@@ -141,14 +145,14 @@ describe('Notes Store', () => {
         title: 'Test Note',
         content: 'Test content',
         createdAt: '2024-01-15T10:00:00.000Z',
-        updatedAt: '2024-01-15T10:00:00.000Z'
+        updatedAt: '2024-01-15T10:00:00.000Z',
       }
-      
+
       useNotesStore.setState({ notes: [initialNote] })
       mockNotesRepo.deleteNote.mockResolvedValue()
 
       const { deleteNote } = useNotesStore.getState()
-      
+
       await deleteNote('test-id')
 
       // Should call repo with correct id
@@ -166,7 +170,7 @@ describe('Notes Store', () => {
       mockNotesRepo.deleteNote.mockRejectedValue(error)
 
       const { deleteNote } = useNotesStore.getState()
-      
+
       await expect(deleteNote('test-id')).rejects.toThrow('Delete failed')
 
       const state = useNotesStore.getState()
@@ -183,21 +187,21 @@ describe('Notes Store', () => {
           title: 'Note 1',
           content: 'Content 1',
           createdAt: '2024-01-15T10:00:00.000Z',
-          updatedAt: '2024-01-15T10:00:00.000Z'
+          updatedAt: '2024-01-15T10:00:00.000Z',
         },
         {
           id: '2',
           title: 'Note 2',
           content: 'Content 2',
           createdAt: '2024-01-14T10:00:00.000Z',
-          updatedAt: '2024-01-14T10:00:00.000Z'
-        }
+          updatedAt: '2024-01-14T10:00:00.000Z',
+        },
       ]
 
       mockNotesRepo.getAllNotes.mockResolvedValue(mockNotes)
 
       const { loadNotes } = useNotesStore.getState()
-      
+
       await loadNotes()
 
       expect(mockNotesRepo.getAllNotes).toHaveBeenCalled()
@@ -213,7 +217,7 @@ describe('Notes Store', () => {
       mockNotesRepo.getAllNotes.mockRejectedValue(error)
 
       const { loadNotes } = useNotesStore.getState()
-      
+
       await loadNotes()
 
       const state = useNotesStore.getState()
@@ -231,14 +235,14 @@ describe('Notes Store', () => {
           title: 'Note 1',
           content: 'Content 1',
           createdAt: '2024-01-15T10:00:00.000Z',
-          updatedAt: '2024-01-15T10:00:00.000Z'
-        }
+          updatedAt: '2024-01-15T10:00:00.000Z',
+        },
       ]
 
       mockNotesRepo.getAllNotes.mockResolvedValue(mockNotes)
 
       const { hydrate } = useNotesStore.getState()
-      
+
       await hydrate()
 
       expect(mockNotesRepo.getAllNotes).toHaveBeenCalled()
@@ -260,4 +264,4 @@ describe('Notes Store', () => {
       expect(state.error).toBeNull()
     })
   })
-}) 
+})

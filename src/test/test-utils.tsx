@@ -10,11 +10,7 @@ interface ProvidersProps {
 }
 
 const AllProviders = ({ children, initialEntries = ['/'] }: ProvidersProps) => {
-  return (
-    <MemoryRouter initialEntries={initialEntries}>
-      {children}
-    </MemoryRouter>
-  )
+  return <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
 }
 
 // Custom render function that includes providers
@@ -25,11 +21,9 @@ const renderWithProviders = (
   }
 ) => {
   const { initialEntries, ...renderOptions } = options || {}
-  
+
   const Wrapper = ({ children }: { children: ReactNode }) => (
-    <AllProviders initialEntries={initialEntries}>
-      {children}
-    </AllProviders>
+    <AllProviders initialEntries={initialEntries}>{children}</AllProviders>
   )
 
   return render(ui, { wrapper: Wrapper, ...renderOptions })
@@ -38,10 +32,10 @@ const renderWithProviders = (
 // Legacy custom render for backward compatibility
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
+  options?: Omit<RenderOptions, 'wrapper'>
 ) => {
   return render(ui, options)
 }
 
 export * from '@testing-library/react'
-export { customRender as render, renderWithProviders } 
+export { customRender as render, renderWithProviders }

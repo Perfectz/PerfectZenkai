@@ -18,6 +18,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 **Example:**
+
 ```env
 VITE_SUPABASE_URL=https://xyzcompany.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -58,7 +59,7 @@ CREATE POLICY "Public user lookup" ON user_lookup
   FOR SELECT USING (true);
 
 -- Create function to handle new user creation
-CREATE OR REPLACE FUNCTION public.handle_new_user() 
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.profiles (id, username)
@@ -78,6 +79,7 @@ CREATE TRIGGER on_auth_user_created
 In Supabase Dashboard → Authentication → Settings:
 
 1. **Disable email confirmation** (for development):
+
    - Go to Authentication → Settings → Email
    - Uncheck "Enable email confirmations"
 
@@ -98,7 +100,7 @@ After setup:
 With Supabase authentication, you get:
 
 - ✅ **Persistent accounts** across devices/browsers
-- ✅ **Secure password hashing** 
+- ✅ **Secure password hashing**
 - ✅ **User management dashboard**
 - ✅ **Email/password authentication**
 - ✅ **Session management**
@@ -107,20 +109,24 @@ With Supabase authentication, you get:
 ## Troubleshooting
 
 **Error: "Missing Supabase environment variables"**
+
 - Make sure your `.env` file is in the project root
 - Restart the development server after adding environment variables
 
 **Error: "relation 'profiles' does not exist"**
+
 - Run the database setup SQL script in Supabase SQL Editor
 
 **Error: "Invalid API key"**
+
 - Double-check your VITE_SUPABASE_ANON_KEY in `.env`
 - Make sure you're using the "anon public" key, not the service role key
 
 ## Next Steps
 
 Once authentication is working:
+
 - User accounts will persist online
 - Multiple users can use the same app
 - Data is isolated per user automatically
-- You can deploy to production with the same authentication system 
+- You can deploy to production with the same authentication system

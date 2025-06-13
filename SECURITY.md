@@ -18,17 +18,20 @@ If you discover a security vulnerability in Perfect Zenkai, please report it by:
 ## Security Measures
 
 ### Development Security
+
 - All dependencies are regularly audited using `npm audit`
 - ESLint security rules are enforced
 - TypeScript strict mode is enabled
 - No sensitive data is committed to the repository
 
 ### Build Security
+
 - Build artifacts are excluded from version control
 - Service worker is generated with secure defaults
 - CSP headers are configured for production builds
 
 ### Runtime Security
+
 - No eval() or similar dynamic code execution
 - Input validation on all user inputs
 - Secure storage practices for local data
@@ -49,14 +52,18 @@ If you discover a security vulnerability in Perfect Zenkai, please report it by:
 ## Known Security Considerations
 
 ### Development Dependencies
+
 Some development dependencies may have security advisories that don't affect production builds:
+
 - Lighthouse CLI tools (used only for testing)
 - Vite/esbuild (development server vulnerabilities don't affect production builds)
 
 These are acceptable for development but should be monitored for updates.
 
 ### Production Deployment
+
 When deploying to production:
+
 1. Use HTTPS only
 2. Configure proper CSP headers
 3. Enable security headers (HSTS, X-Frame-Options, etc.)
@@ -65,4 +72,4 @@ When deploying to production:
 
 ## Security Updates
 
-Security updates will be prioritized and released as patch versions. Subscribe to repository notifications to stay informed about security updates. 
+Security updates will be prioritized and released as patch versions. Subscribe to repository notifications to stay informed about security updates.

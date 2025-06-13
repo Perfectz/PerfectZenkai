@@ -8,13 +8,13 @@ import { initializeNotesDatabase } from '@/modules/notes/repo'
  */
 export const initializeUserDatabases = (userId: string) => {
   console.log(`Initializing databases for user: ${userId}`)
-  
+
   try {
     // Initialize all module databases with user-specific names
     initializeWeightDatabase(userId)
     initializeTasksDatabase(userId)
     initializeNotesDatabase(userId)
-    
+
     console.log('User databases initialized successfully')
   } catch (error) {
     console.error('Failed to initialize user databases:', error)
@@ -28,18 +28,18 @@ export const initializeUserDatabases = (userId: string) => {
  */
 export const clearUserDatabases = async (userId: string) => {
   console.log(`Clearing databases for user: ${userId}`)
-  
+
   try {
     // Get database names for this user
     const dbNames = [
       `WeightDatabase_${userId}`,
       `TasksDatabase_${userId}`,
-      `NotesDatabase_${userId}`
+      `NotesDatabase_${userId}`,
     ]
-    
+
     // Delete user-specific databases
     await Promise.all(
-      dbNames.map(dbName => {
+      dbNames.map((dbName) => {
         return new Promise<void>((resolve, reject) => {
           const deleteReq = indexedDB.deleteDatabase(dbName)
           deleteReq.onsuccess = () => {
@@ -53,7 +53,7 @@ export const clearUserDatabases = async (userId: string) => {
         })
       })
     )
-    
+
     console.log('User databases cleared successfully')
   } catch (error) {
     console.error('Failed to clear user databases:', error)
@@ -67,4 +67,4 @@ export const clearUserDatabases = async (userId: string) => {
  */
 export const sanitizeUserId = (userId: string): string => {
   return userId.replace(/[^a-zA-Z0-9_-]/g, '_')
-} 
+}

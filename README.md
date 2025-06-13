@@ -99,6 +99,7 @@ pnpm format
 To test the PWA on your mobile device:
 
 1. **Start dev server with LAN access:**
+
    ```bash
    npm run dev -- --host
    # or with pnpm
@@ -106,9 +107,11 @@ To test the PWA on your mobile device:
    ```
 
 2. **Generate QR code for easy access:**
+
    ```bash
    npx qrencode -t terminal http://YOUR_IP:5173
    ```
+
    Replace `YOUR_IP` with your computer's local IP address shown in the terminal.
 
 3. **Install on mobile:**
@@ -180,4 +183,4 @@ MIT License - see LICENSE file for details
 - [MVP Sync Documentation](MVP_SUPABASE_SYNC.md)
 - [Style Guide](style-guide.md)
 - [Security Policy](SECURITY.md)
-- [Image Generation Guide](IMAGE_GENERATION_PROMPTS.md) 
+- [Image Generation Guide](IMAGE_GENERATION_PROMPTS.md)

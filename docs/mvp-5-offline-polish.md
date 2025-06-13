@@ -13,6 +13,7 @@
 This MVP enhances the offline experience by implementing comprehensive caching strategies and providing clear feedback about connection status. It ensures the app works seamlessly without internet connectivity.
 
 ### Success Criteria
+
 - ✅ App works completely offline after first load
 - ✅ Users know when they're offline with clear indicators
 - ✅ Data changes persist during offline periods
@@ -23,13 +24,15 @@ This MVP enhances the offline experience by implementing comprehensive caching s
 ## 🎯 User Stories & Tasks
 
 ### 5.1 Runtime Cache
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 3  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, the app works seamlessly offline with proper caching.*
+**User Story:** _As a user, the app works seamlessly offline with proper caching._
 
 **Acceptance Criteria:**
+
 - [ ] Images and JSON cached via Workbox
 - [ ] App shell cached for offline use
 - [ ] Data persists offline via Dexie
@@ -37,6 +40,7 @@ This MVP enhances the offline experience by implementing comprehensive caching s
 - [ ] Service worker updates handled gracefully
 
 **Technical Details:**
+
 ```typescript
 // Caching strategies
 - App shell: Cache-first (HTML, CSS, JS)
@@ -46,6 +50,7 @@ This MVP enhances the offline experience by implementing comprehensive caching s
 ```
 
 **Implementation Prompt:**
+
 ```
 Extend @vite-pwa/react configuration in vite.config.ts with:
 - workbox.runtimeCaching for images, fonts, API calls
@@ -57,6 +62,7 @@ Update service worker registration to handle updates properly.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/OfflineWeight.e2e.ts that:
 - Visits /weight while online
@@ -68,6 +74,7 @@ Create e2e/OfflineWeight.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] App loads offline after first visit
 - [ ] All cached resources available
 - [ ] Performance not degraded
@@ -76,13 +83,15 @@ Create e2e/OfflineWeight.e2e.ts that:
 ---
 
 ### 5.2 Online Status Banner
+
 **Priority:** P1 (High)  
 **Story Points:** 2  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I know when I'm offline with clear visual indicator.*
+**User Story:** _As a user, I know when I'm offline with clear visual indicator._
 
 **Acceptance Criteria:**
+
 - [ ] useOnline hook detects connection status
 - [ ] Red banner appears when offline
 - [ ] Banner disappears when back online
@@ -90,6 +99,7 @@ Create e2e/OfflineWeight.e2e.ts that:
 - [ ] Non-intrusive positioning
 
 **UI Specifications:**
+
 ```
 Offline Banner:
 ┌─────────────────────────────────┐
@@ -98,6 +108,7 @@ Offline Banner:
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/hooks/useOnline.ts that:
 - Uses navigator.onLine
@@ -114,6 +125,7 @@ Add OfflineBanner to AppShell.tsx.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/shared/hooks/useOnline.test.ts that:
 - Tests initial online state
@@ -125,6 +137,7 @@ Create e2e test for banner visibility when toggling offline.
 ```
 
 **Definition of Done:**
+
 - [ ] Hook works reliably
 - [ ] Banner shows/hides correctly
 - [ ] Animations smooth
@@ -135,12 +148,14 @@ Create e2e test for banner visibility when toggling offline.
 ## 🏗️ Design Decisions
 
 ### Caching Strategy
+
 1. **Workbox for service worker**: Mature, well-tested, good Vite integration
 2. **Cache-first for static**: Better performance, assets don't change often
 3. **Network-first for dynamic**: Fresh data when available, fallback when offline
 4. **Precaching for app shell**: Ensures offline functionality
 
 ### UX Patterns
+
 1. **Non-intrusive banner**: Informs without blocking
 2. **Red color for offline**: Universal warning color
 3. **Top positioning**: Visible but not blocking content
@@ -151,17 +166,20 @@ Create e2e test for banner visibility when toggling offline.
 ## 📊 Progress Tracking
 
 ### Sprint Velocity
+
 - **Planned Story Points:** 5
 - **Completed Story Points:** 5
 - **Sprint Progress:** 100%
 
 ### Task Status
-| Task | Status | Assignee | Estimated Hours | Actual Hours |
-|------|--------|----------|----------------|--------------|
-| 5.1 Runtime Cache | 🔴 Not Started | AI Agent | 3h | - |
-| 5.2 Online Status Banner | 🔴 Not Started | AI Agent | 2h | - |
+
+| Task                     | Status         | Assignee | Estimated Hours | Actual Hours |
+| ------------------------ | -------------- | -------- | --------------- | ------------ |
+| 5.1 Runtime Cache        | 🔴 Not Started | AI Agent | 3h              | -            |
+| 5.2 Online Status Banner | 🔴 Not Started | AI Agent | 2h              | -            |
 
 ### Quality Gates
+
 - [ ] Offline functionality verified
 - [ ] Performance maintained
 - [ ] E2E tests pass
@@ -170,4 +188,4 @@ Create e2e test for banner visibility when toggling offline.
 ---
 
 **Previous MVP:** [MVP 4 - Dashboard Module](./mvp-4-dashboard-module.md)  
-**Next MVP:** [MVP 6 - Engagement Features](./mvp-6-engagement-features.md) 
+**Next MVP:** [MVP 6 - Engagement Features](./mvp-6-engagement-features.md)

@@ -1,5 +1,11 @@
 import React, { useState } from 'react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -53,7 +59,7 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
     try {
       await addWeight({
         dateISO: date,
-        kg: parseFloat(weight)
+        kg: parseFloat(weight),
       })
 
       // Reset form and close sheet
@@ -79,35 +85,43 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="bottom" className="h-[400px] cyber-card">
+      <SheetContent side="bottom" className="cyber-card h-[400px]">
         <SheetHeader>
-          <SheetTitle className="cyber-subtitle text-ki-green">Add Weight Entry</SheetTitle>
-          <SheetDescription className="text-gray-400 font-mono">
+          <SheetTitle className="cyber-subtitle text-ki-green">
+            Add Weight Entry
+          </SheetTitle>
+          <SheetDescription className="font-mono text-gray-400">
             Log your weight for today or a specific date.
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="date" className="cyber-label text-gray-300">Date</Label>
+            <Label htmlFor="date" className="cyber-label text-gray-300">
+              Date
+            </Label>
             <Input
               id="date"
               type="date"
               value={date}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setDate(e.target.value)
+              }
               className={`
-                bg-gray-900 border-gray-600 text-white
-                focus:border-ki-green focus:ring-ki-green/20
+                focus:border-ki-green focus:ring-ki-green/20 border-gray-600
+                bg-gray-900 text-white
                 ${errors.date ? 'border-red-500' : ''}
               `}
             />
             {errors.date && (
-              <p className="text-sm text-red-400 font-mono">{errors.date}</p>
+              <p className="font-mono text-sm text-red-400">{errors.date}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="weight" className="cyber-label text-gray-300">Weight (kg)</Label>
+            <Label htmlFor="weight" className="cyber-label text-gray-300">
+              Weight (kg)
+            </Label>
             <Input
               id="weight"
               type="number"
@@ -116,15 +130,17 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
               max="999.9"
               placeholder="75.5"
               value={weight}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWeight(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setWeight(e.target.value)
+              }
               className={`
-                bg-gray-900 border-gray-600 text-white font-mono
-                focus:border-ki-green focus:ring-ki-green/20
+                focus:border-ki-green focus:ring-ki-green/20 border-gray-600 bg-gray-900
+                font-mono text-white
                 ${errors.weight ? 'border-red-500' : ''}
               `}
             />
             {errors.weight && (
-              <p className="text-sm text-red-400 font-mono">{errors.weight}</p>
+              <p className="font-mono text-sm text-red-400">{errors.weight}</p>
             )}
           </div>
 
@@ -133,7 +149,7 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              className="flex-1 bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="flex-1 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800"
               disabled={isLoading}
             >
               Cancel
@@ -151,4 +167,4 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
       </SheetContent>
     </Sheet>
   )
-} 
+}

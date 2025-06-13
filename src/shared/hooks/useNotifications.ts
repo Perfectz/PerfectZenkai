@@ -11,7 +11,8 @@ interface NotificationHook {
 const REMINDER_TIMEOUT_KEY = 'perfect-zenkai-reminder-timeout'
 
 export function useNotifications(): NotificationHook {
-  const [permission, setPermission] = useState<NotificationPermission>('default')
+  const [permission, setPermission] =
+    useState<NotificationPermission>('default')
   const [isSupported] = useState(() => 'Notification' in window)
 
   useEffect(() => {
@@ -38,15 +39,15 @@ export function useNotifications(): NotificationHook {
   const getTimeUntilNext9AM = (): number => {
     const now = new Date()
     const next9AM = new Date()
-    
+
     // Set to 9 AM today
     next9AM.setHours(9, 0, 0, 0)
-    
+
     // If it's already past 9 AM today, set to 9 AM tomorrow
     if (now >= next9AM) {
       next9AM.setDate(next9AM.getDate() + 1)
     }
-    
+
     return next9AM.getTime() - now.getTime()
   }
 
@@ -54,7 +55,7 @@ export function useNotifications(): NotificationHook {
     // This would typically check the weight store
     // For now, we'll implement a simple check
     const today = new Date().toISOString().split('T')[0]
-    
+
     // Check if there's a weight entry for today in localStorage
     // This is a simplified implementation - in a real app you'd check the actual store
     const hasWeightToday = localStorage.getItem(`weight-logged-${today}`)
@@ -73,7 +74,8 @@ export function useNotifications(): NotificationHook {
 
     // Skip weekends (optional feature mentioned in requirements)
     const today = new Date().getDay()
-    if (today === 0 || today === 6) { // Sunday = 0, Saturday = 6
+    if (today === 0 || today === 6) {
+      // Sunday = 0, Saturday = 6
       return
     }
 
@@ -83,8 +85,8 @@ export function useNotifications(): NotificationHook {
       tag: 'daily-weight-reminder',
       requireInteraction: false,
       data: {
-        url: '/weight'
-      }
+        url: '/weight',
+      },
     })
 
     notification.onclick = (event) => {
@@ -110,7 +112,7 @@ export function useNotifications(): NotificationHook {
     clearDailyReminder()
 
     const timeUntil9AM = getTimeUntilNext9AM()
-    
+
     const timeoutId = setTimeout(() => {
       sendDailyReminder()
       // Schedule the next reminder (24 hours later)
@@ -141,6 +143,6 @@ export function useNotifications(): NotificationHook {
     isSupported,
     requestPermission,
     scheduleDailyReminder,
-    clearDailyReminder
+    clearDailyReminder,
   }
-} 
+}

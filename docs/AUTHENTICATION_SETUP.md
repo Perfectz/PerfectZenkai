@@ -26,10 +26,12 @@ Perfect Zenkai uses Google OAuth for secure authentication. Follow these steps t
 
 1. **Navigate to APIs & Services > OAuth consent screen**
 2. **Choose User Type**:
+
    - Select "External" (for personal Google accounts)
    - Click "CREATE"
 
 3. **App Information** (Required fields):
+
    - **App name**: `Perfect Zenkai`
    - **User support email**: Your email address
    - **App logo**: (Optional) Upload your app logo
@@ -41,6 +43,7 @@ Perfect Zenkai uses Google OAuth for secure authentication. Follow these steps t
    - Click "SAVE AND CONTINUE"
 
 4. **Scopes** (Step 2):
+
    - Click "ADD OR REMOVE SCOPES"
    - Select these Google APIs scopes:
      - `userinfo.email` (See your primary Google Account email address)
@@ -49,6 +52,7 @@ Perfect Zenkai uses Google OAuth for secure authentication. Follow these steps t
    - Click "UPDATE" then "SAVE AND CONTINUE"
 
 5. **Test users** (Step 3):
+
    - Click "ADD USERS"
    - Add your email address and any other emails you want to test with
    - Click "SAVE AND CONTINUE"
@@ -72,15 +76,14 @@ Perfect Zenkai uses Google OAuth for secure authentication. Follow these steps t
 3. **Select "OAuth client ID"**
 
 4. **Configure the OAuth client**:
+
    - **Application type**: `Web application`
    - **Name**: `Perfect Zenkai Web Client`
-   
    - **Authorized JavaScript origins** (Optional but recommended):
      - `http://localhost:5176`
      - `http://localhost:5174`
      - `http://localhost:5173`
      - `https://perfectzenkai.netlify.app`
-   
    - **Authorized redirect URIs** (CRITICAL):
      - `http://localhost:5176/auth/callback`
      - `http://localhost:5174/auth/callback`
@@ -96,6 +99,7 @@ Perfect Zenkai uses Google OAuth for secure authentication. Follow these steps t
 ### Development Setup
 
 1. **Create `.env` file** in your project root:
+
 ```env
 # Perfect Zenkai Environment Variables
 
@@ -123,6 +127,7 @@ VITE_APP_ENV=development
 ## Step 6: Test Authentication
 
 1. **Restart your development server**:
+
 ```bash
 npm run dev
 ```
@@ -139,12 +144,14 @@ npm run dev
 We've created automation scripts to handle the CLI-based parts of the setup:
 
 #### Windows (PowerShell)
+
 ```powershell
 # Run the automated setup script
 .\scripts\setup-auth-cli.ps1
 ```
 
 #### macOS/Linux (Bash)
+
 ```bash
 # Make script executable (macOS/Linux only)
 chmod +x scripts/setup-auth-cli.sh
@@ -154,6 +161,7 @@ chmod +x scripts/setup-auth-cli.sh
 ```
 
 ### What the Scripts Automate:
+
 - ✅ Install Netlify CLI (if not present)
 - ✅ Check for Google Cloud CLI
 - ✅ Create `.env` file with your Client ID
@@ -165,6 +173,7 @@ chmod +x scripts/setup-auth-cli.sh
 ### Manual CLI Commands (if you prefer)
 
 #### Google Cloud CLI (gcloud)
+
 ```bash
 # Install Google Cloud CLI first
 # https://cloud.google.com/sdk/docs/install
@@ -179,6 +188,7 @@ gcloud services enable people.googleapis.com
 ```
 
 #### Netlify CLI
+
 ```bash
 # Install Netlify CLI
 npm install -g netlify-cli
@@ -194,6 +204,7 @@ netlify deploy --prod
 ```
 
 ### What CANNOT be automated:
+
 - OAuth consent screen configuration (manual UI only)
 - Creating OAuth 2.0 credentials (manual UI only)
 - Copying the Client ID (manual step)
@@ -203,15 +214,17 @@ netlify deploy --prod
 ### Common Issues
 
 #### 1. "Google Client ID is not configured"
+
 - **Cause**: Missing or incorrect `VITE_GOOGLE_CLIENT_ID` in `.env`
-- **Solution**: 
+- **Solution**:
   - Verify `.env` file exists in project root
   - Check Client ID format (should end with `.apps.googleusercontent.com`)
   - Restart dev server after adding environment variables
 
 #### 2. "redirect_uri_mismatch" Error
+
 - **Cause**: Redirect URI in Google Console doesn't match your app's URL
-- **Solution**: 
+- **Solution**:
   - Go to Google Cloud Console > APIs & Services > Credentials
   - Edit your OAuth 2.0 Client ID
   - Add exact redirect URI:
@@ -220,22 +233,25 @@ netlify deploy --prod
   - **Note**: URIs are case-sensitive and must match exactly
 
 #### 3. "access_denied" Error
+
 - **Cause**: OAuth consent screen issues or user not authorized
-- **Solution**: 
+- **Solution**:
   - Ensure OAuth consent screen is fully configured
   - Check that your app is in "Testing" mode
   - Add your email as a test user
   - **Check**: APIs & Services > OAuth consent screen > Test users
 
 #### 4. "invalid_client" Error
+
 - **Cause**: Incorrect Client ID
-- **Solution**: 
+- **Solution**:
   - Double-check Client ID in `.env` matches Google Console exactly
   - Ensure no extra spaces or characters
 
 #### 5. "This app isn't verified" Warning
+
 - **Cause**: Normal for apps in testing mode
-- **Solution**: 
+- **Solution**:
   - Click "Advanced" then "Go to Perfect Zenkai (unsafe)"
   - This is expected during development
   - For production, you'd need to verify your app (not required for personal use)
@@ -243,6 +259,7 @@ netlify deploy --prod
 ### Debug Steps
 
 1. **Check environment variables**:
+
 ```bash
 # In your terminal (Windows PowerShell)
 echo $env:VITE_GOOGLE_CLIENT_ID
@@ -256,6 +273,7 @@ console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID)
 3. **Verify redirect URI** matches exactly (including protocol, port, and path)
 
 4. **Check OAuth consent screen status**:
+
    - Go to APIs & Services > OAuth consent screen
    - Ensure status shows "Testing"
    - Verify your email is in test users list
@@ -271,18 +289,20 @@ The interface has changed significantly. Here's the current navigation:
 - **Main Menu**: Hamburger menu (☰) in top-left
 - **APIs & Services**: In the main navigation menu
 - **OAuth consent screen**: Under APIs & Services
-- **Credentials**: Under APIs & Services  
+- **Credentials**: Under APIs & Services
 - **Library**: Under APIs & Services (for enabling APIs)
 
 ## Security Best Practices
 
 ### Environment Variables
+
 - ✅ Never commit `.env` files to version control
 - ✅ Use different Client IDs for development and production
 - ✅ Regularly rotate OAuth credentials
 - ✅ Monitor OAuth usage in Google Console
 
 ### OAuth Configuration
+
 - ✅ Use HTTPS in production
 - ✅ Limit redirect URIs to your actual domains only
 - ✅ Review OAuth consent screen regularly
@@ -292,6 +312,7 @@ The interface has changed significantly. Here's the current navigation:
 ## Free Tier Information
 
 ✅ **Google OAuth is completely FREE** for your use case:
+
 - Unlimited authentication requests
 - No cost per user login
 - Google Identity Services API: Free
@@ -315,10 +336,10 @@ perfect-zenkai/
 
 ## Environment Variables Reference
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID | `123456789-abc.apps.googleusercontent.com` |
-| `VITE_APP_ENV` | Application environment | `development` or `production` |
+| Variable                | Description             | Example                                    |
+| ----------------------- | ----------------------- | ------------------------------------------ |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID  | `123456789-abc.apps.googleusercontent.com` |
+| `VITE_APP_ENV`          | Application environment | `development` or `production`              |
 
 ## Quick Setup Checklist
 
@@ -345,4 +366,4 @@ If you encounter issues:
 
 **Last Updated**: December 2024  
 **Version**: 2.0 (Updated for current Google Cloud Console interface)  
-**Compatible with**: Perfect Zenkai MVP 8+ 
+**Compatible with**: Perfect Zenkai MVP 8+

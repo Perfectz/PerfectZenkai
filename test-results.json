@@ -1,1 +1,469 @@
-{"numTotalTestSuites":36,"numPassedTestSuites":36,"numFailedTestSuites":0,"numPendingTestSuites":0,"numTotalTests":47,"numPassedTests":45,"numFailedTests":2,"numPendingTests":0,"numTodoTests":0,"startTime":1749823261508,"success":false,"testResults":[{"assertionResults":[{"ancestorTitles":["","Sample Test"],"fullName":" Sample Test should render button with text using renderWithProviders","status":"passed","title":"should render button with text using renderWithProviders","duration":24,"failureMessages":[]},{"ancestorTitles":["","Sample Test"],"fullName":" Sample Test should work with routing context","status":"passed","title":"should work with routing context","duration":6,"failureMessages":[]}],"startTime":1749823263515,"endTime":1749823263545,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/test/Sample.test.tsx"},{"assertionResults":[{"ancestorTitles":["","AppLayout"],"fullName":" AppLayout should render Perfect Zenkai title","status":"failed","title":"should render Perfect Zenkai title","duration":53,"failureMessages":["Unable to find an element with the text: Perfect Zenkai. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\nIgnored nodes: comments, script, style\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"min-h-screen bg-background\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-0 inset-x-0 bg-gray-900 border-b border-gray-700 z-50 backdrop-blur-md\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-between items-center h-14 px-4\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<div\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"flex items-center gap-3\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"w-8 h-8 rounded-full bg-gradient-to-br from-ki-green to-plasma-cyan flex items-center justify-center ki-glow-soft\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<svg\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-user h-4 w-4 text-dark-navy\"\u001b[39m\n                \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n                \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n                \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n                \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n                \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[36m<path\u001b[39m\n                  \u001b[33md\u001b[39m=\u001b[32m\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n                \u001b[36m<circle\u001b[39m\n                  \u001b[33mcx\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                  \u001b[33mcy\u001b[39m=\u001b[32m\"7\"\u001b[39m\n                  \u001b[33mr\u001b[39m=\u001b[32m\"4\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n              \u001b[36m</svg>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n            \u001b[36m<div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-sm font-semibold text-white font-inter\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mCyber Warrior\u001b[0m\n              \u001b[36m</div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-xs text-gray-400 font-mono\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mTraining Mode\u001b[0m\n              \u001b[36m</div>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n          \u001b[36m</div>\u001b[39m\n          \u001b[36m<button\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"inline-flex items-center justify-center font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 rounded-md px-3 text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 font-mono text-xs hover:scale-105 active:scale-95\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-log-out h-4 w-4 mr-1\"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"16 17 21 12 16 7\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<line\u001b[39m\n                \u001b[33mx1\u001b[39m=\u001b[32m\"21\"\u001b[39m\n                \u001b[33mx2\u001b[39m=\u001b[32m\"9\"\u001b[39m\n                \u001b[33my1\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                \u001b[33my2\u001b[39m=\u001b[32m\"12\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[0mExit\u001b[0m\n          \u001b[36m</button>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed bottom-0 inset-x-0 cyber-nav z-40\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-around items-center h-18 px-2\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33maria-current\u001b[39m=\u001b[32m\"page\"\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        active text-ki-green\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-home \n              h-5 w-5 cyber-icon transition-all duration-200\n              glow-ki scale-110\n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"9 22 9 12 15 12 15 22\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            text-shadow-ki\n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mHQ\u001b[0m\n            \u001b[36m</span>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-ki-green rounded-full ki-glow animate-pulse\"\u001b[39m\n            \u001b[36m/>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/weight\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-bar-chart3 \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M3 3v18h18\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M18 17V9\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M13 17V5\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M8 17v-3\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mWeight\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/todo\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-check-square \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m9 11 3 3L22 4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mQuests\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/notes\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-book-open \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mIntel\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ki-green/20 to-transparent\"\u001b[39m\n        \u001b[36m/>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<main\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"pt-20 pb-20 px-4\"\u001b[39m\n      \u001b[36m/>\u001b[39m\n    \u001b[36m</div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none\"\u001b[39m\n    \u001b[36m/>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m"],"location":{"line":37,"column":19}},{"ancestorTitles":["","AppLayout"],"fullName":" AppLayout should render layout","status":"failed","title":"should render layout","duration":16,"failureMessages":["Unable to find an element with the text: Perfect Zenkai. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\nIgnored nodes: comments, script, style\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"min-h-screen bg-background\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-0 inset-x-0 bg-gray-900 border-b border-gray-700 z-50 backdrop-blur-md\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-between items-center h-14 px-4\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<div\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"flex items-center gap-3\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"w-8 h-8 rounded-full bg-gradient-to-br from-ki-green to-plasma-cyan flex items-center justify-center ki-glow-soft\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<svg\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-user h-4 w-4 text-dark-navy\"\u001b[39m\n                \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n                \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n                \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n                \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n                \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[36m<path\u001b[39m\n                  \u001b[33md\u001b[39m=\u001b[32m\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n                \u001b[36m<circle\u001b[39m\n                  \u001b[33mcx\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                  \u001b[33mcy\u001b[39m=\u001b[32m\"7\"\u001b[39m\n                  \u001b[33mr\u001b[39m=\u001b[32m\"4\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n              \u001b[36m</svg>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n            \u001b[36m<div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-sm font-semibold text-white font-inter\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mCyber Warrior\u001b[0m\n              \u001b[36m</div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-xs text-gray-400 font-mono\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mTraining Mode\u001b[0m\n              \u001b[36m</div>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n          \u001b[36m</div>\u001b[39m\n          \u001b[36m<button\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"inline-flex items-center justify-center font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 rounded-md px-3 text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 font-mono text-xs hover:scale-105 active:scale-95\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-log-out h-4 w-4 mr-1\"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"16 17 21 12 16 7\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<line\u001b[39m\n                \u001b[33mx1\u001b[39m=\u001b[32m\"21\"\u001b[39m\n                \u001b[33mx2\u001b[39m=\u001b[32m\"9\"\u001b[39m\n                \u001b[33my1\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                \u001b[33my2\u001b[39m=\u001b[32m\"12\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[0mExit\u001b[0m\n          \u001b[36m</button>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed bottom-0 inset-x-0 cyber-nav z-40\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-around items-center h-18 px-2\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33maria-current\u001b[39m=\u001b[32m\"page\"\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        active text-ki-green\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-home \n              h-5 w-5 cyber-icon transition-all duration-200\n              glow-ki scale-110\n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"9 22 9 12 15 12 15 22\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            text-shadow-ki\n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mHQ\u001b[0m\n            \u001b[36m</span>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-ki-green rounded-full ki-glow animate-pulse\"\u001b[39m\n            \u001b[36m/>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/weight\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-bar-chart3 \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M3 3v18h18\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M18 17V9\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M13 17V5\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M8 17v-3\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mWeight\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/todo\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-check-square \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m9 11 3 3L22 4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mQuests\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/notes\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-book-open \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mIntel\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ki-green/20 to-transparent\"\u001b[39m\n        \u001b[36m/>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<main\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"pt-20 pb-20 px-4\"\u001b[39m\n      \u001b[36m/>\u001b[39m\n    \u001b[36m</div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none\"\u001b[39m\n    \u001b[36m/>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m"],"location":{"line":37,"column":19}}],"startTime":1749823263841,"endTime":1749823263910,"status":"failed","message":"","name":"C:/AppProjects/PerfectZenkai/src/__tests__/AppShell.test.tsx"},{"assertionResults":[{"ancestorTitles":["","Sanity Test"],"fullName":" Sanity Test should pass basic assertion","status":"passed","title":"should pass basic assertion","duration":1,"failureMessages":[]}],"startTime":1749823263223,"endTime":1749823263224,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/__tests__/sanity.test.ts"},{"assertionResults":[{"ancestorTitles":["","useOnline"],"fullName":" useOnline should return initial online state","status":"passed","title":"should return initial online state","duration":13,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should return false when navigator.onLine is false initially","status":"passed","title":"should return false when navigator.onLine is false initially","duration":2,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should add event listeners on mount","status":"passed","title":"should add event listeners on mount","duration":4,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should update state when going offline","status":"passed","title":"should update state when going offline","duration":3,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should update state when going online","status":"passed","title":"should update state when going online","duration":2,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should remove event listeners on unmount","status":"passed","title":"should remove event listeners on unmount","duration":1,"failureMessages":[]},{"ancestorTitles":["","useOnline"],"fullName":" useOnline should handle multiple online/offline transitions","status":"passed","title":"should handle multiple online/offline transitions","duration":1,"failureMessages":[]}],"startTime":1749823263454,"endTime":1749823263480,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/shared/hooks/useOnline.test.ts"},{"assertionResults":[{"ancestorTitles":["","Data Export Utils","getDataSummary"],"fullName":" Data Export Utils getDataSummary should return correct summary of exported data","status":"passed","title":"should return correct summary of exported data","duration":30,"failureMessages":[]},{"ancestorTitles":["","Data Export Utils","getDataSummary"],"fullName":" Data Export Utils getDataSummary should handle empty data","status":"passed","title":"should handle empty data","duration":1,"failureMessages":[]},{"ancestorTitles":["","Data Export Utils","exportAllData"],"fullName":" Data Export Utils exportAllData should export data from all modules","status":"passed","title":"should export data from all modules","duration":3,"failureMessages":[]},{"ancestorTitles":["","Data Export Utils","exportAllData"],"fullName":" Data Export Utils exportAllData should handle export errors","status":"passed","title":"should handle export errors","duration":9,"failureMessages":[]}],"startTime":1749823263227,"endTime":1749823263270,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/shared/utils/dataExport.test.ts"},{"assertionResults":[{"ancestorTitles":["","Notes Store","addNote"],"fullName":" Notes Store addNote should add note to store and call repo","status":"passed","title":"should add note to store and call repo","duration":5,"failureMessages":[]},{"ancestorTitles":["","Notes Store","addNote"],"fullName":" Notes Store addNote should handle errors when adding note","status":"passed","title":"should handle errors when adding note","duration":2,"failureMessages":[]},{"ancestorTitles":["","Notes Store","updateNote"],"fullName":" Notes Store updateNote should update note in store and call repo","status":"passed","title":"should update note in store and call repo","duration":1,"failureMessages":[]},{"ancestorTitles":["","Notes Store","updateNote"],"fullName":" Notes Store updateNote should handle errors when updating note","status":"passed","title":"should handle errors when updating note","duration":0,"failureMessages":[]},{"ancestorTitles":["","Notes Store","deleteNote"],"fullName":" Notes Store deleteNote should remove note from store and call repo","status":"passed","title":"should remove note from store and call repo","duration":1,"failureMessages":[]},{"ancestorTitles":["","Notes Store","deleteNote"],"fullName":" Notes Store deleteNote should handle errors when deleting note","status":"passed","title":"should handle errors when deleting note","duration":0,"failureMessages":[]},{"ancestorTitles":["","Notes Store","loadNotes"],"fullName":" Notes Store loadNotes should load notes from repo into store","status":"passed","title":"should load notes from repo into store","duration":1,"failureMessages":[]},{"ancestorTitles":["","Notes Store","loadNotes"],"fullName":" Notes Store loadNotes should handle errors when loading notes","status":"passed","title":"should handle errors when loading notes","duration":0,"failureMessages":[]},{"ancestorTitles":["","Notes Store","hydrate"],"fullName":" Notes Store hydrate should call loadNotes to hydrate store from repo","status":"passed","title":"should call loadNotes to hydrate store from repo","duration":1,"failureMessages":[]},{"ancestorTitles":["","Notes Store","clearError"],"fullName":" Notes Store clearError should clear error from store","status":"passed","title":"should clear error from store","duration":0,"failureMessages":[]}],"startTime":1749823263236,"endTime":1749823263247,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/modules/notes/store.test.ts"},{"assertionResults":[{"ancestorTitles":["","useTasksStore","addTodo"],"fullName":" useTasksStore addTodo should add a new todo successfully","status":"passed","title":"should add a new todo successfully","duration":3,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","addTodo"],"fullName":" useTasksStore addTodo should handle errors when adding todo","status":"passed","title":"should handle errors when adding todo","duration":1,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","updateTodo"],"fullName":" useTasksStore updateTodo should update todo successfully","status":"passed","title":"should update todo successfully","duration":1,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","updateTodo"],"fullName":" useTasksStore updateTodo should handle errors when updating todo","status":"passed","title":"should handle errors when updating todo","duration":0,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","deleteTodo"],"fullName":" useTasksStore deleteTodo should delete todo successfully","status":"passed","title":"should delete todo successfully","duration":1,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","deleteTodo"],"fullName":" useTasksStore deleteTodo should handle errors when deleting todo","status":"passed","title":"should handle errors when deleting todo","duration":0,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","toggleTodo"],"fullName":" useTasksStore toggleTodo should toggle todo completion status","status":"passed","title":"should toggle todo completion status","duration":2,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","toggleTodo"],"fullName":" useTasksStore toggleTodo should handle toggle for non-existent todo","status":"passed","title":"should handle toggle for non-existent todo","duration":0,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","loadTodos"],"fullName":" useTasksStore loadTodos should load todos successfully","status":"passed","title":"should load todos successfully","duration":0,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","loadTodos"],"fullName":" useTasksStore loadTodos should handle errors when loading todos","status":"passed","title":"should handle errors when loading todos","duration":1,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","hydrate"],"fullName":" useTasksStore hydrate should hydrate store by loading todos","status":"passed","title":"should hydrate store by loading todos","duration":0,"failureMessages":[]},{"ancestorTitles":["","useTasksStore","clearError"],"fullName":" useTasksStore clearError should clear error state","status":"passed","title":"should clear error state","duration":0,"failureMessages":[]}],"startTime":1749823263236,"endTime":1749823263246,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/modules/tasks/store.test.ts"},{"assertionResults":[{"ancestorTitles":["","Weight Store","addWeight"],"fullName":" Weight Store addWeight should add weight entry to store and call repo","status":"passed","title":"should add weight entry to store and call repo","duration":5,"failureMessages":[]},{"ancestorTitles":["","Weight Store","addWeight"],"fullName":" Weight Store addWeight should handle errors when adding weight","status":"passed","title":"should handle errors when adding weight","duration":1,"failureMessages":[]},{"ancestorTitles":["","Weight Store","addWeight"],"fullName":" Weight Store addWeight should sort weights by date (newest first)","status":"passed","title":"should sort weights by date (newest first)","duration":1,"failureMessages":[]},{"ancestorTitles":["","Weight Store","deleteWeight"],"fullName":" Weight Store deleteWeight should remove weight from store and call repo","status":"passed","title":"should remove weight from store and call repo","duration":1,"failureMessages":[]},{"ancestorTitles":["","Weight Store","deleteWeight"],"fullName":" Weight Store deleteWeight should handle errors when deleting weight","status":"passed","title":"should handle errors when deleting weight","duration":1,"failureMessages":[]},{"ancestorTitles":["","Weight Store","loadWeights"],"fullName":" Weight Store loadWeights should load weights from repo into store","status":"passed","title":"should load weights from repo into store","duration":0,"failureMessages":[]},{"ancestorTitles":["","Weight Store","loadWeights"],"fullName":" Weight Store loadWeights should handle errors when loading weights","status":"passed","title":"should handle errors when loading weights","duration":3,"failureMessages":[]},{"ancestorTitles":["","Weight Store","hydrate"],"fullName":" Weight Store hydrate should call loadWeights to hydrate store from repo","status":"passed","title":"should call loadWeights to hydrate store from repo","duration":0,"failureMessages":[]},{"ancestorTitles":["","Weight Store","clearError"],"fullName":" Weight Store clearError should clear error state","status":"passed","title":"should clear error state","duration":0,"failureMessages":[]}],"startTime":1749823263268,"endTime":1749823263281,"status":"passed","message":"","name":"C:/AppProjects/PerfectZenkai/src/modules/weight/store.test.ts"}]}
+{
+  "numTotalTestSuites": 36,
+  "numPassedTestSuites": 36,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 47,
+  "numPassedTests": 45,
+  "numFailedTests": 2,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "startTime": 1749823261508,
+  "success": false,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "Sample Test"],
+          "fullName": " Sample Test should render button with text using renderWithProviders",
+          "status": "passed",
+          "title": "should render button with text using renderWithProviders",
+          "duration": 24,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Sample Test"],
+          "fullName": " Sample Test should work with routing context",
+          "status": "passed",
+          "title": "should work with routing context",
+          "duration": 6,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263515,
+      "endTime": 1749823263545,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/test/Sample.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "AppLayout"],
+          "fullName": " AppLayout should render Perfect Zenkai title",
+          "status": "failed",
+          "title": "should render Perfect Zenkai title",
+          "duration": 53,
+          "failureMessages": [
+            "Unable to find an element with the text: Perfect Zenkai. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\nIgnored nodes: comments, script, style\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"min-h-screen bg-background\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-0 inset-x-0 bg-gray-900 border-b border-gray-700 z-50 backdrop-blur-md\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-between items-center h-14 px-4\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<div\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"flex items-center gap-3\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"w-8 h-8 rounded-full bg-gradient-to-br from-ki-green to-plasma-cyan flex items-center justify-center ki-glow-soft\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<svg\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-user h-4 w-4 text-dark-navy\"\u001b[39m\n                \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n                \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n                \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n                \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n                \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[36m<path\u001b[39m\n                  \u001b[33md\u001b[39m=\u001b[32m\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n                \u001b[36m<circle\u001b[39m\n                  \u001b[33mcx\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                  \u001b[33mcy\u001b[39m=\u001b[32m\"7\"\u001b[39m\n                  \u001b[33mr\u001b[39m=\u001b[32m\"4\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n              \u001b[36m</svg>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n            \u001b[36m<div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-sm font-semibold text-white font-inter\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mCyber Warrior\u001b[0m\n              \u001b[36m</div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-xs text-gray-400 font-mono\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mTraining Mode\u001b[0m\n              \u001b[36m</div>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n          \u001b[36m</div>\u001b[39m\n          \u001b[36m<button\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"inline-flex items-center justify-center font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 rounded-md px-3 text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 font-mono text-xs hover:scale-105 active:scale-95\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-log-out h-4 w-4 mr-1\"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"16 17 21 12 16 7\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<line\u001b[39m\n                \u001b[33mx1\u001b[39m=\u001b[32m\"21\"\u001b[39m\n                \u001b[33mx2\u001b[39m=\u001b[32m\"9\"\u001b[39m\n                \u001b[33my1\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                \u001b[33my2\u001b[39m=\u001b[32m\"12\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[0mExit\u001b[0m\n          \u001b[36m</button>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed bottom-0 inset-x-0 cyber-nav z-40\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-around items-center h-18 px-2\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33maria-current\u001b[39m=\u001b[32m\"page\"\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        active text-ki-green\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-home \n              h-5 w-5 cyber-icon transition-all duration-200\n              glow-ki scale-110\n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"9 22 9 12 15 12 15 22\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            text-shadow-ki\n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mHQ\u001b[0m\n            \u001b[36m</span>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-ki-green rounded-full ki-glow animate-pulse\"\u001b[39m\n            \u001b[36m/>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/weight\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-bar-chart3 \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M3 3v18h18\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M18 17V9\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M13 17V5\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M8 17v-3\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mWeight\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/todo\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-check-square \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m9 11 3 3L22 4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mQuests\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/notes\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-book-open \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mIntel\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ki-green/20 to-transparent\"\u001b[39m\n        \u001b[36m/>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<main\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"pt-20 pb-20 px-4\"\u001b[39m\n      \u001b[36m/>\u001b[39m\n    \u001b[36m</div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none\"\u001b[39m\n    \u001b[36m/>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m"
+          ],
+          "location": { "line": 37, "column": 19 }
+        },
+        {
+          "ancestorTitles": ["", "AppLayout"],
+          "fullName": " AppLayout should render layout",
+          "status": "failed",
+          "title": "should render layout",
+          "duration": 16,
+          "failureMessages": [
+            "Unable to find an element with the text: Perfect Zenkai. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.\n\nIgnored nodes: comments, script, style\n\u001b[36m<body>\u001b[39m\n  \u001b[36m<div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"min-h-screen bg-background\"\u001b[39m\n    \u001b[36m>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-0 inset-x-0 bg-gray-900 border-b border-gray-700 z-50 backdrop-blur-md\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-between items-center h-14 px-4\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<div\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"flex items-center gap-3\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"w-8 h-8 rounded-full bg-gradient-to-br from-ki-green to-plasma-cyan flex items-center justify-center ki-glow-soft\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<svg\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-user h-4 w-4 text-dark-navy\"\u001b[39m\n                \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n                \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n                \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n                \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n                \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n                \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n                \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[36m<path\u001b[39m\n                  \u001b[33md\u001b[39m=\u001b[32m\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n                \u001b[36m<circle\u001b[39m\n                  \u001b[33mcx\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                  \u001b[33mcy\u001b[39m=\u001b[32m\"7\"\u001b[39m\n                  \u001b[33mr\u001b[39m=\u001b[32m\"4\"\u001b[39m\n                \u001b[36m/>\u001b[39m\n              \u001b[36m</svg>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n            \u001b[36m<div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-sm font-semibold text-white font-inter\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mCyber Warrior\u001b[0m\n              \u001b[36m</div>\u001b[39m\n              \u001b[36m<div\u001b[39m\n                \u001b[33mclass\u001b[39m=\u001b[32m\"text-xs text-gray-400 font-mono\"\u001b[39m\n              \u001b[36m>\u001b[39m\n                \u001b[0mTraining Mode\u001b[0m\n              \u001b[36m</div>\u001b[39m\n            \u001b[36m</div>\u001b[39m\n          \u001b[36m</div>\u001b[39m\n          \u001b[36m<button\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"inline-flex items-center justify-center font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 rounded-md px-3 text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 font-mono text-xs hover:scale-105 active:scale-95\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-log-out h-4 w-4 mr-1\"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"16 17 21 12 16 7\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<line\u001b[39m\n                \u001b[33mx1\u001b[39m=\u001b[32m\"21\"\u001b[39m\n                \u001b[33mx2\u001b[39m=\u001b[32m\"9\"\u001b[39m\n                \u001b[33my1\u001b[39m=\u001b[32m\"12\"\u001b[39m\n                \u001b[33my2\u001b[39m=\u001b[32m\"12\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[0mExit\u001b[0m\n          \u001b[36m</button>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<div\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"fixed bottom-0 inset-x-0 cyber-nav z-40\"\u001b[39m\n      \u001b[36m>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"flex justify-around items-center h-18 px-2\"\u001b[39m\n        \u001b[36m>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33maria-current\u001b[39m=\u001b[32m\"page\"\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        active text-ki-green\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-home \n              h-5 w-5 cyber-icon transition-all duration-200\n              glow-ki scale-110\n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<polyline\u001b[39m\n                \u001b[33mpoints\u001b[39m=\u001b[32m\"9 22 9 12 15 12 15 22\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            text-shadow-ki\n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mHQ\u001b[0m\n            \u001b[36m</span>\u001b[39m\n            \u001b[36m<div\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-ki-green rounded-full ki-glow animate-pulse\"\u001b[39m\n            \u001b[36m/>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/weight\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-bar-chart3 \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M3 3v18h18\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M18 17V9\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M13 17V5\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M8 17v-3\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mWeight\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/todo\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-check-square \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"m9 11 3 3L22 4\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mQuests\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n          \u001b[36m<a\u001b[39m\n            \u001b[33mclass\u001b[39m=\u001b[32m\"\n        cyber-nav-item relative\n        text-gray-500\n        \n        transition-all duration-150 ease-out\n        hover:scale-105\n        active:scale-95\n      \"\u001b[39m\n            \u001b[33mdata-discover\u001b[39m=\u001b[32m\"true\"\u001b[39m\n            \u001b[33mhref\u001b[39m=\u001b[32m\"/notes\"\u001b[39m\n          \u001b[36m>\u001b[39m\n            \u001b[36m<svg\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"lucide lucide-book-open \n              h-5 w-5 cyber-icon transition-all duration-200\n              \n              \n            \"\u001b[39m\n              \u001b[33mfill\u001b[39m=\u001b[32m\"none\"\u001b[39m\n              \u001b[33mheight\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mstroke\u001b[39m=\u001b[32m\"currentColor\"\u001b[39m\n              \u001b[33mstroke-linecap\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-linejoin\u001b[39m=\u001b[32m\"round\"\u001b[39m\n              \u001b[33mstroke-width\u001b[39m=\u001b[32m\"2\"\u001b[39m\n              \u001b[33mviewBox\u001b[39m=\u001b[32m\"0 0 24 24\"\u001b[39m\n              \u001b[33mwidth\u001b[39m=\u001b[32m\"24\"\u001b[39m\n              \u001b[33mxmlns\u001b[39m=\u001b[32m\"http://www.w3.org/2000/svg\"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n              \u001b[36m<path\u001b[39m\n                \u001b[33md\u001b[39m=\u001b[32m\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"\u001b[39m\n              \u001b[36m/>\u001b[39m\n            \u001b[36m</svg>\u001b[39m\n            \u001b[36m<span\u001b[39m\n              \u001b[33mclass\u001b[39m=\u001b[32m\"\n            text-xs font-semibold font-inter tracking-wide\n            \n            transition-all duration-200\n          \"\u001b[39m\n            \u001b[36m>\u001b[39m\n              \u001b[0mIntel\u001b[0m\n            \u001b[36m</span>\u001b[39m\n          \u001b[36m</a>\u001b[39m\n        \u001b[36m</div>\u001b[39m\n        \u001b[36m<div\u001b[39m\n          \u001b[33mclass\u001b[39m=\u001b[32m\"absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ki-green/20 to-transparent\"\u001b[39m\n        \u001b[36m/>\u001b[39m\n      \u001b[36m</div>\u001b[39m\n      \u001b[36m<main\u001b[39m\n        \u001b[33mclass\u001b[39m=\u001b[32m\"pt-20 pb-20 px-4\"\u001b[39m\n      \u001b[36m/>\u001b[39m\n    \u001b[36m</div>\u001b[39m\n    \u001b[36m<div\u001b[39m\n      \u001b[33mclass\u001b[39m=\u001b[32m\"fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none\"\u001b[39m\n    \u001b[36m/>\u001b[39m\n  \u001b[36m</div>\u001b[39m\n\u001b[36m</body>\u001b[39m"
+          ],
+          "location": { "line": 37, "column": 19 }
+        }
+      ],
+      "startTime": 1749823263841,
+      "endTime": 1749823263910,
+      "status": "failed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/__tests__/AppShell.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "Sanity Test"],
+          "fullName": " Sanity Test should pass basic assertion",
+          "status": "passed",
+          "title": "should pass basic assertion",
+          "duration": 1,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263223,
+      "endTime": 1749823263224,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/__tests__/sanity.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should return initial online state",
+          "status": "passed",
+          "title": "should return initial online state",
+          "duration": 13,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should return false when navigator.onLine is false initially",
+          "status": "passed",
+          "title": "should return false when navigator.onLine is false initially",
+          "duration": 2,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should add event listeners on mount",
+          "status": "passed",
+          "title": "should add event listeners on mount",
+          "duration": 4,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should update state when going offline",
+          "status": "passed",
+          "title": "should update state when going offline",
+          "duration": 3,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should update state when going online",
+          "status": "passed",
+          "title": "should update state when going online",
+          "duration": 2,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should remove event listeners on unmount",
+          "status": "passed",
+          "title": "should remove event listeners on unmount",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useOnline"],
+          "fullName": " useOnline should handle multiple online/offline transitions",
+          "status": "passed",
+          "title": "should handle multiple online/offline transitions",
+          "duration": 1,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263454,
+      "endTime": 1749823263480,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/shared/hooks/useOnline.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "Data Export Utils", "getDataSummary"],
+          "fullName": " Data Export Utils getDataSummary should return correct summary of exported data",
+          "status": "passed",
+          "title": "should return correct summary of exported data",
+          "duration": 30,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Data Export Utils", "getDataSummary"],
+          "fullName": " Data Export Utils getDataSummary should handle empty data",
+          "status": "passed",
+          "title": "should handle empty data",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Data Export Utils", "exportAllData"],
+          "fullName": " Data Export Utils exportAllData should export data from all modules",
+          "status": "passed",
+          "title": "should export data from all modules",
+          "duration": 3,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Data Export Utils", "exportAllData"],
+          "fullName": " Data Export Utils exportAllData should handle export errors",
+          "status": "passed",
+          "title": "should handle export errors",
+          "duration": 9,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263227,
+      "endTime": 1749823263270,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/shared/utils/dataExport.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "Notes Store", "addNote"],
+          "fullName": " Notes Store addNote should add note to store and call repo",
+          "status": "passed",
+          "title": "should add note to store and call repo",
+          "duration": 5,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "addNote"],
+          "fullName": " Notes Store addNote should handle errors when adding note",
+          "status": "passed",
+          "title": "should handle errors when adding note",
+          "duration": 2,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "updateNote"],
+          "fullName": " Notes Store updateNote should update note in store and call repo",
+          "status": "passed",
+          "title": "should update note in store and call repo",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "updateNote"],
+          "fullName": " Notes Store updateNote should handle errors when updating note",
+          "status": "passed",
+          "title": "should handle errors when updating note",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "deleteNote"],
+          "fullName": " Notes Store deleteNote should remove note from store and call repo",
+          "status": "passed",
+          "title": "should remove note from store and call repo",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "deleteNote"],
+          "fullName": " Notes Store deleteNote should handle errors when deleting note",
+          "status": "passed",
+          "title": "should handle errors when deleting note",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "loadNotes"],
+          "fullName": " Notes Store loadNotes should load notes from repo into store",
+          "status": "passed",
+          "title": "should load notes from repo into store",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "loadNotes"],
+          "fullName": " Notes Store loadNotes should handle errors when loading notes",
+          "status": "passed",
+          "title": "should handle errors when loading notes",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "hydrate"],
+          "fullName": " Notes Store hydrate should call loadNotes to hydrate store from repo",
+          "status": "passed",
+          "title": "should call loadNotes to hydrate store from repo",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Notes Store", "clearError"],
+          "fullName": " Notes Store clearError should clear error from store",
+          "status": "passed",
+          "title": "should clear error from store",
+          "duration": 0,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263236,
+      "endTime": 1749823263247,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/modules/notes/store.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "useTasksStore", "addTodo"],
+          "fullName": " useTasksStore addTodo should add a new todo successfully",
+          "status": "passed",
+          "title": "should add a new todo successfully",
+          "duration": 3,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "addTodo"],
+          "fullName": " useTasksStore addTodo should handle errors when adding todo",
+          "status": "passed",
+          "title": "should handle errors when adding todo",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "updateTodo"],
+          "fullName": " useTasksStore updateTodo should update todo successfully",
+          "status": "passed",
+          "title": "should update todo successfully",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "updateTodo"],
+          "fullName": " useTasksStore updateTodo should handle errors when updating todo",
+          "status": "passed",
+          "title": "should handle errors when updating todo",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "deleteTodo"],
+          "fullName": " useTasksStore deleteTodo should delete todo successfully",
+          "status": "passed",
+          "title": "should delete todo successfully",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "deleteTodo"],
+          "fullName": " useTasksStore deleteTodo should handle errors when deleting todo",
+          "status": "passed",
+          "title": "should handle errors when deleting todo",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "toggleTodo"],
+          "fullName": " useTasksStore toggleTodo should toggle todo completion status",
+          "status": "passed",
+          "title": "should toggle todo completion status",
+          "duration": 2,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "toggleTodo"],
+          "fullName": " useTasksStore toggleTodo should handle toggle for non-existent todo",
+          "status": "passed",
+          "title": "should handle toggle for non-existent todo",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "loadTodos"],
+          "fullName": " useTasksStore loadTodos should load todos successfully",
+          "status": "passed",
+          "title": "should load todos successfully",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "loadTodos"],
+          "fullName": " useTasksStore loadTodos should handle errors when loading todos",
+          "status": "passed",
+          "title": "should handle errors when loading todos",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "hydrate"],
+          "fullName": " useTasksStore hydrate should hydrate store by loading todos",
+          "status": "passed",
+          "title": "should hydrate store by loading todos",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "useTasksStore", "clearError"],
+          "fullName": " useTasksStore clearError should clear error state",
+          "status": "passed",
+          "title": "should clear error state",
+          "duration": 0,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263236,
+      "endTime": 1749823263246,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/modules/tasks/store.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["", "Weight Store", "addWeight"],
+          "fullName": " Weight Store addWeight should add weight entry to store and call repo",
+          "status": "passed",
+          "title": "should add weight entry to store and call repo",
+          "duration": 5,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "addWeight"],
+          "fullName": " Weight Store addWeight should handle errors when adding weight",
+          "status": "passed",
+          "title": "should handle errors when adding weight",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "addWeight"],
+          "fullName": " Weight Store addWeight should sort weights by date (newest first)",
+          "status": "passed",
+          "title": "should sort weights by date (newest first)",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "deleteWeight"],
+          "fullName": " Weight Store deleteWeight should remove weight from store and call repo",
+          "status": "passed",
+          "title": "should remove weight from store and call repo",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "deleteWeight"],
+          "fullName": " Weight Store deleteWeight should handle errors when deleting weight",
+          "status": "passed",
+          "title": "should handle errors when deleting weight",
+          "duration": 1,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "loadWeights"],
+          "fullName": " Weight Store loadWeights should load weights from repo into store",
+          "status": "passed",
+          "title": "should load weights from repo into store",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "loadWeights"],
+          "fullName": " Weight Store loadWeights should handle errors when loading weights",
+          "status": "passed",
+          "title": "should handle errors when loading weights",
+          "duration": 3,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "hydrate"],
+          "fullName": " Weight Store hydrate should call loadWeights to hydrate store from repo",
+          "status": "passed",
+          "title": "should call loadWeights to hydrate store from repo",
+          "duration": 0,
+          "failureMessages": []
+        },
+        {
+          "ancestorTitles": ["", "Weight Store", "clearError"],
+          "fullName": " Weight Store clearError should clear error state",
+          "status": "passed",
+          "title": "should clear error state",
+          "duration": 0,
+          "failureMessages": []
+        }
+      ],
+      "startTime": 1749823263268,
+      "endTime": 1749823263281,
+      "status": "passed",
+      "message": "",
+      "name": "C:/AppProjects/PerfectZenkai/src/modules/weight/store.test.ts"
+    }
+  ]
+}

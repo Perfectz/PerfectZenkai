@@ -13,6 +13,7 @@
 This MVP creates the main dashboard that serves as the app's home screen. It provides at-a-glance insights into weight trends, today's status, task progress, and consistency streaks through interactive cards.
 
 ### Success Criteria
+
 - ✅ Dashboard serves as default route (/)
 - ✅ Responsive card layout (1-col mobile, 2-col desktop)
 - ✅ All cards display relevant data from weight/tasks modules
@@ -24,13 +25,15 @@ This MVP creates the main dashboard that serves as the app's home screen. It pro
 ## 🎯 User Stories & Tasks
 
 ### 4.1 Sparkline Card
+
 **Priority:** P1 (High)  
 **Story Points:** 3  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I can see my weight trend at a glance with interactive chart.*
+**User Story:** _As a user, I can see my weight trend at a glance with interactive chart._
 
 **Acceptance Criteria:**
+
 - [ ] Shows last 30 days weight data as sparkline
 - [ ] Uses React.lazy to load Recharts
 - [ ] Click navigates to /weight
@@ -39,6 +42,7 @@ This MVP creates the main dashboard that serves as the app's home screen. It pro
 - [ ] Responsive sizing
 
 **Technical Details:**
+
 ```typescript
 // Data processing
 - Filter last 30 days of weight entries
@@ -48,6 +52,7 @@ This MVP creates the main dashboard that serves as the app's home screen. It pro
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/WeightSparkCard.tsx with:
 - shadcn Card with rounded-2xl shadow-sm
@@ -62,6 +67,7 @@ Use Recharts with minimal styling for clean sparkline appearance.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 - Renders with 3 mock weight entries
@@ -73,6 +79,7 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 ```
 
 **Definition of Done:**
+
 - [ ] Chart renders correctly with real data
 - [ ] Performance good on mobile
 - [ ] Navigation works
@@ -81,13 +88,15 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 ---
 
 ### 4.2 Today Weight Card
+
 **Priority:** P1 (High)  
 **Story Points:** 2  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I can see today's weight status prominently.*
+**User Story:** _As a user, I can see today's weight status prominently._
 
 **Acceptance Criteria:**
+
 - [ ] Displays latest weight entry or placeholder
 - [ ] Shows date and weight with proper formatting
 - [ ] Indicates if no weight logged today
@@ -95,6 +104,7 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 - [ ] Shows trend indicator (up/down/same)
 
 **UI Specifications:**
+
 ```
 Today Weight Card:
 ┌─────────────────────────────────┐
@@ -114,6 +124,7 @@ No Weight Card:
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/TodayWeightCard.tsx with:
 - shadcn Card styling
@@ -125,6 +136,7 @@ Create src/modules/dashboard/components/TodayWeightCard.tsx with:
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 - Tests with today's weight entry
@@ -135,6 +147,7 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 ```
 
 **Definition of Done:**
+
 - [ ] Accurate today detection
 - [ ] Proper formatting
 - [ ] Navigation works
@@ -143,13 +156,15 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 ---
 
 ### 4.3 Todo Summary Card
+
 **Priority:** P1 (High)  
 **Story Points:** 2  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I can see my task progress at a glance.*
+**User Story:** _As a user, I can see my task progress at a glance._
 
 **Acceptance Criteria:**
+
 - [ ] Shows count of incomplete todos
 - [ ] Shows total todos count
 - [ ] Progress indicator or percentage
@@ -157,6 +172,7 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 - [ ] Updates in real-time
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/TodoSummaryCard.tsx with:
 - shadcn Card styling
@@ -168,6 +184,7 @@ Create src/modules/dashboard/components/TodoSummaryCard.tsx with:
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 - Tests count calculation with mixed todos
@@ -178,6 +195,7 @@ Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 ```
 
 **Definition of Done:**
+
 - [ ] Accurate counting
 - [ ] Visual progress indicator
 - [ ] Real-time updates
@@ -186,19 +204,22 @@ Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 ---
 
 ### 4.4 Streak Card (stub)
+
 **Priority:** P2 (Nice to have)  
 **Story Points:** 1  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I can see my consistency streak placeholder.*
+**User Story:** _As a user, I can see my consistency streak placeholder._
 
 **Acceptance Criteria:**
+
 - [ ] Static "0 day streak" for now
 - [ ] Proper card styling matching other cards
 - [ ] Placeholder for future streak logic
 - [ ] Same interaction pattern as other cards
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/StreakCard.tsx with:
 - shadcn Card styling matching other cards
@@ -209,6 +230,7 @@ Create src/modules/dashboard/components/StreakCard.tsx with:
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/modules/dashboard/StreakCard.test.tsx that:
 - Renders placeholder text "0 day streak"
@@ -217,6 +239,7 @@ Create src/modules/dashboard/StreakCard.test.tsx that:
 ```
 
 **Definition of Done:**
+
 - [ ] Consistent styling
 - [ ] Placeholder functionality
 - [ ] Ready for future enhancement
@@ -224,13 +247,15 @@ Create src/modules/dashboard/StreakCard.test.tsx that:
 ---
 
 ### 4.5 Dashboard Page
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 2  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I have a useful home screen with responsive card layout.*
+**User Story:** _As a user, I have a useful home screen with responsive card layout._
 
 **Acceptance Criteria:**
+
 - [ ] `/` route shows dashboard
 - [ ] Grid: 1‑col <640px, 2‑col ≥640px
 - [ ] All four cards properly arranged
@@ -238,6 +263,7 @@ Create src/modules/dashboard/StreakCard.test.tsx that:
 - [ ] Proper spacing and padding
 
 **Layout Specifications:**
+
 ```
 Mobile (< 640px):
 ┌─────────────────────┐
@@ -259,6 +285,7 @@ Desktop (≥ 640px):
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/pages/DashboardPage.tsx with:
 - CSS Grid layout: grid-cols-1 sm:grid-cols-2
@@ -273,6 +300,7 @@ Add to src/modules/dashboard/index.ts exports.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/DashboardResponsive.e2e.ts that:
 - Tests viewport 500px (mobile) - expects 1 column
@@ -283,6 +311,7 @@ Create e2e/DashboardResponsive.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] Responsive layout works
 - [ ] All cards render correctly
 - [ ] Navigation from cards works
@@ -291,19 +320,22 @@ Create e2e/DashboardResponsive.e2e.ts that:
 ---
 
 ### 4.6 Default Route & Header
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 1  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, the app opens to dashboard with proper branding.*
+**User Story:** _As a user, the app opens to dashboard with proper branding._
 
 **Acceptance Criteria:**
+
 - [ ] App opens to dashboard by default
 - [ ] Header shows "Perfect Zenkai" title consistently
 - [ ] Proper routing setup
 - [ ] All module routes integrated
 
 **Implementation Prompt:**
+
 ```
 Update src/app/routes.ts to:
 - Set default route "/" to DashboardPage
@@ -316,6 +348,7 @@ Verify all module routes are properly integrated.
 ```
 
 **Definition of Done:**
+
 - [ ] Default route works
 - [ ] All routes accessible
 - [ ] Header consistent
@@ -326,18 +359,21 @@ Verify all module routes are properly integrated.
 ## 🏗️ Design Decisions
 
 ### Card Architecture
+
 1. **Individual card components**: Reusable, testable, maintainable
 2. **Lazy loading for charts**: Better initial load performance
 3. **Click-to-navigate**: Consistent interaction pattern
 4. **Real-time updates**: Subscribe to store changes
 
 ### Layout Strategy
+
 1. **CSS Grid over Flexbox**: Better 2D layout control
 2. **Mobile-first responsive**: Primary use case optimization
 3. **Consistent spacing**: Design system adherence
 4. **Card-based UI**: Modern, scannable, touch-friendly
 
 ### Data Integration
+
 1. **Direct store subscription**: Real-time updates, simple
 2. **No data fetching**: Modules handle their own data
 3. **Graceful degradation**: Handle missing/empty data
@@ -348,26 +384,30 @@ Verify all module routes are properly integrated.
 ## 📊 Progress Tracking
 
 ### Sprint Velocity
+
 - **Planned Story Points:** 11
 - **Completed Story Points:** 11
 - **Sprint Progress:** 100%
 
 ### Task Status
-| Task | Status | Assignee | Estimated Hours | Actual Hours |
-|------|--------|----------|----------------|--------------|
-| 4.1 Sparkline Card | 🔴 Not Started | AI Agent | 3h | - |
-| 4.2 Today Weight Card | 🔴 Not Started | AI Agent | 2h | - |
-| 4.3 Todo Summary Card | 🔴 Not Started | AI Agent | 2h | - |
-| 4.4 Streak Card | 🔴 Not Started | AI Agent | 0.5h | - |
-| 4.5 Dashboard Page | 🔴 Not Started | AI Agent | 1.5h | - |
-| 4.6 Default Route | 🔴 Not Started | AI Agent | 0.5h | - |
+
+| Task                  | Status         | Assignee | Estimated Hours | Actual Hours |
+| --------------------- | -------------- | -------- | --------------- | ------------ |
+| 4.1 Sparkline Card    | 🔴 Not Started | AI Agent | 3h              | -            |
+| 4.2 Today Weight Card | 🔴 Not Started | AI Agent | 2h              | -            |
+| 4.3 Todo Summary Card | 🔴 Not Started | AI Agent | 2h              | -            |
+| 4.4 Streak Card       | 🔴 Not Started | AI Agent | 0.5h            | -            |
+| 4.5 Dashboard Page    | 🔴 Not Started | AI Agent | 1.5h            | -            |
+| 4.6 Default Route     | 🔴 Not Started | AI Agent | 0.5h            | -            |
 
 ### Blockers & Risks
+
 - **Dependency on MVP 2 & 3**: Need weight and tasks data
 - **Recharts bundle size**: May impact initial load time
 - **Real-time updates**: Need to ensure performance with many updates
 
 ### Quality Gates
+
 - [ ] All cards render with real data
 - [ ] Responsive design works on all viewports
 - [ ] Performance acceptable on mobile
@@ -377,4 +417,4 @@ Verify all module routes are properly integrated.
 ---
 
 **Previous MVP:** [MVP 3 - Tasks Module v1](./mvp-3-tasks-module-v1.md)  
-**Next MVP:** [MVP 5 - Offline Polish](./mvp-5-offline-polish.md) 
+**Next MVP:** [MVP 5 - Offline Polish](./mvp-5-offline-polish.md)

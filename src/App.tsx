@@ -6,4 +6,4 @@ function App() {
   return element
 }
 
-export default App 
+export default App

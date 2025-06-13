@@ -1,11 +1,13 @@
 # Perfect Zenkai - Solution Design Document
-*Updated with all architectural changes and improvements*
+
+_Updated with all architectural changes and improvements_
 
 ## 🏗️ System Architecture Overview
 
 Perfect Zenkai is a **progressive web application (PWA)** built with modern web technologies, featuring offline-first architecture with optional online persistence.
 
 ### **Core Architecture Principles**
+
 - **Offline-First**: Primary data storage is local (IndexedDB)
 - **Progressive Enhancement**: Online features enhance but don't replace offline functionality
 - **Modular Design**: Feature-based module organization
@@ -15,6 +17,7 @@ Perfect Zenkai is a **progressive web application (PWA)** built with modern web 
 ## 🔄 **Authentication Evolution**
 
 ### **Phase 1: Google OAuth (Original)**
+
 - **Implementation**: Google OAuth 2.0 with JWT tokens
 - **Issues Discovered**:
   - Complex setup and maintenance
@@ -23,11 +26,13 @@ Perfect Zenkai is a **progressive web application (PWA)** built with modern web 
   - User complaints about Google account requirements
 
 ### **Phase 2: Local Authentication (Interim)**
+
 - **Implementation**: Username/password with local storage
 - **Features**: Password hashing, session management
 - **Limitations**: No cross-device persistence
 
 ### **Phase 3: Supabase Authentication (Current)**
+
 ```typescript
 // Authentication Service Architecture
 src/modules/auth/
@@ -43,6 +48,7 @@ src/modules/auth/
 ```
 
 **Benefits of Supabase Migration**:
+
 - ✅ **Cross-device persistence**: Accounts sync across devices
 - ✅ **Industry-standard security**: Built-in password hashing, session management
 - ✅ **User management**: Admin dashboard for user monitoring
@@ -52,13 +58,15 @@ src/modules/auth/
 ## 🗄️ **Data Persistence Architecture**
 
 ### **Problem Solved: Data Isolation**
+
 **Original Issue**: Shared IndexedDB databases caused data mixing between users and complete data loss on logout.
 
 ### **Solution: User-Specific Database Isolation**
+
 ```typescript
 // Database Naming Convention
 WeightDatabase_${sanitizedUserId}    // Per-user weight data
-TasksDatabase_${sanitizedUserId}     // Per-user tasks data  
+TasksDatabase_${sanitizedUserId}     // Per-user tasks data
 NotesDatabase_${sanitizedUserId}     // Per-user notes data
 
 // User ID Sanitization
@@ -68,6 +76,7 @@ function sanitizeUserId(userId: string): string {
 ```
 
 ### **Storage Hierarchy**
+
 ```
 Browser Storage (IndexedDB)
 ├── User: supabase_user_123
@@ -84,32 +93,31 @@ Browser Storage (IndexedDB)
 ```
 
 ### **Database Lifecycle Management**
+
 ```typescript
 // Login Flow
 login() → getUserId() → sanitizeUserId() → initializeUserDatabases()
 
-// Logout Flow  
+// Logout Flow
 logout() → getUserId() → clearUserDatabases() → preserveOtherUsers()
 ```
 
 ## 🎨 **UI/UX Architecture**
 
 ### **Design System: Cyber-Ninja Aesthetic**
+
 ```css
 /* Color Palette */
---ki-green: #22FFB7          /* Primary action color */
---hyper-magenta: #FF2EEA     /* Secondary accent */
---plasma-cyan: #1BE7FF       /* Tertiary accent */
---dark-navy: #0F172A         /* Background primary */
---gray-900: #0F172A          /* Surface color */
-
-/* Typography Hierarchy */
-.cyber-title    /* Press Start 2P font, headers */
-.cyber-label    /* Inter font, form labels */
-.metric-display /* Orbitron font, numeric data */
+--ki-green: #22ffb7 /* Primary action color */ --hyper-magenta: #ff2eea
+  /* Secondary accent */ --plasma-cyan: #1be7ff /* Tertiary accent */
+  --dark-navy: #0f172a /* Background primary */ --gray-900: #0f172a
+  /* Surface color */ /* Typography Hierarchy */ .cyber-title
+  /* Press Start 2P font, headers */ .cyber-label /* Inter font, form labels */
+  .metric-display /* Orbitron font, numeric data */;
 ```
 
 ### **Component Architecture**
+
 ```
 src/shared/ui/          # Reusable UI components
 ├── button.tsx          # Cyber-styled buttons with glow effects
@@ -125,15 +133,20 @@ src/app/                # Layout components
 ```
 
 ### **Navigation System Fixes**
+
 **Issue Resolved**: Bottom navigation buttons weren't working due to missing CSS class.
 
 **Solution**: Added custom Tailwind utility class:
+
 ```css
 /* Custom Height Utility */
-.h-18 { height: 72px; }  /* Matches cyber-nav design spec */
+.h-18 {
+  height: 72px;
+} /* Matches cyber-nav design spec */
 ```
 
 ### **Dashboard Card Uniformity**
+
 **Improvement**: All dashboard cards now have consistent height (h-80 = 320px) with proper content distribution using Flexbox.
 
 ```typescript
@@ -150,10 +163,11 @@ src/app/                # Layout components
 ## 📱 **Module Organization**
 
 ### **Feature-Based Architecture**
+
 ```
 src/modules/
 ├── auth/              # 🔐 Authentication & Authorization
-├── dashboard/         # 📊 Overview & Quick Actions  
+├── dashboard/         # 📊 Overview & Quick Actions
 ├── weight/            # ⚖️ Weight Tracking
 ├── tasks/             # ✅ Todo/Quest Management
 └── notes/             # 📝 Note-Taking System
@@ -166,6 +180,7 @@ src/shared/
 ```
 
 ### **Module Exports Pattern**
+
 ```typescript
 // Each module exports initialization functions
 export { initializeWeightStore } from './store'
@@ -177,6 +192,7 @@ export * from './components'
 ## 🛣️ **Routing Architecture**
 
 ### **React Router Implementation**
+
 ```typescript
 // Route Structure
 {
@@ -195,6 +211,7 @@ export * from './components'
 ```
 
 ### **Navigation Improvements**
+
 - **Fixed**: Bottom navigation now uses proper React Router `NavLink`
 - **Enhanced**: Active states with cyber glow effects
 - **Improved**: Touch/click feedback with scale animations
@@ -202,17 +219,19 @@ export * from './components'
 ## 🔒 **Security & Privacy**
 
 ### **Data Protection**
+
 - **User Isolation**: Complete separation of user data
 - **Local Storage**: Data never leaves user's device (IndexedDB)
 - **Secure Authentication**: Supabase handles password hashing and session management
 - **GDPR Compliant**: No tracking, no analytics, user controls their data
 
 ### **Authentication Security**
+
 ```typescript
 // Supabase Security Features
 - Password hashing (bcrypt)
 - JWT token management
-- Session refresh handling  
+- Session refresh handling
 - Row Level Security (RLS) policies
 - HTTPS-only in production
 ```
@@ -220,11 +239,13 @@ export * from './components'
 ## ⚡ **Performance Optimizations**
 
 ### **Bundle Optimization**
+
 - **Lazy Loading**: Route-based code splitting
 - **Tree Shaking**: Unused code elimination
 - **Modern Bundling**: Vite for fast development and optimized production builds
 
 ### **Runtime Performance**
+
 - **IndexedDB**: Fast local data access (no network latency)
 - **Virtualization**: Large lists use virtual scrolling
 - **Memoization**: React components optimized with useMemo/useCallback
@@ -233,6 +254,7 @@ export * from './components'
 ## 🔄 **State Management**
 
 ### **Zustand Store Architecture**
+
 ```typescript
 // Authentication Store
 useAuthStore: {
@@ -243,12 +265,19 @@ useAuthStore: {
 }
 
 // Feature Stores (per module)
-useWeightStore: { weights, addWeight(), loadWeights() }
-useTasksStore: { tasks, addTask(), toggleTask() }  
-useNotesStore: { notes, createNote(), updateNote() }
+useWeightStore: {
+  weights, addWeight(), loadWeights()
+}
+useTasksStore: {
+  tasks, addTask(), toggleTask()
+}
+useNotesStore: {
+  notes, createNote(), updateNote()
+}
 ```
 
 ### **Data Flow Pattern**
+
 ```
 UI Component → Action → Store → Repository → IndexedDB
                 ↑                            ↓
@@ -258,22 +287,25 @@ UI Component → Action → Store → Repository → IndexedDB
 ## 🚀 **Deployment Architecture**
 
 ### **Build Process**
+
 ```bash
 npm run build
 ├── TypeScript compilation
-├── Vite bundling & optimization  
+├── Vite bundling & optimization
 ├── PWA manifest generation
 ├── Service worker registration
 └── Static asset optimization
 ```
 
 ### **Hosting: Netlify**
+
 - **CDN**: Global edge distribution
 - **HTTPS**: SSL certificates included
 - **PWA**: Service worker caching
 - **Environment Variables**: Build-time configuration
 
 ### **Environment Configuration**
+
 ```env
 # Production (.env)
 VITE_SUPABASE_URL=https://project.supabase.co
@@ -283,6 +315,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
 ## 📊 **Data Export/Import System**
 
 ### **User Data Portability**
+
 ```typescript
 // Export all user data as JSON
 exportUserData() → {
@@ -296,6 +329,7 @@ exportUserData() → {
 ```
 
 ### **Migration Support**
+
 - **Cross-device**: Export from one device, import on another
 - **Backup**: Local JSON file download
 - **Privacy**: User controls data export/sharing
@@ -303,12 +337,14 @@ exportUserData() → {
 ## 🧪 **Testing Strategy**
 
 ### **Test Coverage Areas**
+
 - **Unit Tests**: Store functions, utilities, components
 - **Integration Tests**: Authentication flow, data persistence
 - **E2E Tests**: Critical user journeys (Playwright)
 - **Visual Tests**: Component rendering, responsive design
 
 ### **Quality Assurance**
+
 - **TypeScript**: Compile-time error prevention
 - **ESLint**: Code quality enforcement
 - **Prettier**: Consistent code formatting
@@ -316,17 +352,20 @@ exportUserData() → {
 
 ## 🔮 **Future Enhancements**
 
-### **Phase 4: Optional Cloud Sync** 
+### **Phase 4: Optional Cloud Sync**
+
 - **Architecture**: IndexedDB remains primary, cloud as backup
 - **Sync Strategy**: Last-write-wins with conflict resolution
 - **User Control**: Opt-in cloud sync, local-first always
 
 ### **Performance Monitoring**
+
 - **Metrics**: Load times, bundle sizes, IndexedDB performance
 - **User Analytics**: Privacy-focused usage patterns (if opted-in)
 - **Error Tracking**: Client-side error monitoring
 
 ### **Advanced Features**
+
 - **Data Encryption**: Client-side encryption for sensitive data
 - **Offline Sync**: Background data synchronization
 - **Multi-device**: Real-time sync across user devices
@@ -335,12 +374,14 @@ exportUserData() → {
 ## 📈 **Success Metrics**
 
 ### **Technical KPIs**
+
 - **Load Time**: < 2s initial page load
 - **Bundle Size**: < 500KB gzipped
 - **Offline Capability**: 100% feature parity offline
 - **Data Persistence**: 0% data loss incidents
 
-### **User Experience KPIs**  
+### **User Experience KPIs**
+
 - **Authentication**: Single-step login/register
 - **Navigation**: < 300ms page transitions
 - **Data Entry**: < 5 seconds to add weight/task/note
@@ -349,21 +390,25 @@ exportUserData() → {
 ## 🎯 **Architecture Decision Records (ADRs)**
 
 ### **ADR-001: Supabase over Google OAuth**
+
 - **Decision**: Migrate from Google OAuth to Supabase authentication
 - **Rationale**: Simpler setup, better user experience, cross-device persistence
 - **Impact**: Improved user adoption, reduced complexity
 
 ### **ADR-002: IndexedDB over External Database**
+
 - **Decision**: Keep IndexedDB as primary storage with optional cloud sync
 - **Rationale**: Offline-first, privacy-focused, zero hosting costs
 - **Impact**: Fast performance, user data ownership
 
 ### **ADR-003: User-Specific Database Isolation**
+
 - **Decision**: Create separate IndexedDB databases per user
 - **Rationale**: Prevent data mixing, enable clean logout, maintain privacy
 - **Impact**: Solved critical data persistence issues
 
 ### **ADR-004: Cyber-Ninja Design System**
+
 - **Decision**: Consistent visual language with neon/glow effects
 - **Rationale**: Memorable brand identity, modern aesthetic appeal
 - **Impact**: Enhanced user engagement and brand recognition
@@ -373,8 +418,9 @@ exportUserData() → {
 ## 🏁 **Implementation Status**
 
 ### ✅ **Completed Features**
+
 - [x] Supabase authentication integration
-- [x] User-specific data isolation  
+- [x] User-specific data isolation
 - [x] Navigation system fixes
 - [x] Dashboard card uniformity
 - [x] Cyber-styled UI components
@@ -383,11 +429,13 @@ exportUserData() → {
 - [x] Cross-device persistence
 
 ### 🚧 **In Progress**
+
 - [ ] Supabase database setup completion
 - [ ] Production environment configuration
 - [ ] User testing and feedback collection
 
 ### 📋 **Planned Enhancements**
+
 - [ ] Optional cloud data sync
 - [ ] Advanced data visualization
 - [ ] Performance monitoring
@@ -395,4 +443,4 @@ exportUserData() → {
 
 ---
 
-*This solution design document reflects the current state of Perfect Zenkai after major architectural improvements including authentication system overhaul, data persistence fixes, and UI/UX enhancements.*
+_This solution design document reflects the current state of Perfect Zenkai after major architectural improvements including authentication system overhaul, data persistence fixes, and UI/UX enhancements._

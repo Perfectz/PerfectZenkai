@@ -10,7 +10,9 @@ interface WeightRowProps {
 }
 
 export function WeightRow({ entry }: WeightRowProps) {
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
+    null
+  )
   const [isPressed, setIsPressed] = useState(false)
   const { deleteWeight } = useWeightActions()
 
@@ -20,7 +22,7 @@ export function WeightRow({ entry }: WeightRowProps) {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
@@ -58,14 +60,14 @@ export function WeightRow({ entry }: WeightRowProps) {
       handleLongPress()
     },
     preventScrollOnSwipe: true,
-    trackMouse: true
+    trackMouse: true,
   })
 
   return (
     <Card
       {...swipeHandlers}
       className={`
-        cyber-card py-3 transition-all duration-200 cursor-pointer
+        cyber-card cursor-pointer py-3 transition-all duration-200
         ${isPressed ? 'scale-95 shadow-inner' : 'hover:scale-[1.01]'}
       `}
       onTouchStart={handleTouchStart}
@@ -74,17 +76,17 @@ export function WeightRow({ entry }: WeightRowProps) {
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      <CardContent className="py-3 px-4">
-        <div className="flex justify-between items-center">
+      <CardContent className="px-4 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-sm text-gray-400 font-mono">
+            <span className="font-mono text-sm text-gray-400">
               {formatDate(entry.dateISO)}
             </span>
-            <span className="text-lg font-semibold gradient-text-ki metric-display">
+            <span className="gradient-text-ki metric-display text-lg font-semibold">
               {formatWeight(entry.kg)}
             </span>
           </div>
-          <div className="text-xs text-gray-500 font-mono text-right">
+          <div className="text-right font-mono text-xs text-gray-500">
             <div>Hold to delete</div>
             <div className="text-plasma-cyan">← Swipe left</div>
           </div>
@@ -92,4 +94,4 @@ export function WeightRow({ entry }: WeightRowProps) {
       </CardContent>
     </Card>
   )
-} 
+}

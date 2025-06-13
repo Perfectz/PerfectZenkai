@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Sample E2E Tests', () => {
-  test('should display Perfect Zenkai header and take screenshot', async ({ page }) => {
+  test('should display Perfect Zenkai header and take screenshot', async ({
+    page,
+  }) => {
     // Navigate to the home page
     await page.goto('/')
 
@@ -13,12 +15,15 @@ test.describe('Sample E2E Tests', () => {
     await expect(header).toBeVisible()
 
     // Take a screenshot for visual verification
-    await page.screenshot({ path: 'e2e/screenshots/sample.png', fullPage: true })
+    await page.screenshot({
+      path: 'e2e/screenshots/sample.png',
+      fullPage: true,
+    })
   })
 
   test('should have mobile viewport dimensions', async ({ page }) => {
     await page.goto('/')
-    
+
     // Verify mobile viewport is being used
     const viewport = page.viewportSize()
     expect(viewport?.width).toBe(375)
@@ -47,4 +52,4 @@ test.describe('Sample E2E Tests', () => {
     const fab = page.locator('[data-testid="global-fab"]')
     await expect(fab).toBeVisible()
   })
-}) 
+})

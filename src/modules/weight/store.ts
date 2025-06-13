@@ -6,7 +6,7 @@ interface WeightState {
   weights: WeightEntry[]
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   addWeight: (entry: Omit<WeightEntry, 'id'>) => Promise<void>
   deleteWeight: (id: string) => Promise<void>
@@ -23,14 +23,15 @@ export const useWeightStore = create<WeightState>((set, get) => ({
   addWeight: async (entry) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const newEntry = await weightRepo.addWeight(entry)
-      
+
       set((state) => ({
-        weights: [newEntry, ...state.weights].sort((a, b) => 
-          new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
+        weights: [newEntry, ...state.weights].sort(
+          (a, b) =>
+            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
         ),
-        isLoading: false
+        isLoading: false,
       }))
 
       // Mark that weight was logged today (for notification logic)
@@ -39,9 +40,9 @@ export const useWeightStore = create<WeightState>((set, get) => ({
         localStorage.setItem(`weight-logged-${today}`, 'true')
       }
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to add weight',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -50,17 +51,18 @@ export const useWeightStore = create<WeightState>((set, get) => ({
   deleteWeight: async (id) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       await weightRepo.deleteWeight(id)
-      
+
       set((state) => ({
-        weights: state.weights.filter(w => w.id !== id),
-        isLoading: false
+        weights: state.weights.filter((w) => w.id !== id),
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to delete weight',
-        isLoading: false 
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to delete weight',
+        isLoading: false,
       })
       throw error
     }
@@ -69,14 +71,15 @@ export const useWeightStore = create<WeightState>((set, get) => ({
   loadWeights: async () => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const weights = await weightRepo.getAllWeights()
-      
+
       set({ weights, isLoading: false })
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to load weights',
-        isLoading: false 
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to load weights',
+        isLoading: false,
       })
     }
   },
@@ -87,10 +90,10 @@ export const useWeightStore = create<WeightState>((set, get) => ({
 
   clearError: () => {
     set({ error: null })
-  }
+  },
 }))
 
 // Initialize store hydration
 export const initializeWeightStore = async () => {
   await useWeightStore.getState().hydrate()
-} 
+}

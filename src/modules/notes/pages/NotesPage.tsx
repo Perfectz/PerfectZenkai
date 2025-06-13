@@ -20,9 +20,10 @@ export default function NotesPage() {
   }, [notes.length, loadNotes])
 
   // Filter notes based on search query
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const handleAddNote = async () => {
@@ -33,9 +34,9 @@ export default function NotesPage() {
         title: titleInput.trim(),
         content: contentInput.trim(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       })
-      
+
       // Reset form
       setTitleInput('')
       setContentInput('')
@@ -53,11 +54,11 @@ export default function NotesPage() {
 
   return (
     <div className="container mx-auto px-4 pb-24 pt-4">
-      <h2 className="text-lg font-semibold mb-4">Notes</h2>
+      <h2 className="mb-4 text-lg font-semibold">Notes</h2>
 
       {/* Search bar */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
         <Input
           placeholder="Search notes..."
           value={searchQuery}
@@ -68,7 +69,7 @@ export default function NotesPage() {
 
       {/* Add new note form */}
       {isAdding ? (
-        <div className="bg-card border rounded-lg p-4 mb-6">
+        <div className="mb-6 rounded-lg border bg-card p-4">
           <Input
             placeholder="Note title..."
             value={titleInput}
@@ -79,11 +80,13 @@ export default function NotesPage() {
           <Textarea
             placeholder="Write your note..."
             value={contentInput}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContentInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              setContentInput(e.target.value)
+            }
             className="mb-3 min-h-[120px]"
             disabled={isLoading}
           />
-          <div className="flex gap-2 justify-end">
+          <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={handleCancel}
@@ -102,10 +105,10 @@ export default function NotesPage() {
       ) : (
         <Button
           onClick={() => setIsAdding(true)}
-          className="w-full mb-6"
+          className="mb-6 w-full"
           disabled={isLoading}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Add New Note
         </Button>
       )}
@@ -123,13 +126,13 @@ export default function NotesPage() {
             </div>
           ) : searchQuery ? (
             <div className="text-center text-muted-foreground">
-              <p className="text-4xl mb-2">🔍</p>
+              <p className="mb-2 text-4xl">🔍</p>
               <p>No notes found</p>
               <p className="text-sm">Try a different search term</p>
             </div>
           ) : (
             <div className="text-center text-muted-foreground">
-              <p className="text-4xl mb-2">📝</p>
+              <p className="mb-2 text-4xl">📝</p>
               <p>No notes yet</p>
               <p className="text-sm">Create your first note above</p>
             </div>
@@ -138,4 +141,4 @@ export default function NotesPage() {
       )}
     </div>
   )
-} 
+}

@@ -5,7 +5,9 @@ This file contains all prompts needed to generate images for the Perfect Zenkai 
 ## 🎯 App Icons & PWA (Critical - Generate First)
 
 ### 1. Main App Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja app icon for "Perfect Zenkai" AI-powered fitness tracker:
 - Circular ninja-Z emblem with cyber aesthetics
@@ -20,6 +22,7 @@ Create a cyber-ninja app icon for "Perfect Zenkai" AI-powered fitness tracker:
 ```
 
 **Photoshop Editing:**
+
 1. **Resize**: Create multiple sizes (1024x1024, 512x512, 192x192)
 2. **Maskable Version**: Add 20% safe area padding around the icon
 3. **Export**: PNG format, optimize for web
@@ -31,7 +34,9 @@ Create a cyber-ninja app icon for "Perfect Zenkai" AI-powered fitness tracker:
 ## 🧭 Navigation Icons (Bottom Bar)
 
 ### 2. Weight Scale Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design a cyber-themed weight scale icon for navigation:
 - Futuristic digital scale with angular, geometric design
@@ -45,6 +50,7 @@ Design a cyber-themed weight scale icon for navigation:
 ```
 
 **Photoshop Editing:**
+
 1. **Vector Conversion**: Ensure it's vector-based (use Shape layers)
 2. **Stroke Weight**: Consistent 2px stroke throughout
 3. **Export**: SVG format for scalability
@@ -52,7 +58,9 @@ Design a cyber-themed weight scale icon for navigation:
 5. **Padding**: Ensure 2px padding on all sides
 
 ### 3. Tasks/Checklist Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja quest/task icon:
 - Futuristic checklist or mission briefing interface
@@ -66,10 +74,13 @@ Create a cyber-ninja quest/task icon:
 ```
 
 **Photoshop Editing:**
+
 - Same as Weight Scale Icon above
 
 ### 4. Dashboard/Home Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design a cyber-ninja command center/dashboard icon:
 - Futuristic HUD interface with angular grid layout
@@ -83,6 +94,7 @@ Design a cyber-ninja command center/dashboard icon:
 ```
 
 **Photoshop Editing:**
+
 - Same as Weight Scale Icon above
 
 ---
@@ -90,7 +102,9 @@ Design a cyber-ninja command center/dashboard icon:
 ## 📊 Dashboard Card Icons
 
 ### 5. Weight Card Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-themed weight tracking card icon:
 - Futuristic digital scale with holographic display
@@ -104,13 +118,16 @@ Create a cyber-themed weight tracking card icon:
 ```
 
 **Photoshop Editing:**
+
 1. **Size**: 32x32px base size
 2. **Color**: Light gray (#9CA3AF) or muted blue
 3. **Export**: SVG format
 4. **Variants**: Create hover state version (darker color)
 
 ### 6. Tasks Card Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design a cyber-ninja quest card icon:
 - Futuristic mission briefing or quest scroll with tech elements
@@ -124,10 +141,13 @@ Design a cyber-ninja quest card icon:
 ```
 
 **Photoshop Editing:**
+
 - Same as Weight Card Icon above
 
 ### 7. Streak Card Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja momentum/streak icon:
 - Futuristic flame or energy streak with neon glow
@@ -141,6 +161,7 @@ Create a cyber-ninja momentum/streak icon:
 ```
 
 **Photoshop Editing:**
+
 - Same as Weight Card Icon above
 
 ---
@@ -148,7 +169,9 @@ Create a cyber-ninja momentum/streak icon:
 ## 🎨 Branding Elements
 
 ### 8. Main Logo
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design the Perfect Zenkai cyber-ninja logo:
 - Horizontal layout with "Perfect Zenkai" in Press Start 2P pixel font
@@ -162,6 +185,7 @@ Design the Perfect Zenkai cyber-ninja logo:
 ```
 
 **Photoshop Editing:**
+
 1. **Typography**: Use Press Start 2P font for cyber aesthetic
 2. **Versions**: Create white and dark versions with neon glow variants
 3. **Formats**: SVG for web, PNG for raster needs
@@ -169,7 +193,9 @@ Design the Perfect Zenkai cyber-ninja logo:
 5. **Glow Effects**: Add Ki-Green glow layers for neon effect
 
 ### 9. Wordmark Only
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja wordmark for "Perfect Zenkai":
 - Press Start 2P pixel font for retro-futuristic feel
@@ -182,6 +208,7 @@ Create a cyber-ninja wordmark for "Perfect Zenkai":
 ```
 
 **Photoshop Editing:**
+
 - Same as Main Logo above, text only with glow effects
 
 ---
@@ -189,7 +216,9 @@ Create a cyber-ninja wordmark for "Perfect Zenkai":
 ## 🖼️ Empty State Illustrations
 
 ### 10. No Weight Data
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja empty state for weight tracking:
 - Futuristic digital scale with holographic display showing "NO DATA"
@@ -203,6 +232,7 @@ Create a cyber-ninja empty state for weight tracking:
 ```
 
 **Photoshop Editing:**
+
 1. **Size**: 200x200px base, create 150x150 and 100x100 variants
 2. **Colors**: Use cyber color palette (Ki-Green, Plasma-Cyan, navy)
 3. **Format**: SVG preferred for scalability
@@ -210,7 +240,9 @@ Create a cyber-ninja empty state for weight tracking:
 5. **Background**: Transparent with optional rain overlay
 
 ### 11. No Todos/Tasks
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja empty quest state:
 - Futuristic mission terminal or quest interface showing "NO ACTIVE QUESTS"
@@ -224,6 +256,7 @@ Create a cyber-ninja empty quest state:
 ```
 
 **Photoshop Editing:**
+
 - Same as No Weight Data above with cyber quest theming
 
 ---
@@ -231,7 +264,9 @@ Create a cyber-ninja empty quest state:
 ## 🚀 Onboarding Graphics
 
 ### 12. Install Prompt Illustration
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja app installation illustration:
 - Futuristic smartphone with Perfect Zenkai app icon glowing on screen
@@ -245,13 +280,16 @@ Create a cyber-ninja app installation illustration:
 ```
 
 **Photoshop Editing:**
+
 1. **Format**: Landscape 300x200px
 2. **Colors**: Match cyber color palette
 3. **Export**: SVG and PNG versions with glow effects
 4. **Mobile**: Ensure readability with high contrast neon elements
 
 ### 13. Welcome Screen
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design a cyber-ninja welcome screen illustration:
 - Abstract ninja silhouette with digital transformation elements
@@ -265,6 +303,7 @@ Design a cyber-ninja welcome screen illustration:
 ```
 
 **Photoshop Editing:**
+
 - Same as Install Prompt above, different dimensions with gradient effects
 
 ---
@@ -272,7 +311,9 @@ Design a cyber-ninja welcome screen illustration:
 ## 🔔 Notification Icons
 
 ### 14. Push Notification Icon
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja notification icon for daily reminders:
 - Futuristic scale or ninja shuriken symbol
@@ -285,6 +326,7 @@ Create a cyber-ninja notification icon for daily reminders:
 ```
 
 **Photoshop Editing:**
+
 1. **Sizes**: 24x24px and 48x48px
 2. **Format**: PNG with transparency
 3. **Contrast**: High contrast for visibility with neon accents
@@ -296,7 +338,9 @@ Create a cyber-ninja notification icon for daily reminders:
 ## 🎭 Background Elements
 
 ### 15. Cyber Grid Pattern
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Design a cyber-ninja background grid pattern:
 - Subtle digital grid with neon line intersections
@@ -310,6 +354,7 @@ Design a cyber-ninja background grid pattern:
 ```
 
 **Photoshop Editing:**
+
 1. **Opacity**: 5-10% maximum opacity
 2. **Tiling**: Ensure seamless tiling with grid alignment
 3. **Format**: SVG or PNG with transparency
@@ -317,7 +362,9 @@ Design a cyber-ninja background grid pattern:
 5. **Glow**: Subtle glow effects on grid intersections
 
 ### 16. Diagonal Rain Overlay
+
 **ChatGPT/Midjourney Prompt:**
+
 ```
 Create a cyber-ninja diagonal rain effect:
 - Diagonal lines at 15° angle suggesting digital rain
@@ -330,6 +377,7 @@ Create a cyber-ninja diagonal rain effect:
 ```
 
 **Photoshop Editing:**
+
 1. **Opacity**: 10-15% maximum
 2. **Format**: SVG preferred for scalability
 3. **Colors**: Subtle neon gradients
@@ -341,6 +389,7 @@ Create a cyber-ninja diagonal rain effect:
 ## 🛠️ Photoshop Workflow Tips
 
 ### General Editing Process:
+
 1. **Import**: Import AI-generated images at highest resolution
 2. **Clean Up**: Remove artifacts, ensure clean edges
 3. **Vectorize**: Convert to vector shapes when possible
@@ -348,6 +397,7 @@ Create a cyber-ninja diagonal rain effect:
 5. **Export**: Multiple formats and sizes as needed
 
 ### Cyber-Specific Editing:
+
 - **Glow Effects**: Use outer glow with Ki-Green (#22FFB7) color
 - **Sharp Edges**: Maintain angular, geometric shapes
 - **Color Grading**: Apply cyberpunk color palette consistently
@@ -355,12 +405,14 @@ Create a cyber-ninja diagonal rain effect:
 - **Neon Accents**: Use drop shadows and outer glows for neon feel
 
 ### Export Settings:
+
 - **SVG**: For icons and scalable graphics with glow effects
 - **PNG**: For raster images, use PNG-24 with transparency
 - **ICO**: For favicons, include multiple sizes in one file
 - **WebP**: For web optimization when supported
 
 ### Quality Checklist:
+
 - [ ] Consistent cyber color palette (Ki-Green, Hyper-Magenta, Plasma-Cyan)
 - [ ] Angular, geometric shapes with sharp edges
 - [ ] Appropriate glow effects and neon styling
@@ -374,6 +426,7 @@ Create a cyber-ninja diagonal rain effect:
 - [ ] Cross-platform compatibility
 
 ### File Naming Convention:
+
 - Icons: `cyber-weight.svg`, `cyber-tasks.svg`, `cyber-dashboard.svg`
 - Illustrations: `cyber-no-weight-data.svg`, `cyber-install-prompt.svg`
 - Branding: `cyber-logo.svg`, `cyber-wordmark.svg`
@@ -385,6 +438,7 @@ Create a cyber-ninja diagonal rain effect:
 ## 📱 Testing Your Cyber Images
 
 After editing, test your images:
+
 1. **Import** into the app using the folder structure
 2. **Run** `pnpm dev` to check for errors
 3. **View** on actual mobile devices in dark mode
@@ -396,6 +450,7 @@ After editing, test your images:
 ## 🎨 Cyber Color Reference
 
 Use these colors consistently:
+
 - **Ki-Green**: #22FFB7 (primary CTA, success, active states)
 - **Hyper-Magenta**: #FF2EEA (accent, FAB, level badges)
 - **Plasma-Cyan**: #1BE7FF (secondary actions, links, gradients)

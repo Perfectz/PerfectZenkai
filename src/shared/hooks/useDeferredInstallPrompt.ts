@@ -20,7 +20,8 @@ interface InstallPromptHook {
 const INSTALL_DECLINED_KEY = 'perfect-zenkai-install-declined'
 
 export function useDeferredInstallPrompt(): InstallPromptHook {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null)
   const [isInstallable, setIsInstallable] = useState(false)
   const [isInstallPromptDeclined, setIsInstallPromptDeclined] = useState(false)
 
@@ -34,7 +35,7 @@ export function useDeferredInstallPrompt(): InstallPromptHook {
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault()
-      
+
       const promptEvent = e as BeforeInstallPromptEvent
       setDeferredPrompt(promptEvent)
       setIsInstallable(true)
@@ -53,7 +54,10 @@ export function useDeferredInstallPrompt(): InstallPromptHook {
     window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      )
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
@@ -66,13 +70,13 @@ export function useDeferredInstallPrompt(): InstallPromptHook {
     try {
       await deferredPrompt.prompt()
       const choiceResult = await deferredPrompt.userChoice
-      
+
       if (choiceResult.outcome === 'accepted') {
         setDeferredPrompt(null)
         setIsInstallable(false)
         return true
       }
-      
+
       return false
     } catch (error) {
       console.error('Error showing install prompt:', error)
@@ -96,6 +100,6 @@ export function useDeferredInstallPrompt(): InstallPromptHook {
     isInstallPromptDeclined,
     showInstallPrompt,
     declineInstallPrompt,
-    clearDeclineState
+    clearDeclineState,
   }
-} 
+}

@@ -11,12 +11,12 @@ export default function AppLayout() {
       <div className="min-h-screen bg-background">
         {/* Offline Banner */}
         <OfflineBanner />
-        
+
         {/* Navigation Bar (includes top user bar and bottom nav) */}
         <NavigationBar />
 
         {/* Main Content - adjusted for top and bottom bars */}
-        <main className="pt-20 pb-20 px-4">
+        <main className="px-4 pb-20 pt-20">
           <Outlet />
         </main>
 
@@ -28,4 +28,4 @@ export default function AppLayout() {
       </div>
     </ToastProvider>
   )
-} 
+}

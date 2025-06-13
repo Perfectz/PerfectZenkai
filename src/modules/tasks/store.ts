@@ -7,27 +7,31 @@ interface TasksState {
   templates: TaskTemplate[]
   isLoading: boolean
   error: string | null
-  
+
   // Todo Actions
   addTodo: (todo: Omit<Todo, 'id' | 'updatedAt'>) => Promise<void>
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleTodo: (id: string) => Promise<void>
   loadTodos: () => Promise<void>
-  
-  // Subtask Actions  
+
+  // Subtask Actions
   addSubtask: (todoId: string, subtaskText: string) => Promise<void>
-  updateSubtask: (todoId: string, subtaskId: string, updates: Partial<Subtask>) => Promise<void>
+  updateSubtask: (
+    todoId: string,
+    subtaskId: string,
+    updates: Partial<Subtask>
+  ) => Promise<void>
   deleteSubtask: (todoId: string, subtaskId: string) => Promise<void>
   toggleSubtask: (todoId: string, subtaskId: string) => Promise<void>
-  
+
   // Template Actions
   addTemplate: (template: Omit<TaskTemplate, 'id'>) => Promise<void>
   updateTemplate: (id: string, updates: Partial<TaskTemplate>) => Promise<void>
   deleteTemplate: (id: string) => Promise<void>
   loadTemplates: () => Promise<void>
   createTodoFromTemplate: (templateId: string) => Promise<void>
-  
+
   // Utility Actions
   hydrate: () => Promise<void>
   clearError: () => void
@@ -46,17 +50,17 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   addTodo: async (todo) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const newTodo = await tasksRepo.addTodo(todo)
-      
+
       set((state) => ({
         todos: [newTodo, ...state.todos],
-        isLoading: false
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to add todo',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -65,19 +69,21 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   updateTodo: async (id, updates) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       await tasksRepo.updateTodo(id, updates)
-      
+
       set((state) => ({
-        todos: state.todos.map(todo => 
-          todo.id === id ? { ...todo, ...updates, updatedAt: new Date().toISOString() } : todo
+        todos: state.todos.map((todo) =>
+          todo.id === id
+            ? { ...todo, ...updates, updatedAt: new Date().toISOString() }
+            : todo
         ),
-        isLoading: false
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to update todo',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
@@ -86,40 +92,40 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   deleteTodo: async (id) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       await tasksRepo.deleteTodo(id)
-      
+
       set((state) => ({
-        todos: state.todos.filter(todo => todo.id !== id),
-        isLoading: false
+        todos: state.todos.filter((todo) => todo.id !== id),
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to delete todo',
-        isLoading: false 
+        isLoading: false,
       })
       throw error
     }
   },
 
   toggleTodo: async (id) => {
-    const todo = get().todos.find(t => t.id === id)
+    const todo = get().todos.find((t) => t.id === id)
     if (!todo) return
-    
+
     await get().updateTodo(id, { done: !todo.done })
   },
 
   loadTodos: async () => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const todos = await tasksRepo.getAllTodos()
-      
+
       set({ todos, isLoading: false })
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to load todos',
-        isLoading: false 
+        isLoading: false,
       })
     }
   },
@@ -128,19 +134,19 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   addSubtask: async (todoId, subtaskText) => {
     try {
       await tasksRepo.addSubtask(todoId, subtaskText)
-      
+
       // Refresh the specific todo
       const updatedTodo = await tasksRepo.getTodoById(todoId)
       if (updatedTodo) {
         set((state) => ({
-          todos: state.todos.map(todo => 
+          todos: state.todos.map((todo) =>
             todo.id === todoId ? updatedTodo : todo
-          )
+          ),
         }))
       }
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to add subtask'
+      set({
+        error: error instanceof Error ? error.message : 'Failed to add subtask',
       })
       throw error
     }
@@ -149,19 +155,20 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   updateSubtask: async (todoId, subtaskId, updates) => {
     try {
       await tasksRepo.updateSubtask(todoId, subtaskId, updates)
-      
+
       // Refresh the specific todo
       const updatedTodo = await tasksRepo.getTodoById(todoId)
       if (updatedTodo) {
         set((state) => ({
-          todos: state.todos.map(todo => 
+          todos: state.todos.map((todo) =>
             todo.id === todoId ? updatedTodo : todo
-          )
+          ),
         }))
       }
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to update subtask'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to update subtask',
       })
       throw error
     }
@@ -170,19 +177,20 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   deleteSubtask: async (todoId, subtaskId) => {
     try {
       await tasksRepo.deleteSubtask(todoId, subtaskId)
-      
+
       // Refresh the specific todo
       const updatedTodo = await tasksRepo.getTodoById(todoId)
       if (updatedTodo) {
         set((state) => ({
-          todos: state.todos.map(todo => 
+          todos: state.todos.map((todo) =>
             todo.id === todoId ? updatedTodo : todo
-          )
+          ),
         }))
       }
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to delete subtask'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to delete subtask',
       })
       throw error
     }
@@ -190,16 +198,17 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   toggleSubtask: async (todoId, subtaskId) => {
     try {
-      const todo = get().todos.find(t => t.id === todoId)
+      const todo = get().todos.find((t) => t.id === todoId)
       if (!todo) return
-      
-      const subtask = todo.subtasks.find(s => s.id === subtaskId)
+
+      const subtask = todo.subtasks.find((s) => s.id === subtaskId)
       if (!subtask) return
-      
+
       await get().updateSubtask(todoId, subtaskId, { done: !subtask.done })
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to toggle subtask'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to toggle subtask',
       })
       throw error
     }
@@ -209,17 +218,18 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   addTemplate: async (template) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const newTemplate = await tasksRepo.addTemplate(template)
-      
+
       set((state) => ({
         templates: [newTemplate, ...state.templates],
-        isLoading: false
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to add template',
-        isLoading: false 
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to add template',
+        isLoading: false,
       })
       throw error
     }
@@ -228,15 +238,16 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   updateTemplate: async (id, updates) => {
     try {
       await tasksRepo.updateTemplate(id, updates)
-      
+
       set((state) => ({
-        templates: state.templates.map(template => 
+        templates: state.templates.map((template) =>
           template.id === id ? { ...template, ...updates } : template
-        )
+        ),
       }))
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to update template'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to update template',
       })
       throw error
     }
@@ -245,13 +256,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   deleteTemplate: async (id) => {
     try {
       await tasksRepo.deleteTemplate(id)
-      
+
       set((state) => ({
-        templates: state.templates.filter(template => template.id !== id)
+        templates: state.templates.filter((template) => template.id !== id),
       }))
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to delete template'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to delete template',
       })
       throw error
     }
@@ -262,8 +274,9 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       const templates = await tasksRepo.getAllTemplates()
       set({ templates })
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to load templates'
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to load templates',
       })
     }
   },
@@ -271,17 +284,20 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   createTodoFromTemplate: async (templateId) => {
     try {
       set({ isLoading: true, error: null })
-      
+
       const newTodo = await tasksRepo.createTodoFromTemplate(templateId)
-      
+
       set((state) => ({
         todos: [newTodo, ...state.todos],
-        isLoading: false
+        isLoading: false,
       }))
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to create todo from template',
-        isLoading: false 
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create todo from template',
+        isLoading: false,
       })
       throw error
     }
@@ -289,10 +305,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   // Utility Actions
   hydrate: async () => {
-    await Promise.all([
-      get().loadTodos(),
-      get().loadTemplates()
-    ])
+    await Promise.all([get().loadTodos(), get().loadTemplates()])
   },
 
   clearError: () => {
@@ -301,23 +314,21 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   getOverdueTodos: () => {
     const today = new Date().toISOString().split('T')[0]
-    return get().todos.filter(todo => 
-      !todo.done && 
-      todo.dueDate && 
-      todo.dueDate < today
+    return get().todos.filter(
+      (todo) => !todo.done && todo.dueDate && todo.dueDate < today
     )
   },
 
   getTodosByCategory: (category) => {
-    return get().todos.filter(todo => todo.category === category)
+    return get().todos.filter((todo) => todo.category === category)
   },
 
   getTodosByPriority: (priority) => {
-    return get().todos.filter(todo => todo.priority === priority)
-  }
+    return get().todos.filter((todo) => todo.priority === priority)
+  },
 }))
 
 // Initialize store hydration
 export const initializeTasksStore = async () => {
   await useTasksStore.getState().hydrate()
-} 
+}

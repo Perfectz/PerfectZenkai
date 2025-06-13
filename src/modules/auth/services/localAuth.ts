@@ -33,7 +33,7 @@ export class LocalAuthService {
     let hash = 0
     for (let i = 0; i < password.length; i++) {
       const char = password.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash // Convert to 32-bit integer
     }
     return hash.toString()
@@ -70,9 +70,9 @@ export class LocalAuthService {
    */
   async register(data: RegisterData): Promise<User> {
     const users = this.getStoredUsers()
-    
+
     // Check if username already exists
-    if (users.find(user => user.username === data.username)) {
+    if (users.find((user) => user.username === data.username)) {
       throw new Error('Username already exists')
     }
 
@@ -83,7 +83,7 @@ export class LocalAuthService {
       email: data.email,
       name: data.name || data.username,
       passwordHash: this.hashPassword(data.password),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     users.push(newUser)
@@ -94,7 +94,7 @@ export class LocalAuthService {
       id: newUser.id,
       email: newUser.email || '',
       name: newUser.name || newUser.username,
-      username: newUser.username
+      username: newUser.username,
     }
 
     return publicUser
@@ -103,12 +103,16 @@ export class LocalAuthService {
   /**
    * Login user
    */
-  async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<{ user: User; token: string }> {
     const users = this.getStoredUsers()
     const passwordHash = this.hashPassword(credentials.password)
-    
-    const storedUser = users.find(user => 
-      user.username === credentials.username && user.passwordHash === passwordHash
+
+    const storedUser = users.find(
+      (user) =>
+        user.username === credentials.username &&
+        user.passwordHash === passwordHash
     )
 
     if (!storedUser) {
@@ -117,19 +121,22 @@ export class LocalAuthService {
 
     // Create session token (simple timestamp-based token)
     const token = `token_${storedUser.id}_${Date.now()}`
-    
+
     // Store current user session
-    localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify({
-      user: storedUser,
-      token,
-      loginTime: Date.now()
-    }))
+    localStorage.setItem(
+      this.CURRENT_USER_KEY,
+      JSON.stringify({
+        user: storedUser,
+        token,
+        loginTime: Date.now(),
+      })
+    )
 
     const publicUser: User = {
       id: storedUser.id,
       email: storedUser.email || '',
       name: storedUser.name || storedUser.username,
-      username: storedUser.username
+      username: storedUser.username,
     }
 
     return { user: publicUser, token }
@@ -158,7 +165,7 @@ export class LocalAuthService {
         id: session.user.id,
         email: session.user.email || '',
         name: session.user.name || session.user.username,
-        username: session.user.username
+        username: session.user.username,
       }
 
       return { user: publicUser, token: session.token }
@@ -186,8 +193,8 @@ export class LocalAuthService {
    * Get all usernames (for checking availability)
    */
   getAllUsernames(): string[] {
-    return this.getStoredUsers().map(user => user.username)
+    return this.getStoredUsers().map((user) => user.username)
   }
 }
 
-export const localAuthService = new LocalAuthService() 
+export const localAuthService = new LocalAuthService()

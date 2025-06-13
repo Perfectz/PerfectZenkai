@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi, type SpyInstance } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type SpyInstance,
+} from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useOnline } from './useOnline'
 
@@ -45,13 +53,19 @@ describe('useOnline', () => {
   it('should add event listeners on mount', () => {
     renderHook(() => useOnline())
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith('online', expect.any(Function))
-    expect(addEventListenerSpy).toHaveBeenCalledWith('offline', expect.any(Function))
+    expect(addEventListenerSpy).toHaveBeenCalledWith(
+      'online',
+      expect.any(Function)
+    )
+    expect(addEventListenerSpy).toHaveBeenCalledWith(
+      'offline',
+      expect.any(Function)
+    )
   })
 
   it('should update state when going offline', () => {
     const { result } = renderHook(() => useOnline())
-    
+
     expect(result.current).toBe(true)
 
     // Simulate offline event
@@ -87,13 +101,19 @@ describe('useOnline', () => {
 
     unmount()
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith('online', expect.any(Function))
-    expect(removeEventListenerSpy).toHaveBeenCalledWith('offline', expect.any(Function))
+    expect(removeEventListenerSpy).toHaveBeenCalledWith(
+      'online',
+      expect.any(Function)
+    )
+    expect(removeEventListenerSpy).toHaveBeenCalledWith(
+      'offline',
+      expect.any(Function)
+    )
   })
 
   it('should handle multiple online/offline transitions', () => {
     const { result } = renderHook(() => useOnline())
-    
+
     expect(result.current).toBe(true)
 
     // Go offline
@@ -114,4 +134,4 @@ describe('useOnline', () => {
     })
     expect(result.current).toBe(false)
   })
-}) 
+})

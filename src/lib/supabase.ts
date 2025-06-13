@@ -4,21 +4,24 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Check if we're in a test environment or if variables are missing
-const isTestEnvironment = import.meta.env.MODE === 'test' || process.env.NODE_ENV === 'test'
+const isTestEnvironment =
+  import.meta.env.MODE === 'test' || process.env.NODE_ENV === 'test'
 const hasSupabaseConfig = supabaseUrl && supabaseAnonKey
 
 if (!hasSupabaseConfig && !isTestEnvironment) {
-  console.warn('Supabase environment variables not found. Running in offline mode.')
+  console.warn(
+    'Supabase environment variables not found. Running in offline mode.'
+  )
 }
 
 // Create client only if we have proper configuration
-export const supabase = hasSupabaseConfig 
+export const supabase = hasSupabaseConfig
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
-      }
+        detectSessionInUrl: true,
+      },
     })
   : null
 
@@ -51,4 +54,4 @@ export interface Database {
       }
     }
   }
-} 
+}

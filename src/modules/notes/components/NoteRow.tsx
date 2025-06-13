@@ -22,7 +22,7 @@ export function NoteRow({ note }: NoteRowProps) {
     try {
       await updateNote(note.id, {
         title: editTitle.trim(),
-        content: editContent.trim()
+        content: editContent.trim(),
       })
       setIsEditing(false)
     } catch (error) {
@@ -50,7 +50,7 @@ export function NoteRow({ note }: NoteRowProps) {
       }
     },
     preventScrollOnSwipe: true,
-    trackMouse: true
+    trackMouse: true,
   })
 
   const formatDate = (dateISO: string) => {
@@ -58,39 +58,40 @@ export function NoteRow({ note }: NoteRowProps) {
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      year:
+        date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
     })
   }
 
   if (isEditing) {
     return (
-      <Card className="bg-card border">
+      <Card className="border bg-card">
         <CardContent className="p-4">
           <input
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full mb-3 px-3 py-2 text-sm font-medium bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+            className="mb-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
             placeholder="Note title..."
           />
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full mb-3 px-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            className="mb-3 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             rows={4}
             placeholder="Note content..."
           />
-          <div className="flex gap-2 justify-end">
+          <div className="flex justify-end gap-2">
             <button
               onClick={handleCancel}
-              className="px-3 py-1 text-sm border border-input rounded-md hover:bg-muted transition-colors"
+              className="rounded-md border border-input px-3 py-1 text-sm transition-colors hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={handleEdit}
               disabled={!editTitle.trim()}
-              className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+              className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               Save
             </button>
@@ -103,8 +104,8 @@ export function NoteRow({ note }: NoteRowProps) {
   return (
     <Card
       {...swipeHandlers}
-      className={`transition-all duration-150 cursor-pointer ${
-        isPressed ? 'bg-muted scale-95' : 'hover:bg-muted/50'
+      className={`cursor-pointer transition-all duration-150 ${
+        isPressed ? 'scale-95 bg-muted' : 'hover:bg-muted/50'
       }`}
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
@@ -113,23 +114,21 @@ export function NoteRow({ note }: NoteRowProps) {
       onMouseLeave={() => setIsPressed(false)}
       onClick={() => setIsEditing(true)}
     >
-      <CardContent className="py-3 px-4">
+      <CardContent className="px-4 py-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0 mr-3">
-            <h3 className="font-medium text-sm mb-1 truncate">
-              {note.title}
-            </h3>
+          <div className="mr-3 min-w-0 flex-1">
+            <h3 className="mb-1 truncate text-sm font-medium">{note.title}</h3>
             {note.content && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
+              <p className="line-clamp-2 text-sm text-muted-foreground">
                 {note.content}
               </p>
             )}
-            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+            <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>{formatDate(note.updatedAt)}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Edit className="h-4 w-4 text-muted-foreground" />
             <div className="text-xs text-muted-foreground opacity-50">
@@ -140,4 +139,4 @@ export function NoteRow({ note }: NoteRowProps) {
       </CardContent>
     </Card>
   )
-} 
+}

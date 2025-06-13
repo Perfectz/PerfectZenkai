@@ -3,7 +3,8 @@ import { useToast } from '@/shared/hooks/useToast'
 import { WeightEntry } from '../types'
 
 export function useWeightActions() {
-  const { addWeight: addWeightStore, deleteWeight: deleteWeightStore } = useWeightStore()
+  const { addWeight: addWeightStore, deleteWeight: deleteWeightStore } =
+    useWeightStore()
   const { success, error } = useToast()
 
   const addWeight = async (entry: Omit<WeightEntry, 'id'>) => {
@@ -26,7 +27,7 @@ export function useWeightActions() {
       await deleteWeightStore(id)
       success(
         'Weight Deleted',
-        weight && date 
+        weight && date
           ? `${weight}kg entry for ${new Date(date).toLocaleDateString()} removed`
           : 'Weight entry removed successfully'
       )
@@ -40,6 +41,6 @@ export function useWeightActions() {
 
   return {
     addWeight,
-    deleteWeight
+    deleteWeight,
   }
-} 
+}

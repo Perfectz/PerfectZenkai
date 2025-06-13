@@ -17,14 +17,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Show loading while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="space-y-4 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               Loading...
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Checking your authentication status
             </p>
           </div>
@@ -42,4 +42,4 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   return <>{children}</>
 }
 
-export { ProtectedRoute } 
+export { ProtectedRoute }

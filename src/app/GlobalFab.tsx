@@ -10,7 +10,10 @@ export default function GlobalFab() {
   const [isPressed, setIsPressed] = useState(false)
 
   // Show FAB on weight and todo pages
-  if (!location.pathname.startsWith('/weight') && !location.pathname.startsWith('/todo')) {
+  if (
+    !location.pathname.startsWith('/weight') &&
+    !location.pathname.startsWith('/todo')
+  ) {
     return null
   }
 
@@ -32,7 +35,7 @@ export default function GlobalFab() {
 
   return (
     <>
-      <div 
+      <div
         className={`
           fixed bottom-6 right-6 z-50 transition-all duration-300
           ${isPressed ? 'scale-90' : 'scale-100'}
@@ -45,44 +48,43 @@ export default function GlobalFab() {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
           className={`
-            w-14 h-14 rounded-full shadow-2xl
-            bg-hyper-magenta hover:bg-hyper-magenta
-            text-white font-bold text-lg
-            magenta-glow hover:magenta-glow
-            transition-all duration-300 ease-out
-            hover:scale-110 active:scale-95
-            border-2 border-hyper-magenta/30
-            relative overflow-hidden
-            neon-button
-            animate-pulse hover:animate-none
+            bg-hyper-magenta hover:bg-hyper-magenta magenta-glow hover:magenta-glow
+            border-hyper-magenta/30 neon-button
+            relative h-14 w-14
+            animate-pulse overflow-hidden
+            rounded-full border-2 text-lg
+            font-bold text-white
+            shadow-2xl transition-all
+            duration-300 ease-out
+            hover:scale-110
+            hover:animate-none active:scale-95
           `}
           size="icon"
         >
-          <Plus className="h-6 w-6 cyber-icon transition-transform duration-200" />
-          
+          <Plus className="cyber-icon h-6 w-6 transition-transform duration-200" />
+
           {/* Cyber glow overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
-          
+          <div className="absolute inset-0 translate-x-[-100%] transform bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-in-out hover:translate-x-[100%]"></div>
+
           {/* Pulsing ring effect */}
-          <div className="absolute inset-0 rounded-full border border-hyper-magenta animate-pulse opacity-30"></div>
+          <div className="border-hyper-magenta absolute inset-0 animate-pulse rounded-full border opacity-30"></div>
         </Button>
-        
+
         {/* Floating label on hover */}
-        <div className="absolute bottom-full right-0 mb-2 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-          <div className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1 text-xs text-white font-mono whitespace-nowrap">
-            {location.pathname.startsWith('/todo') ? 'Focus quest input' : 'Log weight'}
+        <div className="pointer-events-none absolute bottom-full right-0 mb-2 opacity-0 transition-opacity duration-200 hover:opacity-100">
+          <div className="whitespace-nowrap rounded-lg border border-gray-700 bg-gray-900 px-3 py-1 font-mono text-xs text-white">
+            {location.pathname.startsWith('/todo')
+              ? 'Focus quest input'
+              : 'Log weight'}
           </div>
-          <div className="w-2 h-2 bg-gray-900 border-r border-b border-gray-700 transform rotate-45 absolute top-full right-4 -translate-y-1"></div>
+          <div className="absolute right-4 top-full h-2 w-2 -translate-y-1 rotate-45 transform border-b border-r border-gray-700 bg-gray-900"></div>
         </div>
       </div>
 
       {/* Weight sheet for weight page */}
       {location.pathname.startsWith('/weight') && (
-        <WeightSheet
-          open={sheetOpen}
-          onOpenChange={setSheetOpen}
-        />
+        <WeightSheet open={sheetOpen} onOpenChange={setSheetOpen} />
       )}
     </>
   )
-} 
+}

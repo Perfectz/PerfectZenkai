@@ -1,6 +1,6 @@
 # Perfect Zenkai UI Style Guide
 
-*AI-powered fitness tracker with cyber-ninja aesthetics*
+_AI-powered fitness tracker with cyber-ninja aesthetics_
 
 ---
 
@@ -432,6 +432,7 @@ Info          Use info icon + color
 ## Sample Screens
 
 ### Dashboard
+
 ```
 Layout        2-column grid (mobile), 3-column (tablet+)
 Cards         Weight tracker, XP progress, daily quests
@@ -441,6 +442,7 @@ FAB           Quick add action (Hyper-Magenta)
 ```
 
 ### Weight Log
+
 ```
 Layout        List view with chart header
 Chart         Line graph with Ki-Green stroke
@@ -450,6 +452,7 @@ Input         Modal with number pad + date picker
 ```
 
 ### Quest Log
+
 ```
 Layout        Grouped list (Daily, Weekly, Achievements)
 Items         Checkbox + title + XP reward
@@ -459,6 +462,7 @@ Filter        Chip-based filter bar
 ```
 
 ### Settings
+
 ```
 Layout        Grouped sections with dividers
 Items         Toggle switches, disclosure arrows
@@ -472,27 +476,31 @@ Data          Export, backup, reset options
 ## Download Assets
 
 ### Logo & Branding
+
 - **SVG Logo**: `assets/branding/logo.svg` (scalable wordmark)
 - **App Icon**: `assets/icons/app-icon-1024.png` (circular ninja-Z emblem)
 - **Splash Screen**: `assets/branding/splash-2048x2048.png` (loading screen)
 
 ### Icon Library
+
 - **Navigation Icons**: `assets/icons/navigation/` (weight, quests, dashboard, profile)
 - **UI Icons**: `assets/icons/ui/` (add, edit, delete, settings, etc.)
 - **Status Icons**: `assets/icons/status/` (success, warning, error, info)
 
 ### Illustrations
+
 - **Empty States**: `assets/illustrations/empty/` (no data, offline, error)
 - **Onboarding**: `assets/illustrations/onboard/` (welcome, tutorial steps)
 - **Characters**: `assets/illustrations/characters/` (ninja avatars, poses)
 
 ### Patterns & Textures
+
 - **Rain Overlay**: `assets/patterns/diagonal-rain.svg` (15° diagonal lines)
 - **Grid Pattern**: `assets/patterns/cyber-grid.svg` (subtle background grid)
 - **Glow Effects**: `assets/effects/` (various glow and particle PNGs)
 
 ---
 
-*Perfect Zenkai Style Guide v1.0 - Cyber-ninja fitness tracking with neon aesthetics*
+_Perfect Zenkai Style Guide v1.0 - Cyber-ninja fitness tracking with neon aesthetics_
 
-<!-- END OF STYLE GUIDE --> 
+<!-- END OF STYLE GUIDE -->

@@ -14,7 +14,8 @@ initializeNotesStore()
 
 if (import.meta.env.MODE === 'production' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker
+      .register('/sw.js')
       .then((registration) => {
         console.log('SW registered: ', registration)
       })
@@ -29,5 +30,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
-) 
+  </React.StrictMode>
+)

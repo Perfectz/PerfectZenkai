@@ -13,6 +13,7 @@
 This MVP implements task management functionality, allowing users to create, complete, and manage their daily to-dos. This complements the weight tracking to create a complete daily "power-up" experience.
 
 ### Success Criteria
+
 - ✅ Users can add, toggle, and delete tasks
 - ✅ Tasks persist offline via Dexie
 - ✅ Intuitive mobile interactions (swipe-to-delete)
@@ -24,19 +25,22 @@ This MVP implements task management functionality, allowing users to create, com
 ## 🎯 User Stories & Tasks
 
 ### 3.1 Tasks Store + Repo
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 3  
 **Status:** ✅ Complete
 
-**User Story:** *As a user, I want my tasks to persist locally with full CRUD operations.*
+**User Story:** _As a user, I want my tasks to persist locally with full CRUD operations._
 
 **Acceptance Criteria:**
+
 - ✅ Zustand + Dexie following same pattern as weight module
 - ✅ Todo type: `{id: string, text: string, done: boolean, createdAt: string}`
 - ✅ Full CRUD methods with proper error handling
 - ✅ Module isolation maintained
 
 **Technical Details:**
+
 ```typescript
 interface Todo {
   id: string;           // UUID v4
@@ -53,6 +57,7 @@ interface Todo {
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/tasks/ folder with same structure as weight:
 
@@ -75,6 +80,7 @@ Initialize in main.tsx.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create src/modules/tasks/store.test.ts that:
 - Tests all CRUD operations
@@ -85,6 +91,7 @@ Create src/modules/tasks/store.test.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] All CRUD operations work correctly
 - [ ] Data persists across sessions
 - [ ] Unit tests pass with >90% coverage
@@ -93,13 +100,15 @@ Create src/modules/tasks/store.test.ts that:
 ---
 
 ### 3.2 Todo Page
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 4  
 **Status:** ✅ Complete
 
-**User Story:** *As a user, I can manage my tasks offline with intuitive interactions.*
+**User Story:** _As a user, I can manage my tasks offline with intuitive interactions._
 
 **Acceptance Criteria:**
+
 - ✅ `/todo` route with input to add new todos
 - ✅ Checkbox to toggle completion status
 - ✅ Swipe-to-delete functionality
@@ -108,6 +117,7 @@ Create src/modules/tasks/store.test.ts that:
 - ✅ Empty states for both sections
 
 **UI Specifications:**
+
 ```
 Todo Page Layout:
 ┌─────────────────────────────────┐
@@ -124,6 +134,7 @@ Todo Page Layout:
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/tasks/pages/TodoPage.tsx with:
 - Input field to add new todos (Enter to submit)
@@ -140,6 +151,7 @@ Add routes to src/modules/tasks/routes.ts.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/TodoOffline.e2e.ts that:
 - Goes offline (network disabled)
@@ -153,6 +165,7 @@ Create e2e/TodoOffline.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] All interactions work smoothly
 - [ ] Offline functionality verified
 - [ ] Touch gestures reliable on mobile
@@ -161,19 +174,22 @@ Create e2e/TodoOffline.e2e.ts that:
 ---
 
 ### 3.3 Nav & FAB wiring
+
 **Priority:** P1 (High)  
 **Story Points:** 1  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I can navigate to tasks and access quick actions.*
+**User Story:** _As a user, I can navigate to tasks and access quick actions._
 
 **Acceptance Criteria:**
+
 - [ ] Bottom nav "Tasks" with CheckSquare lucide icon
 - [ ] FAB shows on /todo routes with appropriate action
 - [ ] Proper active state styling
 - [ ] FAB focuses input or shows quick-add
 
 **Implementation Prompt:**
+
 ```
 Update src/app/NavigationBar.tsx to add:
 - Tasks nav item with lucide CheckSquare icon
@@ -189,6 +205,7 @@ Merge taskRoutes into src/app/routes.ts.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/NavToTasks.e2e.ts that:
 - Clicks "Tasks" nav icon from dashboard
@@ -199,6 +216,7 @@ Create e2e/NavToTasks.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] Navigation works from all pages
 - [ ] FAB provides useful quick action
 - [ ] Active states clearly visible
@@ -209,18 +227,21 @@ Create e2e/NavToTasks.e2e.ts that:
 ## 🏗️ Design Decisions
 
 ### Data Architecture
+
 1. **Same pattern as weight module**: Consistency, proven approach
 2. **Boolean for completion**: Simple, clear state
 3. **CreatedAt timestamp**: Enables sorting, future analytics
 4. **Text-only tasks**: Simplicity, focus on core functionality
 
 ### UX Patterns
+
 1. **Checkbox for toggle**: Universal pattern, clear affordance
 2. **Strikethrough for completed**: Visual feedback, maintains context
 3. **Swipe-to-delete**: Consistent with weight module
 4. **Separate sections**: Clear organization, reduces cognitive load
 
 ### Technical Choices
+
 1. **Input-based adding**: Fast, keyboard-friendly
 2. **Enter to submit**: Standard pattern, efficient
 3. **Optimistic updates**: Better perceived performance
@@ -231,22 +252,26 @@ Create e2e/NavToTasks.e2e.ts that:
 ## 📊 Progress Tracking
 
 ### Sprint Velocity
+
 - **Planned Story Points:** 8
 - **Completed Story Points:** 0
 - **Sprint Progress:** 0%
 
 ### Task Status
-| Task | Status | Assignee | Estimated Hours | Actual Hours |
-|------|--------|----------|----------------|--------------|
-| 3.1 Tasks Store + Repo | 🔴 Not Started | AI Agent | 2.5h | - |
-| 3.2 Todo Page | 🔴 Not Started | AI Agent | 4h | - |
-| 3.3 Nav & FAB wiring | 🔴 Not Started | AI Agent | 1h | - |
+
+| Task                   | Status         | Assignee | Estimated Hours | Actual Hours |
+| ---------------------- | -------------- | -------- | --------------- | ------------ |
+| 3.1 Tasks Store + Repo | 🔴 Not Started | AI Agent | 2.5h            | -            |
+| 3.2 Todo Page          | 🔴 Not Started | AI Agent | 4h              | -            |
+| 3.3 Nav & FAB wiring   | 🔴 Not Started | AI Agent | 1h              | -            |
 
 ### Blockers & Risks
+
 - **Dependency on MVP 1**: Need test infrastructure
 - **Can run parallel to MVP 2**: Independent modules
 
 ### Quality Gates
+
 - [ ] All unit tests pass with ≥90% coverage
 - [ ] E2E tests pass including offline scenarios
 - [ ] Manual testing on mobile device
@@ -255,4 +280,4 @@ Create e2e/NavToTasks.e2e.ts that:
 ---
 
 **Previous MVP:** [MVP 2 - Weight Module v1](./mvp-2-weight-module-v1.md)  
-**Next MVP:** [MVP 4 - Dashboard Module](./mvp-4-dashboard-module.md) 
+**Next MVP:** [MVP 4 - Dashboard Module](./mvp-4-dashboard-module.md)

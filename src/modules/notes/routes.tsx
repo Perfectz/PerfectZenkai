@@ -4,5 +4,5 @@ import { RouteObject } from 'react-router-dom'
 import NotesPage from './pages/NotesPage'
 
 export const notesRoutes: RouteObject[] = [
-  { path: '/notes', element: <NotesPage /> }
-] 
+  { path: '/notes', element: <NotesPage /> },
+]

@@ -9,7 +9,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/perfect_zenkai_favicon.ico', 'icons/perfect_zenkai_favicon.svg'],
+      includeAssets: [
+        'icons/perfect_zenkai_favicon.ico',
+        'icons/perfect_zenkai_favicon.svg',
+      ],
       workbox: {
         runtimeCaching: [
           {
@@ -19,7 +22,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
               },
             },
           },
@@ -30,7 +33,7 @@ export default defineConfig({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
               },
             },
           },
@@ -41,7 +44,7 @@ export default defineConfig({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
@@ -52,10 +55,10 @@ export default defineConfig({
               cacheName: 'static-resources-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
               },
             },
-          }
+          },
         ],
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 3000000, // 3MB
@@ -72,35 +75,35 @@ export default defineConfig({
           {
             src: 'icons/logo192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'icons/logo512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'icons/logo1024.png',
             sizes: '1024x1024',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'icons/perfect_zenkai_favicon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
+      '@': path.resolve(__dirname, './src'),
+    },
   },
   server: {
     port: 5182,
-    host: true
-  }
-}) 
+    host: true,
+  },
+})

@@ -11,7 +11,7 @@ import { authRoutes, ProtectedRoute } from '@/modules/auth'
 export const appRoutes: RouteObject[] = [
   // Authentication routes (public)
   ...authRoutes,
-  
+
   // Protected app routes
   {
     path: '/',
@@ -28,4 +28,4 @@ export const appRoutes: RouteObject[] = [
       { path: 'notes', element: <NotesPage /> },
     ],
   },
-] 
+]

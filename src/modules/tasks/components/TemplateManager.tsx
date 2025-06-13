@@ -6,7 +6,12 @@ import { Badge } from '@/shared/ui/badge'
 import { Layout, Plus, X, Trash2 } from 'lucide-react'
 import { useTasksStore } from '../store'
 import { Priority, Category, TaskTemplate } from '../types'
-import { PRIORITIES, CATEGORIES, getPriorityConfig, getCategoryConfig } from '../utils'
+import {
+  PRIORITIES,
+  CATEGORIES,
+  getPriorityConfig,
+  getCategoryConfig,
+} from '../utils'
 
 export default function TemplateManager() {
   const [isCreating, setIsCreating] = useState(false)
@@ -37,8 +42,8 @@ export default function TemplateManager() {
 
     try {
       const subtasks = subtaskTexts
-        .filter(text => text.trim())
-        .map(text => ({ text: text.trim(), done: false }))
+        .filter((text) => text.trim())
+        .map((text) => ({ text: text.trim(), done: false }))
 
       await addTemplate({
         name: templateName.trim(),
@@ -46,7 +51,7 @@ export default function TemplateManager() {
         priority: templatePriority,
         category: templateCategory,
         subtasks,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       })
 
       // Reset form
@@ -88,24 +93,26 @@ export default function TemplateManager() {
             >
               {isCreating ? (
                 <>
-                  <X className="h-4 w-4 mr-2" />
+                  <X className="mr-2 h-4 w-4" />
                   Cancel
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   New Template
                 </>
               )}
             </Button>
           </CardTitle>
         </CardHeader>
-        
+
         {isCreating && (
           <CardContent className="space-y-4">
             {/* Template Name */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Template Name</label>
+              <label className="mb-2 block text-sm font-medium">
+                Template Name
+              </label>
               <Input
                 placeholder="e.g., Daily Workout, Weekly Review..."
                 value={templateName}
@@ -115,7 +122,9 @@ export default function TemplateManager() {
 
             {/* Template Text */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Default Task Text</label>
+              <label className="mb-2 block text-sm font-medium">
+                Default Task Text
+              </label>
               <Input
                 placeholder="e.g., Complete morning workout routine"
                 value={templateText}
@@ -124,14 +133,20 @@ export default function TemplateManager() {
             </div>
 
             {/* Priority and Category */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium mb-2 block">Default Priority</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Default Priority
+                </label>
                 <div className="flex gap-1">
                   {PRIORITIES.map((priority) => (
                     <Button
                       key={priority.value}
-                      variant={templatePriority === priority.value ? 'default' : 'outline'}
+                      variant={
+                        templatePriority === priority.value
+                          ? 'default'
+                          : 'outline'
+                      }
                       size="sm"
                       onClick={() => setTemplatePriority(priority.value)}
                       className="flex-1 text-xs"
@@ -144,12 +159,18 @@ export default function TemplateManager() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Default Category</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Default Category
+                </label>
                 <div className="grid grid-cols-2 gap-1">
                   {CATEGORIES.map((category) => (
                     <Button
                       key={category.value}
-                      variant={templateCategory === category.value ? 'default' : 'outline'}
+                      variant={
+                        templateCategory === category.value
+                          ? 'default'
+                          : 'outline'
+                      }
                       size="sm"
                       onClick={() => setTemplateCategory(category.value)}
                       className="text-xs"
@@ -164,14 +185,10 @@ export default function TemplateManager() {
 
             {/* Subtasks */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm font-medium">Default Subtasks</label>
-                <Button
-                  onClick={handleAddSubtask}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
+                <Button onClick={handleAddSubtask} variant="outline" size="sm">
+                  <Plus className="mr-1 h-4 w-4" />
                   Add Subtask
                 </Button>
               </div>
@@ -181,7 +198,9 @@ export default function TemplateManager() {
                     <Input
                       placeholder={`Subtask ${index + 1}...`}
                       value={text}
-                      onChange={(e) => handleSubtaskChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleSubtaskChange(index, e.target.value)
+                      }
                       className="flex-1"
                     />
                     {subtaskTexts.length > 1 && (
@@ -202,7 +221,9 @@ export default function TemplateManager() {
             {/* Create Button */}
             <Button
               onClick={handleCreateTemplate}
-              disabled={isLoading || !templateName.trim() || !templateText.trim()}
+              disabled={
+                isLoading || !templateName.trim() || !templateText.trim()
+              }
               className="w-full"
             >
               Create Template
@@ -241,32 +262,41 @@ function TemplateCard({ template, onDelete }: TemplateCardProps) {
     <Card>
       <CardContent className="py-3">
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm">{template.name}</h4>
-            <p className="text-sm text-muted-foreground mb-2">{template.text}</p>
-            
+          <div className="min-w-0 flex-1">
+            <h4 className="text-sm font-medium">{template.name}</h4>
+            <p className="mb-2 text-sm text-muted-foreground">
+              {template.text}
+            </p>
+
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={`text-xs ${priorityConfig.color}`}>
+              <Badge
+                variant="outline"
+                className={`text-xs ${priorityConfig.color}`}
+              >
                 <span className="mr-1">{priorityConfig.icon}</span>
                 {priorityConfig.label}
               </Badge>
-              <Badge variant="outline" className={`text-xs ${categoryConfig.color}`}>
+              <Badge
+                variant="outline"
+                className={`text-xs ${categoryConfig.color}`}
+              >
                 <span className="mr-1">{categoryConfig.icon}</span>
                 {categoryConfig.label}
               </Badge>
               {template.subtasks.length > 0 && (
                 <Badge variant="outline" className="text-xs">
-                  {template.subtasks.length} subtask{template.subtasks.length > 1 ? 's' : ''}
+                  {template.subtasks.length} subtask
+                  {template.subtasks.length > 1 ? 's' : ''}
                 </Badge>
               )}
             </div>
           </div>
-          
+
           <Button
             onClick={() => onDelete(template.id, template.name)}
             variant="outline"
             size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:bg-red-50 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -274,4 +304,4 @@ function TemplateCard({ template, onDelete }: TemplateCardProps) {
       </CardContent>
     </Card>
   )
-} 
+}

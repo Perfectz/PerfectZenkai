@@ -15,7 +15,9 @@ test.describe('AppShell', () => {
     await expect(page.getByText('Intel')).toBeVisible()
 
     // Check FAB is visible
-    await expect(page.locator('button[class*="fixed bottom-20 right-4"]')).toBeVisible()
+    await expect(
+      page.locator('button[class*="fixed bottom-20 right-4"]')
+    ).toBeVisible()
 
     // Check main content - look for dashboard content
     await expect(page.getByText('CONTROL NEXUS')).toBeVisible()
@@ -27,9 +29,9 @@ test.describe('AppShell', () => {
 
     // Verify elements are positioned correctly
     const fab = page.locator('button[class*="fixed bottom-20 right-4"]')
-    
+
     await expect(fab).toBeVisible()
-    
+
     // Check navigation items are visible
     await expect(page.getByText('HQ')).toBeVisible()
     await expect(page.getByText('Weight')).toBeVisible()
@@ -37,4 +39,4 @@ test.describe('AppShell', () => {
     // Take screenshot for visual verification
     await page.screenshot({ path: 'test-results/appshell-mobile.png' })
   })
-}) 
+})

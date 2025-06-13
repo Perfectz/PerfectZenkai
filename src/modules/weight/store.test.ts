@@ -9,8 +9,8 @@ vi.mock('./repo', () => ({
     addWeight: vi.fn(),
     deleteWeight: vi.fn(),
     getAllWeights: vi.fn(),
-    clearAll: vi.fn()
-  }
+    clearAll: vi.fn(),
+  },
 }))
 
 const mockWeightRepo = vi.mocked(weightRepo)
@@ -21,9 +21,9 @@ describe('Weight Store', () => {
     useWeightStore.setState({
       weights: [],
       isLoading: false,
-      error: null
+      error: null,
     })
-    
+
     // Clear all mocks
     vi.clearAllMocks()
   })
@@ -33,19 +33,19 @@ describe('Weight Store', () => {
       const mockEntry: WeightEntry = {
         id: 'test-id',
         dateISO: '2024-01-15',
-        kg: 75.5
+        kg: 75.5,
       }
 
       mockWeightRepo.addWeight.mockResolvedValue(mockEntry)
 
       const { addWeight } = useWeightStore.getState()
-      
+
       await addWeight({ dateISO: '2024-01-15', kg: 75.5 })
 
       // Should call repo with entry without id
       expect(mockWeightRepo.addWeight).toHaveBeenCalledWith({
         dateISO: '2024-01-15',
-        kg: 75.5
+        kg: 75.5,
       })
 
       // Should update store with new entry
@@ -61,8 +61,10 @@ describe('Weight Store', () => {
       mockWeightRepo.addWeight.mockRejectedValue(error)
 
       const { addWeight } = useWeightStore.getState()
-      
-      await expect(addWeight({ dateISO: '2024-01-15', kg: 75.5 })).rejects.toThrow('Database error')
+
+      await expect(
+        addWeight({ dateISO: '2024-01-15', kg: 75.5 })
+      ).rejects.toThrow('Database error')
 
       const state = useWeightStore.getState()
       expect(state.error).toBe('Database error')
@@ -76,11 +78,15 @@ describe('Weight Store', () => {
 
       // Add first entry
       mockWeightRepo.addWeight.mockResolvedValueOnce(entry1)
-      await useWeightStore.getState().addWeight({ dateISO: '2024-01-15', kg: 75.0 })
+      await useWeightStore
+        .getState()
+        .addWeight({ dateISO: '2024-01-15', kg: 75.0 })
 
       // Add second entry (newer date)
       mockWeightRepo.addWeight.mockResolvedValueOnce(entry2)
-      await useWeightStore.getState().addWeight({ dateISO: '2024-01-16', kg: 76.0 })
+      await useWeightStore
+        .getState()
+        .addWeight({ dateISO: '2024-01-16', kg: 76.0 })
 
       const state = useWeightStore.getState()
       expect(state.weights).toHaveLength(2)
@@ -95,14 +101,14 @@ describe('Weight Store', () => {
       const initialEntry: WeightEntry = {
         id: 'test-id',
         dateISO: '2024-01-15',
-        kg: 75.5
+        kg: 75.5,
       }
-      
+
       useWeightStore.setState({ weights: [initialEntry] })
       mockWeightRepo.deleteWeight.mockResolvedValue()
 
       const { deleteWeight } = useWeightStore.getState()
-      
+
       await deleteWeight('test-id')
 
       // Should call repo with correct id
@@ -120,7 +126,7 @@ describe('Weight Store', () => {
       mockWeightRepo.deleteWeight.mockRejectedValue(error)
 
       const { deleteWeight } = useWeightStore.getState()
-      
+
       await expect(deleteWeight('test-id')).rejects.toThrow('Delete failed')
 
       const state = useWeightStore.getState()
@@ -133,13 +139,13 @@ describe('Weight Store', () => {
     it('should load weights from repo into store', async () => {
       const mockWeights: WeightEntry[] = [
         { id: '1', dateISO: '2024-01-16', kg: 76.0 },
-        { id: '2', dateISO: '2024-01-15', kg: 75.0 }
+        { id: '2', dateISO: '2024-01-15', kg: 75.0 },
       ]
 
       mockWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
 
       const { loadWeights } = useWeightStore.getState()
-      
+
       await loadWeights()
 
       expect(mockWeightRepo.getAllWeights).toHaveBeenCalled()
@@ -155,7 +161,7 @@ describe('Weight Store', () => {
       mockWeightRepo.getAllWeights.mockRejectedValue(error)
 
       const { loadWeights } = useWeightStore.getState()
-      
+
       await loadWeights()
 
       const state = useWeightStore.getState()
@@ -168,13 +174,13 @@ describe('Weight Store', () => {
   describe('hydrate', () => {
     it('should call loadWeights to hydrate store from repo', async () => {
       const mockWeights: WeightEntry[] = [
-        { id: '1', dateISO: '2024-01-15', kg: 75.0 }
+        { id: '1', dateISO: '2024-01-15', kg: 75.0 },
       ]
 
       mockWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
 
       const { hydrate } = useWeightStore.getState()
-      
+
       await hydrate()
 
       expect(mockWeightRepo.getAllWeights).toHaveBeenCalled()
@@ -196,4 +202,4 @@ describe('Weight Store', () => {
       expect(state.error).toBeNull()
     })
   })
-}) 
+})

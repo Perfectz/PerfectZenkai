@@ -6,4 +6,4 @@ export { weightRepo, initializeWeightDatabase } from './repo'
 export type { WeightEntry } from './types'
 
 // Routes will be added in task 2.4
-export { weightRoutes } from './routes' 
+export { weightRoutes } from './routes'

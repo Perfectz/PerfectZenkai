@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 
 export interface Toast {
   id: string
@@ -21,16 +21,16 @@ export function useToast() {
   if (!context) {
     throw new Error('useToast must be used within ToastProvider')
   }
-  
+
   return {
     toast: (toast: Omit<Toast, 'id'>) => context.addToast(toast),
-    success: (title: string, description?: string) => 
+    success: (title: string, description?: string) =>
       context.addToast({ title, description, variant: 'success' }),
-    error: (title: string, description?: string) => 
+    error: (title: string, description?: string) =>
       context.addToast({ title, description, variant: 'error' }),
-    warning: (title: string, description?: string) => 
+    warning: (title: string, description?: string) =>
       context.addToast({ title, description, variant: 'warning' }),
-    info: (title: string, description?: string) => 
-      context.addToast({ title, description, variant: 'info' })
+    info: (title: string, description?: string) =>
+      context.addToast({ title, description, variant: 'info' }),
   }
-} 
+}

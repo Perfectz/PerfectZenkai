@@ -6,13 +6,13 @@ import { Progress } from '@/shared/ui/progress'
 import { Calendar, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { Todo } from '../types'
 import { useTasksStore } from '../store'
-import { 
-  getPriorityConfig, 
-  getCategoryConfig, 
-  isOverdue, 
-  isDueToday, 
+import {
+  getPriorityConfig,
+  getCategoryConfig,
+  isOverdue,
+  isDueToday,
   formatDueDate,
-  getCompletionPercentage 
+  getCompletionPercentage,
 } from '../utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -26,8 +26,9 @@ export function TodoRow({ todo }: TodoRowProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [newSubtaskText, setNewSubtaskText] = useState('')
   const [isAddingSubtask, setIsAddingSubtask] = useState(false)
-  
-  const { toggleTodo, deleteTodo, addSubtask, toggleSubtask, deleteSubtask } = useTasksStore()
+
+  const { toggleTodo, deleteTodo, addSubtask, toggleSubtask, deleteSubtask } =
+    useTasksStore()
 
   const priorityConfig = getPriorityConfig(todo.priority)
   const categoryConfig = getCategoryConfig(todo.category)
@@ -50,7 +51,7 @@ export function TodoRow({ todo }: TodoRowProps) {
 
   const handleAddSubtask = async () => {
     if (!newSubtaskText.trim()) return
-    
+
     try {
       await addSubtask(todo.id, newSubtaskText.trim())
       setNewSubtaskText('')
@@ -74,14 +75,14 @@ export function TodoRow({ todo }: TodoRowProps) {
       handleDelete()
     },
     preventScrollOnSwipe: true,
-    trackMouse: true
+    trackMouse: true,
   })
 
   return (
     <Card
       {...swipeHandlers}
       className={`transition-all duration-150 ${
-        isPressed ? 'bg-muted scale-95' : 'hover:bg-muted/50'
+        isPressed ? 'scale-95 bg-muted' : 'hover:bg-muted/50'
       } ${todo.done ? 'opacity-75' : ''} ${isOverdue(todo) ? 'border-red-200 bg-red-50/50' : ''}`}
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
@@ -89,7 +90,7 @@ export function TodoRow({ todo }: TodoRowProps) {
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
     >
-      <CardContent className="py-3 px-4">
+      <CardContent className="px-4 py-3">
         <div className="space-y-3">
           {/* Main todo row */}
           <div className="flex items-center gap-3">
@@ -97,7 +98,7 @@ export function TodoRow({ todo }: TodoRowProps) {
             {todo.subtasks.length > 0 && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-0.5 hover:bg-muted rounded transition-colors"
+                className="rounded p-0.5 transition-colors hover:bg-muted"
               >
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -110,15 +111,15 @@ export function TodoRow({ todo }: TodoRowProps) {
             {/* Checkbox */}
             <button
               onClick={handleToggle}
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
                 todo.done
-                  ? 'bg-primary border-primary text-primary-foreground'
+                  ? 'border-primary bg-primary text-primary-foreground'
                   : 'border-muted-foreground hover:border-primary'
               }`}
             >
               {todo.done && (
                 <svg
-                  className="w-3 h-3"
+                  className="h-3 w-3"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -132,57 +133,61 @@ export function TodoRow({ todo }: TodoRowProps) {
             </button>
 
             {/* Todo text and details */}
-            <div className="flex-1 min-w-0 space-y-1">
+            <div className="min-w-0 flex-1 space-y-1">
               <p
                 className={`text-sm transition-all ${
                   todo.done
-                    ? 'line-through text-muted-foreground'
+                    ? 'text-muted-foreground line-through'
                     : 'text-foreground'
                 }`}
               >
                 {todo.text}
               </p>
-              
+
               {/* Progress bar for subtasks */}
               {todo.subtasks.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Progress value={completionPercentage} className="h-1.5 flex-1" />
+                  <Progress
+                    value={completionPercentage}
+                    className="h-1.5 flex-1"
+                  />
                   <span className="text-xs text-muted-foreground">
-                    {todo.subtasks.filter(s => s.done).length}/{todo.subtasks.length}
+                    {todo.subtasks.filter((s) => s.done).length}/
+                    {todo.subtasks.length}
                   </span>
                 </div>
               )}
-              
+
               {/* Tags and badges */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2">
                 {/* Priority badge */}
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs px-2 py-0.5 ${priorityConfig.color} border-current`}
+                <Badge
+                  variant="outline"
+                  className={`px-2 py-0.5 text-xs ${priorityConfig.color} border-current`}
                 >
                   <span className="mr-1">{priorityConfig.icon}</span>
                   {priorityConfig.label}
                 </Badge>
-                
+
                 {/* Category badge */}
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs px-2 py-0.5 ${categoryConfig.color} border-current`}
+                <Badge
+                  variant="outline"
+                  className={`px-2 py-0.5 text-xs ${categoryConfig.color} border-current`}
                 >
                   <span className="mr-1">{categoryConfig.icon}</span>
                   {categoryConfig.label}
                 </Badge>
-                
+
                 {/* Due date badge */}
                 {todo.dueDate && (
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs px-2 py-0.5 ${
-                      isOverdue(todo) 
-                        ? 'text-red-600 border-red-300 bg-red-50' 
+                  <Badge
+                    variant="outline"
+                    className={`px-2 py-0.5 text-xs ${
+                      isOverdue(todo)
+                        ? 'border-red-300 bg-red-50 text-red-600'
                         : isDueToday(todo)
-                        ? 'text-orange-600 border-orange-300 bg-orange-50'
-                        : 'text-blue-600 border-blue-300 bg-blue-50'
+                          ? 'border-orange-300 bg-orange-50 text-orange-600'
+                          : 'border-blue-300 bg-blue-50 text-blue-600'
                     }`}
                   >
                     <Calendar className="mr-1 h-3 w-3" />
@@ -207,17 +212,24 @@ export function TodoRow({ todo }: TodoRowProps) {
           {isExpanded && todo.subtasks.length > 0 && (
             <div className="ml-8 space-y-2">
               {todo.subtasks.map((subtask) => (
-                <div key={subtask.id} className="flex items-center gap-2 text-sm">
+                <div
+                  key={subtask.id}
+                  className="flex items-center gap-2 text-sm"
+                >
                   <button
                     onClick={() => toggleSubtask(todo.id, subtask.id)}
-                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                    className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
                       subtask.done
-                        ? 'bg-primary border-primary text-primary-foreground'
+                        ? 'border-primary bg-primary text-primary-foreground'
                         : 'border-muted-foreground hover:border-primary'
                     }`}
                   >
                     {subtask.done && (
-                      <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="h-2.5 w-2.5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path
                           fillRule="evenodd"
                           d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -226,12 +238,16 @@ export function TodoRow({ todo }: TodoRowProps) {
                       </svg>
                     )}
                   </button>
-                  <span className={subtask.done ? 'line-through text-muted-foreground' : ''}>
+                  <span
+                    className={
+                      subtask.done ? 'text-muted-foreground line-through' : ''
+                    }
+                  >
                     {subtask.text}
                   </span>
                   <button
                     onClick={() => deleteSubtask(todo.id, subtask.id)}
-                    className="ml-auto text-muted-foreground hover:text-red-500 transition-colors"
+                    className="ml-auto text-muted-foreground transition-colors hover:text-red-500"
                   >
                     ×
                   </button>
@@ -256,7 +272,11 @@ export function TodoRow({ todo }: TodoRowProps) {
                 className="text-sm"
                 autoFocus
               />
-              <Button size="sm" onClick={handleAddSubtask} disabled={!newSubtaskText.trim()}>
+              <Button
+                size="sm"
+                onClick={handleAddSubtask}
+                disabled={!newSubtaskText.trim()}
+              >
                 Add
               </Button>
             </div>
@@ -265,4 +285,4 @@ export function TodoRow({ todo }: TodoRowProps) {
       </CardContent>
     </Card>
   )
-} 
+}

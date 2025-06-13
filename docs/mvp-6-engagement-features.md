@@ -13,6 +13,7 @@
 This MVP implements user engagement features to encourage daily usage and app installation. It includes smart push notifications for weight tracking reminders and a well-timed install prompt that respects user preferences.
 
 ### Success Criteria
+
 - ✅ Daily weight reminders sent at optimal time (9 AM)
 - ✅ Install prompt appears at right moment with good UX
 - ✅ User preferences respected (no spam)
@@ -23,13 +24,15 @@ This MVP implements user engagement features to encourage daily usage and app in
 ## 🎯 User Stories & Tasks
 
 ### 6.1 Daily Reminder
+
 **Priority:** P1 (High)  
 **Story Points:** 4  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I get reminded to track my weight daily.*
+**User Story:** _As a user, I get reminded to track my weight daily._
 
 **Acceptance Criteria:**
+
 - [ ] At 9 AM if no weight logged today, push notification "Time to weigh in"
 - [ ] Requests notification permission on first /weight visit
 - [ ] Respects user's notification preferences
@@ -37,6 +40,7 @@ This MVP implements user engagement features to encourage daily usage and app in
 - [ ] Smart scheduling (no weekends, holidays optional)
 
 **Technical Details:**
+
 ```typescript
 // Notification logic
 - Check if weight logged today
@@ -47,6 +51,7 @@ This MVP implements user engagement features to encourage daily usage and app in
 ```
 
 **Implementation Prompt:**
+
 ```
 Update service worker (sw.ts) to add:
 - scheduleDailyReminder() function using setTimeout until next 9am
@@ -59,6 +64,7 @@ Handle notification click to open /weight route.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/PushReminder.e2e.ts that:
 - Mocks service worker push event
@@ -69,6 +75,7 @@ Create e2e/PushReminder.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] Notifications sent at correct time
 - [ ] Permission flow works
 - [ ] Click navigation works
@@ -77,13 +84,15 @@ Create e2e/PushReminder.e2e.ts that:
 ---
 
 ### 6.2 Custom Install Prompt
+
 **Priority:** P1 (High)  
 **Story Points:** 3  
 **Status:** 🔴 Not Started
 
-**User Story:** *As a user, I'm prompted to install the app at the right time.*
+**User Story:** _As a user, I'm prompted to install the app at the right time._
 
 **Acceptance Criteria:**
+
 - [ ] After 30s of first visit, Sheet asks to install
 - [ ] "Install" button calls `event.prompt()`
 - [ ] "Later" button remembers choice in localStorage
@@ -91,6 +100,7 @@ Create e2e/PushReminder.e2e.ts that:
 - [ ] Respects browser install criteria
 
 **UX Flow:**
+
 ```
 First Visit → 30s delay → Install Sheet
 ├─ Install → Browser install flow
@@ -100,6 +110,7 @@ Return Visit → Check localStorage → No prompt if declined
 ```
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/hooks/useDeferredInstallPrompt.ts that:
 - Captures beforeinstallprompt event
@@ -117,6 +128,7 @@ Add to AppShell.tsx with proper timing logic.
 ```
 
 **Test-Code Prompt:**
+
 ```
 Create e2e/InstallPrompt.e2e.ts that:
 - Waits 35 seconds on first visit
@@ -128,6 +140,7 @@ Create e2e/InstallPrompt.e2e.ts that:
 ```
 
 **Definition of Done:**
+
 - [ ] Timing works correctly
 - [ ] User choice persisted
 - [ ] Install flow works
@@ -138,18 +151,21 @@ Create e2e/InstallPrompt.e2e.ts that:
 ## 🏗️ Design Decisions
 
 ### Notification Strategy
+
 1. **9 AM timing**: Optimal for morning routine, not too early/late
 2. **Conditional sending**: Only if no weight logged, prevents spam
 3. **Permission on first use**: Context-aware, better acceptance rate
 4. **Deep linking**: Direct to relevant page, better UX
 
 ### Install Prompt Strategy
+
 1. **30-second delay**: User has time to evaluate app value
 2. **First visit only**: Avoids annoying returning users
 3. **Choice persistence**: Respects user decision
 4. **Sheet UI**: Non-blocking, can be dismissed easily
 
 ### Technical Choices
+
 1. **Service worker for notifications**: Reliable, works when app closed
 2. **localStorage for preferences**: Simple, persistent, no server needed
 3. **beforeinstallprompt**: Standard PWA install API
@@ -160,22 +176,26 @@ Create e2e/InstallPrompt.e2e.ts that:
 ## 📊 Progress Tracking
 
 ### Sprint Velocity
+
 - **Planned Story Points:** 7
 - **Completed Story Points:** 7
 - **Sprint Progress:** 100%
 
 ### Task Status
-| Task | Status | Assignee | Estimated Hours | Actual Hours |
-|------|--------|----------|----------------|--------------|
-| 6.1 Daily Reminder | 🔴 Not Started | AI Agent | 4h | - |
-| 6.2 Custom Install Prompt | 🔴 Not Started | AI Agent | 3h | - |
+
+| Task                      | Status         | Assignee | Estimated Hours | Actual Hours |
+| ------------------------- | -------------- | -------- | --------------- | ------------ |
+| 6.1 Daily Reminder        | 🔴 Not Started | AI Agent | 4h              | -            |
+| 6.2 Custom Install Prompt | 🔴 Not Started | AI Agent | 3h              | -            |
 
 ### Blockers & Risks
+
 - **Browser notification support**: May vary across devices
 - **Install prompt availability**: Depends on browser PWA criteria
 - **Permission denial**: Need graceful handling
 
 ### Quality Gates
+
 - [ ] Notifications work on target devices
 - [ ] Install prompt appears correctly
 - [ ] User preferences respected
@@ -187,34 +207,40 @@ Create e2e/InstallPrompt.e2e.ts that:
 ## 🔄 Sprint Retrospective
 
 ### What Went Well
-*To be filled after sprint completion*
+
+_To be filled after sprint completion_
 
 ### What Could Be Improved
-*To be filled after sprint completion*
+
+_To be filled after sprint completion_
 
 ### Action Items
-*To be filled after sprint completion*
+
+_To be filled after sprint completion_
 
 ---
 
 ## 📝 Notes & Comments
 
 ### Technical Debt
+
 - Consider adding notification scheduling preferences
 - May need more sophisticated install prompt logic
 - Could add analytics for engagement metrics
 
 ### Future Considerations
+
 - Add weekly/monthly summary notifications
 - Implement streak-based notifications
 - Consider time zone handling for notifications
 - Add notification customization settings
 
 ### Dependencies for Next MVP
+
 - This completes the core MVP sequence
 - Future enhancements can build on this foundation
 
 ---
 
 **Previous MVP:** [MVP 5 - Offline Polish](./mvp-5-offline-polish.md)  
-**Next Steps:** Enhancement backlog and maintenance 
+**Next Steps:** Enhancement backlog and maintenance

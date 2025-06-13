@@ -7,11 +7,11 @@ const PWA_SCORE_THRESHOLD = 90
 
 async function runCommand(command, args = []) {
   return new Promise((resolve, reject) => {
-    const process = spawn(command, args, { 
+    const process = spawn(command, args, {
       stdio: 'inherit',
-      shell: true 
+      shell: true,
     })
-    
+
     process.on('close', (code) => {
       if (code === 0) {
         resolve()
@@ -26,16 +26,16 @@ async function runLighthouse() {
   try {
     console.log('🏗️  Building production bundle...')
     await runCommand('npm', ['run', 'build'])
-    
+
     console.log('🚀 Starting preview server...')
-    const previewProcess = spawn('npm', ['run', 'preview'], { 
+    const previewProcess = spawn('npm', ['run', 'preview'], {
       stdio: 'pipe',
-      shell: true 
+      shell: true,
     })
-    
+
     // Wait for server to start
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+
     console.log('🔍 Running Lighthouse PWA audit...')
     await runCommand('npx', [
       '@lhci/cli',
@@ -48,14 +48,13 @@ async function runLighthouse() {
       '--assert.assertions.accessibility=0.9',
       '--assert.assertions.best-practices=0.9',
       '--assert.assertions.seo=0.8',
-      '--upload.target=temporary-public-storage'
+      '--upload.target=temporary-public-storage',
     ])
-    
+
     // Kill preview server
     previewProcess.kill()
-    
+
     console.log('✅ Lighthouse audit completed successfully!')
-    
   } catch (error) {
     console.error('❌ Lighthouse audit failed:', error.message)
     process.exit(1)
@@ -65,4 +64,4 @@ async function runLighthouse() {
 // Check if we're running this script directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   runLighthouse()
-} 
+}

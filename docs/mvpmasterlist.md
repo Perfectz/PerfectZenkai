@@ -5,13 +5,13 @@ Each MVP is a **vertical slice** that delivers user value and leaves the repo in
 ## What You Get for Each User Story
 
 - **User Story** – business language description
-- **Acceptance Criteria** – "definition of done" 
+- **Acceptance Criteria** – "definition of done"
 - **Test Cases** – what automated checks must pass
 - **Implementation Prompt** – copy‑paste into Cursor/Claude to generate code
 - **Test‑Code Prompt** – copy‑paste to generate matching unit/UI/e2e tests
 
 > **Architecture Rule:** Modules may import **shared** but **never each other**. Shell imports only module **routes**.  
-> **Vibe‑coding best‑practice notes appear in *italics* like this.**  
+> **Vibe‑coding best‑practice notes appear in _italics_ like this.**  
 > They are optional enhancements the agent may include.
 
 ---
@@ -19,9 +19,11 @@ Each MVP is a **vertical slice** that delivers user value and leaves the repo in
 ## MVP 0 — Environment & Skeleton
 
 ### 0.1 Init Toolkit
-**User Story:** *As a dev I want a wired repo so I can `pnpm dev` and see a blank app.*
+
+**User Story:** _As a dev I want a wired repo so I can `pnpm dev` and see a blank app._
 
 **Acceptance Criteria:**
+
 - `pnpm dev`, `pnpm test`, `pnpm lint` exit 0
 - Prettier & ESLint configs present
 - Folder structure follows solution design: `src/app/`, `src/modules/`, `src/shared/`, `src/types/`, `src/test/`
@@ -29,8 +31,9 @@ Each MVP is a **vertical slice** that delivers user value and leaves the repo in
 **Test Cases:** CLI checks
 
 **Implementation Prompt:**
+
 ```
-Create a Vite + React18 + TypeScript project named perfect-zenkai. Add Tailwind 3, shadcn/ui, lucide-react, @vite-pwa/react, ESLint, Prettier, Vitest, Husky, lint‑staged. 
+Create a Vite + React18 + TypeScript project named perfect-zenkai. Add Tailwind 3, shadcn/ui, lucide-react, @vite-pwa/react, ESLint, Prettier, Vitest, Husky, lint‑staged.
 
 Create folder structure:
 src/
@@ -44,6 +47,7 @@ Return package.json, vite.config.ts, tailwind.config.ts, src/main.tsx (empty <Ap
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Generate src/test/setupTests.ts and src/__tests__/sanity.test.ts that asserts true === true using Vitest.
 ```
@@ -51,9 +55,11 @@ Generate src/test/setupTests.ts and src/__tests__/sanity.test.ts that asserts tr
 ---
 
 ### 0.2 PWA Shell
-**User Story:** *App is installable and dark‑themed with Perfect Zenkai branding.*
+
+**User Story:** _App is installable and dark‑themed with Perfect Zenkai branding._
 
 **Acceptance Criteria:**
+
 - `manifest.json` (name "Perfect Zenkai", short_name "Zenkai", icons 192/512, theme #111827)
 - Service‑worker registered via @vite-pwa/react
 - Lighthouse PWA ≥ 90
@@ -61,11 +67,13 @@ Generate src/test/setupTests.ts and src/__tests__/sanity.test.ts that asserts tr
 **Test Cases:** Lighthouse CI run
 
 **Implementation Prompt:**
+
 ```
 Add PWA manifest with name "Perfect Zenkai", short_name "Zenkai", theme_color "#111827", background_color "#111827". Generate 192x192 and 512x512 icons. Register service‑worker via virtual:pwa-register in main.tsx. Update index.html theme‑color=#111827. Configure @vite-pwa/react with Workbox.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create scripts/lighthouse.mjs with @lhci/cli preset=pwa, fail if score<90. Add npm script "lighthouse".
 ```
@@ -73,9 +81,11 @@ Create scripts/lighthouse.mjs with @lhci/cli preset=pwa, fail if score<90. Add n
 ---
 
 ### 0.3 App Chrome
-**User Story:** *Header shows "Perfect Zenkai", empty bottom nav, and inactive FAB are visible.*
+
+**User Story:** _Header shows "Perfect Zenkai", empty bottom nav, and inactive FAB are visible._
 
 **Acceptance Criteria:**
+
 - Header uses shadcn CardHeader with title "Perfect Zenkai"
 - Bottom nav uses shadcn NavigationBar fixed `bottom‑0 inset‑x‑0`
 - FAB uses Tailwind `fixed bottom-20 right-4 w-14 h-14 rounded-full` with opacity-60
@@ -84,6 +94,7 @@ Create scripts/lighthouse.mjs with @lhci/cli preset=pwa, fail if score<90. Add n
 **Test Cases:** Playwright bbox snapshot
 
 **Implementation Prompt:**
+
 ```
 Build src/app/AppShell.tsx with:
 - Header using shadcn CardHeader, title "Perfect Zenkai"
@@ -94,6 +105,7 @@ Use shadcn primitives and Tailwind. Create NavigationBar.tsx and GlobalFab.tsx a
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Playwright test src/test/AppShell.spec.ts — open /, assert Header text "Perfect Zenkai", Nav, Fab visible (boundingBox).
 ```
@@ -101,14 +113,17 @@ Playwright test src/test/AppShell.spec.ts — open /, assert Header text "Perfec
 ---
 
 ### 0.4 LAN Docs
-**User Story:** *I know how to open the dev app on my phone.*
+
+**User Story:** _I know how to open the dev app on my phone._
 
 **Acceptance Criteria:**
+
 - README updated with `pnpm dev -- --host` steps and QR tip
 
 **Test Cases:** –
 
 **Implementation Prompt:**
+
 ```
 Append a "Mobile Testing" section to README.md explaining:
 1. `pnpm dev -- --host` to expose on LAN
@@ -123,9 +138,11 @@ Append a "Mobile Testing" section to README.md explaining:
 ## MVP 1 — Test‑Suite Foundation
 
 ### 1.1 Vitest Harness
-**User Story:** *I can unit‑test hooks & components easily with proper providers.*
+
+**User Story:** _I can unit‑test hooks & components easily with proper providers._
 
 **Acceptance Criteria:**
+
 - `src/test/setupTests.ts` registers RTL + jest‑dom
 - `renderWithProviders()` helper adds MemoryRouter + Zustand + Dexie providers
 - Coverage gate ≥ 80%
@@ -134,6 +151,7 @@ Append a "Mobile Testing" section to README.md explaining:
 **Test Cases:** `pnpm test --coverage` ≥ 80%
 
 **Implementation Prompt:**
+
 ```
 Create vitest.config.ts with:
 - JSDOM environment
@@ -149,6 +167,7 @@ Implement renderWithProviders(children) wrapper that provides:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/test/Sample.test.tsx — render <button>Hi</button> with renderWithProviders and expect text "Hi" to be in document.
 ```
@@ -156,9 +175,11 @@ Create src/test/Sample.test.tsx — render <button>Hi</button> with renderWithPr
 ---
 
 ### 1.2 Playwright Harness
-**User Story:** *I can run e2e tests in mobile viewport automatically.*
+
+**User Story:** _I can run e2e tests in mobile viewport automatically._
 
 **Acceptance Criteria:**
+
 - playwright.config.ts default viewport 375×667 & baseURL=http://localhost:5173
 - `pnpm test:e2e` spins dev server automatically
 - Mobile-first testing approach
@@ -166,6 +187,7 @@ Create src/test/Sample.test.tsx — render <button>Hi</button> with renderWithPr
 **Test Cases:** Sample spec passes
 
 **Implementation Prompt:**
+
 ```
 Add @playwright/test dependency. Create playwright.config.ts with:
 - Mobile viewport 375×667
@@ -177,6 +199,7 @@ Add npm script "test:e2e": "playwright test"
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/sample.spec.ts — goto '/', expect Header text "Perfect Zenkai", take screenshot sample.png.
 ```
@@ -184,18 +207,21 @@ Create e2e/sample.spec.ts — goto '/', expect Header text "Perfect Zenkai", tak
 ---
 
 ### 1.3 Lighthouse Gate
-**User Story:** *Build fails if PWA score dips below 90.*
+
+**User Story:** _Build fails if PWA score dips below 90._
 
 **Acceptance Criteria:**
+
 - `pnpm lighthouse` exits non‑zero on < 90
 - Tests against production build
 
 **Test Cases:** Manual run
 
 **Implementation Prompt:**
+
 ```
 Create scripts/lighthouse.mjs that:
-1. Runs `vite build && vite preview` 
+1. Runs `vite build && vite preview`
 2. Uses @lhci/cli with preset=pwa
 3. Asserts PWA score ≥ 90
 4. Exits with error code if fails
@@ -208,9 +234,11 @@ Add npm script "lighthouse": "node scripts/lighthouse.mjs"
 ---
 
 ### 1.4 CI Pipeline
-**User Story:** *All PRs run lint, unit, e2e, lighthouse automatically.*
+
+**User Story:** _All PRs run lint, unit, e2e, lighthouse automatically._
 
 **Acceptance Criteria:**
+
 - GitHub Action passes on push/PR
 - Caches pnpm dependencies
 - Runs all quality gates
@@ -218,6 +246,7 @@ Add npm script "lighthouse": "node scripts/lighthouse.mjs"
 **Test Cases:** GitHub check
 
 **Implementation Prompt:**
+
 ```
 Create .github/workflows/ci.yml with:
 - ubuntu-latest
@@ -234,9 +263,11 @@ Create .github/workflows/ci.yml with:
 ## MVP 2 — Weight Module v1 (log & list)
 
 ### 2.1 Weight Store + Repo
-**User Story:** *I can persist weight data locally with proper module isolation.*
+
+**User Story:** _I can persist weight data locally with proper module isolation._
 
 **Acceptance Criteria:**
+
 - Zustand slice in `src/modules/weight/store.ts` (`addWeight`, `deleteWeight`, `weights`)
 - Dexie table `weights` in `src/modules/weight/repo.ts`
 - WeightEntry type: `{id: string, dateISO: string, kg: number}`
@@ -246,6 +277,7 @@ Create .github/workflows/ci.yml with:
 **Test Cases:** Vitest verifying add & hydrate
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/weight/ folder with:
 
@@ -253,7 +285,7 @@ Create src/modules/weight/ folder with:
 
 2. repo.ts: Dexie database with weights table, functions:
    - addWeight(entry: Omit<WeightEntry, 'id'>)
-   - deleteWeight(id: string) 
+   - deleteWeight(id: string)
    - getAllWeights(): Promise<WeightEntry[]>
 
 3. store.ts: Zustand slice with:
@@ -267,6 +299,7 @@ Initialize store hydration in main.tsx.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/weight/store.test.ts that:
 - Mocks Dexie repo functions
@@ -279,9 +312,11 @@ Create src/modules/weight/store.test.ts that:
 ---
 
 ### 2.2 Weight Add Sheet
-**User Story:** *I can quickly log my weight via cyber-styled FAB sheet.*
+
+**User Story:** _I can quickly log my weight via cyber-styled FAB sheet._
 
 **Acceptance Criteria:**
+
 - FAB on /weight routes opens cyber-styled Sheet with glow effects
 - Form with cyber input styling and neon focus states
 - Date input (default today) and kg input (positive numbers only) with JetBrains Mono font
@@ -291,6 +326,7 @@ Create src/modules/weight/store.test.ts that:
 **Test Cases:** Playwright AddWeight.e2e
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/weight/components/WeightSheet.tsx using:
 - CyberCard component for sheet container with subtle glow
@@ -312,6 +348,7 @@ Wire up the sheet state management between FAB and Sheet.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/AddWeight.e2e.ts that:
 - Navigates to /weight
@@ -325,9 +362,11 @@ Create e2e/AddWeight.e2e.ts that:
 ---
 
 ### 2.3 Weight List Page
-**User Story:** *I can view and manage my weight history with cyber aesthetics and smooth interactions.*
+
+**User Story:** _I can view and manage my weight history with cyber aesthetics and smooth interactions._
 
 **Acceptance Criteria:**
+
 - `/weight` route lists entries newest‑first with cyber card styling
 - Each row shows date and kg with JetBrains Mono font and neon accents
 - Long‑press row (200ms) → cyber-styled confirm delete dialog with glow effects
@@ -337,6 +376,7 @@ Create e2e/AddWeight.e2e.ts that:
 **Test Cases:** Playwright DeleteWeight.e2e
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/weight/pages/WeightPage.tsx with:
 - List of weight entries sorted by date (newest first)
@@ -357,6 +397,7 @@ Add route to src/modules/weight/routes.ts and export from index.ts.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/DeleteWeight.e2e.ts that:
 - Adds 2 weight entries via API/store
@@ -370,9 +411,11 @@ Create e2e/DeleteWeight.e2e.ts that:
 ---
 
 ### 2.4 Nav Link
-**User Story:** *I can navigate to weight tracking via cyber-styled bottom nav.*
+
+**User Story:** _I can navigate to weight tracking via cyber-styled bottom nav._
 
 **Acceptance Criteria:**
+
 - Bottom nav shows "Weight" with cyber-styled scale icon and glow effects
 - Clicking navigates to /weight route with smooth transition
 - Active state styling with Ki-Green color and glow when on weight pages
@@ -381,6 +424,7 @@ Create e2e/DeleteWeight.e2e.ts that:
 **Test Cases:** Playwright nav spec
 
 **Implementation Prompt:**
+
 ```
 Update src/app/NavigationBar.tsx to include:
 - Weight nav item with custom cyber-styled scale icon (24px)
@@ -397,6 +441,7 @@ Ensure proper routing setup with React Router and page transitions.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/NavToWeight.e2e.ts that:
 - Starts on dashboard (/)
@@ -411,9 +456,11 @@ Create e2e/NavToWeight.e2e.ts that:
 ## MVP 3 — Tasks Module v1 (to‑dos)
 
 ### 3.1 Tasks Store + Repo
-**User Story:** *I can persist tasks locally with full CRUD operations.*
+
+**User Story:** _I can persist tasks locally with full CRUD operations._
 
 **Acceptance Criteria:**
+
 - Zustand + Dexie following same pattern as weight module
 - Todo type: `{id: string, text: string, done: boolean, createdAt: string}`
 - Full CRUD methods with proper error handling
@@ -421,6 +468,7 @@ Create e2e/NavToWeight.e2e.ts that:
 **Test Cases:** Vitest
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/tasks/ folder with same structure as weight:
 
@@ -443,6 +491,7 @@ Initialize in main.tsx.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/tasks/store.test.ts that:
 - Tests all CRUD operations
@@ -455,9 +504,11 @@ Create src/modules/tasks/store.test.ts that:
 ---
 
 ### 3.2 Todo Page
-**User Story:** *I can manage my tasks offline with cyber aesthetics and smooth interactions.*
+
+**User Story:** _I can manage my tasks offline with cyber aesthetics and smooth interactions._
 
 **Acceptance Criteria:**
+
 - `/todo` route with cyber-styled input to add new todos with glow effects
 - Custom cyber checkbox to toggle completion status with Ki-Green check animation
 - Swipe-to-delete functionality with red glow feedback
@@ -468,6 +519,7 @@ Create src/modules/tasks/store.test.ts that:
 **Test Cases:** Playwright TodoOffline.e2e (offline persistence)
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/tasks/pages/TodoPage.tsx with:
 - CyberInput field to add new todos (Enter to submit with glow effect)
@@ -489,6 +541,7 @@ Add routes to src/modules/tasks/routes.ts.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/TodoOffline.e2e.ts that:
 - Goes offline (network disabled)
@@ -504,9 +557,11 @@ Create e2e/TodoOffline.e2e.ts that:
 ---
 
 ### 3.3 Nav & FAB wiring
-**User Story:** *I can navigate to tasks and access quick actions with cyber styling.*
+
+**User Story:** _I can navigate to tasks and access quick actions with cyber styling._
 
 **Acceptance Criteria:**
+
 - Bottom nav "Tasks" with cyber-styled checklist icon and glow effects
 - FAB shows on /todo routes with Hyper-Magenta styling and appropriate action
 - Proper active state styling with Ki-Green color and glow
@@ -515,6 +570,7 @@ Create e2e/TodoOffline.e2e.ts that:
 **Test Cases:** Playwright nav spec
 
 **Implementation Prompt:**
+
 ```
 Update src/app/NavigationBar.tsx to add:
 - Tasks nav item with custom cyber-styled checklist icon (24px)
@@ -533,6 +589,7 @@ Merge taskRoutes into src/app/routes.ts with proper page transitions.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/NavToTasks.e2e.ts that:
 - Clicks "Tasks" nav icon from dashboard
@@ -547,9 +604,11 @@ Create e2e/NavToTasks.e2e.ts that:
 ## MVP 4 — Dashboard Module (home cards)
 
 ### 4.1 Sparkline Card
-**User Story:** *I can see my weight trend at a glance with cyber-styled interactive chart.*
+
+**User Story:** _I can see my weight trend at a glance with cyber-styled interactive chart._
 
 **Acceptance Criteria:**
+
 - Shows last 30 days weight data as sparkline with Ki-Green stroke and glow
 - Uses React.lazy to load Recharts with cyber styling
 - Click navigates to /weight with smooth transition
@@ -559,6 +618,7 @@ Create e2e/NavToTasks.e2e.ts that:
 **Test Cases:** Vitest SVG path present
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/WeightSparkCard.tsx with:
 - CyberCard component with subtle glow and hover effects
@@ -577,6 +637,7 @@ Use Recharts with cyber color palette and glow effects.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 - Renders with 3 mock weight entries
@@ -590,9 +651,11 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 ---
 
 ### 4.2 Today Weight Card
-**User Story:** *I can see today's weight status prominently with cyber styling.*
+
+**User Story:** _I can see today's weight status prominently with cyber styling._
 
 **Acceptance Criteria:**
+
 - Displays latest weight entry or placeholder with cyber aesthetics
 - Shows date and weight with JetBrains Mono font and Ki-Green accents
 - Indicates if no weight logged today with encouraging cyber message
@@ -602,6 +665,7 @@ Create src/modules/dashboard/WeightSparkCard.test.tsx that:
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/TodayWeightCard.tsx with:
 - CyberCard component with subtle glow and hover effects
@@ -616,6 +680,7 @@ Create src/modules/dashboard/components/TodayWeightCard.tsx with:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 - Tests with today's weight entry
@@ -628,9 +693,11 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 ---
 
 ### 4.3 Todo Summary Card
-**User Story:** *I can see my task progress at a glance with cyber-styled progress visualization.*
+
+**User Story:** _I can see my task progress at a glance with cyber-styled progress visualization._
 
 **Acceptance Criteria:**
+
 - Shows count of incomplete todos with cyber typography
 - Shows total todos count with Press Start 2P font
 - Circular progress ring with Ki-Green to Plasma-Cyan gradient
@@ -640,6 +707,7 @@ Create src/modules/dashboard/TodayWeightCard.test.tsx that:
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/TodoSummaryCard.tsx with:
 - CyberCard component with subtle glow and hover effects
@@ -655,6 +723,7 @@ Create src/modules/dashboard/components/TodoSummaryCard.tsx with:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 - Tests count calculation with mixed todos
@@ -667,9 +736,11 @@ Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 ---
 
 ### 4.4 Streak Card (stub)
-**User Story:** *I can see my consistency streak placeholder with cyber styling.*
+
+**User Story:** _I can see my consistency streak placeholder with cyber styling._
 
 **Acceptance Criteria:**
+
 - Static "0 DAY STREAK" with Press Start 2P font and cyber aesthetics
 - Cyber-styled flame icon with glow effect
 - Proper card styling matching other cyber cards
@@ -678,6 +749,7 @@ Create src/modules/dashboard/TodoSummaryCard.test.tsx that:
 **Test Cases:** Jest DOM
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/components/StreakCard.tsx with:
 - CyberCard component with subtle glow and hover effects
@@ -691,6 +763,7 @@ Create src/modules/dashboard/components/StreakCard.tsx with:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/modules/dashboard/StreakCard.test.tsx that:
 - Renders placeholder text "0 day streak"
@@ -701,9 +774,11 @@ Create src/modules/dashboard/StreakCard.test.tsx that:
 ---
 
 ### 4.5 Dashboard Page
-**User Story:** *I have a useful home screen with responsive card layout.*
+
+**User Story:** _I have a useful home screen with responsive card layout._
 
 **Acceptance Criteria:**
+
 - `/` route shows dashboard
 - Grid: 1‑col <640px, 2‑col ≥640px
 - All four cards properly arranged
@@ -712,6 +787,7 @@ Create src/modules/dashboard/StreakCard.test.tsx that:
 **Test Cases:** Playwright responsive spec
 
 **Implementation Prompt:**
+
 ```
 Create src/modules/dashboard/pages/DashboardPage.tsx with:
 - CSS Grid layout: grid-cols-1 sm:grid-cols-2
@@ -726,6 +802,7 @@ Add to src/modules/dashboard/index.ts exports.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/DashboardResponsive.e2e.ts that:
 - Tests viewport 500px (mobile) - expects 1 column
@@ -738,9 +815,11 @@ Create e2e/DashboardResponsive.e2e.ts that:
 ---
 
 ### 4.6 Default Route & Header
-**User Story:** *App opens to dashboard with proper branding.*
+
+**User Story:** _App opens to dashboard with proper branding._
 
 **Acceptance Criteria:**
+
 - App opens to dashboard by default
 - Header shows "Perfect Zenkai" title
 - Proper routing setup
@@ -748,6 +827,7 @@ Create e2e/DashboardResponsive.e2e.ts that:
 **Test Cases:** Smoke test
 
 **Implementation Prompt:**
+
 ```
 Update src/app/routes.ts to:
 - Set default route "/" to DashboardPage
@@ -766,9 +846,11 @@ Verify all module routes are properly integrated.
 ## MVP 5 — Offline Polish
 
 ### 5.1 Runtime Cache
-**User Story:** *App works seamlessly offline with proper caching.*
+
+**User Story:** _App works seamlessly offline with proper caching._
 
 **Acceptance Criteria:**
+
 - Images and JSON cached via Workbox
 - App shell cached for offline use
 - Data persists offline via Dexie
@@ -776,6 +858,7 @@ Verify all module routes are properly integrated.
 **Test Cases:** Playwright OfflineWeight.e2e
 
 **Implementation Prompt:**
+
 ```
 Extend @vite-pwa/react configuration in vite.config.ts with:
 - workbox.runtimeCaching for images, fonts, API calls
@@ -787,6 +870,7 @@ Update service worker registration to handle updates properly.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/OfflineWeight.e2e.ts that:
 - Visits /weight while online
@@ -800,9 +884,11 @@ Create e2e/OfflineWeight.e2e.ts that:
 ---
 
 ### 5.2 Online Status Banner
-**User Story:** *I know when I'm offline with cyber-styled visual indicator.*
+
+**User Story:** _I know when I'm offline with cyber-styled visual indicator._
 
 **Acceptance Criteria:**
+
 - useOnline hook detects connection status
 - Cyber-styled banner appears when offline with red glow and warning styling
 - Banner disappears when back online with smooth animation
@@ -811,6 +897,7 @@ Create e2e/OfflineWeight.e2e.ts that:
 **Test Cases:** Vitest hook; Playwright toggle offline
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/hooks/useOnline.ts that:
 - Uses navigator.onLine
@@ -830,6 +917,7 @@ Add OfflineBanner to AppShell.tsx with proper positioning.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/shared/hooks/useOnline.test.ts that:
 - Tests initial online state
@@ -845,9 +933,11 @@ Create e2e test for banner visibility when toggling offline.
 ## MVP 6 — Engagement (push + install)
 
 ### 6.1 Daily Reminder
-**User Story:** *I get reminded to track my weight daily.*
+
+**User Story:** _I get reminded to track my weight daily._
 
 **Acceptance Criteria:**
+
 - At 9 AM if no weight logged today, push notification "Time to weigh in"
 - Requests notification permission on first /weight visit
 - Respects user's notification preferences
@@ -855,6 +945,7 @@ Create e2e test for banner visibility when toggling offline.
 **Test Cases:** Service‑worker push simulation
 
 **Implementation Prompt:**
+
 ```
 Update service worker (sw.ts) to add:
 - scheduleDailyReminder() function using setTimeout until next 9am
@@ -867,6 +958,7 @@ Handle notification click to open /weight route.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/PushReminder.e2e.ts that:
 - Mocks service worker push event
@@ -879,9 +971,11 @@ Create e2e/PushReminder.e2e.ts that:
 ---
 
 ### 6.2 Custom Install Prompt
-**User Story:** *I'm prompted to install the app at the right time.*
+
+**User Story:** _I'm prompted to install the app at the right time._
 
 **Acceptance Criteria:**
+
 - After 30s of first visit, Sheet asks to install
 - "Install" button calls `event.prompt()`
 - "Later" button remembers choice in localStorage
@@ -890,6 +984,7 @@ Create e2e/PushReminder.e2e.ts that:
 **Test Cases:** Playwright InstallPrompt.e2e
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/hooks/useDeferredInstallPrompt.ts that:
 - Captures beforeinstallprompt event
@@ -907,6 +1002,7 @@ Add to AppShell.tsx with proper timing logic.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/InstallPrompt.e2e.ts that:
 - Waits 35 seconds on first visit
@@ -922,9 +1018,11 @@ Create e2e/InstallPrompt.e2e.ts that:
 ## MVP 7 — Design System Foundation
 
 ### 7.1 Cyber Theme Setup
-**User Story:** *App has cyber-ninja aesthetic with neon colors and proper typography.*
+
+**User Story:** _App has cyber-ninja aesthetic with neon colors and proper typography._
 
 **Acceptance Criteria:**
+
 - Tailwind config includes cyber color palette (Ki-Green #22FFB7, Hyper-Magenta #FF2EEA, Plasma-Cyan #1BE7FF)
 - Press Start 2P font loaded for headings
 - Inter and JetBrains Mono fonts configured
@@ -933,10 +1031,11 @@ Create e2e/InstallPrompt.e2e.ts that:
 **Test Cases:** Visual regression tests for color tokens
 
 **Implementation Prompt:**
+
 ```
 Update tailwind.config.ts to include cyber color palette:
 - Ki-Green: #22FFB7 (primary CTA)
-- Hyper-Magenta: #FF2EEA (accent)  
+- Hyper-Magenta: #FF2EEA (accent)
 - Plasma-Cyan: #1BE7FF (secondary)
 - Dark Navy: #111827 (background)
 - Extended gray scale from style guide
@@ -951,6 +1050,7 @@ Update index.css to import cyber-theme.css and set font families.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/test/theme.test.ts that:
 - Tests CSS custom properties are defined
@@ -962,9 +1062,11 @@ Create src/test/theme.test.ts that:
 ---
 
 ### 7.2 Component Library Setup
-**User Story:** *Shared UI components follow cyber-ninja design system.*
+
+**User Story:** _Shared UI components follow cyber-ninja design system._
 
 **Acceptance Criteria:**
+
 - CyberButton component with glow effects and hover states
 - CyberCard component with neon borders and shadows
 - CyberInput component with focus glow
@@ -973,6 +1075,7 @@ Create src/test/theme.test.ts that:
 **Test Cases:** Storybook stories for each component
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/ui/cyber/ folder with:
 
@@ -999,10 +1102,11 @@ Export all components from src/shared/ui/index.ts.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create Storybook stories for each cyber component:
 - src/shared/ui/cyber/CyberButton.stories.tsx
-- src/shared/ui/cyber/CyberCard.stories.tsx  
+- src/shared/ui/cyber/CyberCard.stories.tsx
 - src/shared/ui/cyber/CyberInput.stories.tsx
 
 Test all variants, states, and interactions.
@@ -1012,9 +1116,11 @@ Add visual regression tests with Chromatic.
 ---
 
 ### 7.3 Icon System Integration
-**User Story:** *App uses consistent cyber-themed icons with glow effects.*
+
+**User Story:** _App uses consistent cyber-themed icons with glow effects._
 
 **Acceptance Criteria:**
+
 - Custom icon components with proper sizing (16px, 24px, 32px)
 - Active state glow effects for navigation icons
 - Icon library integrated with design system colors
@@ -1023,6 +1129,7 @@ Add visual regression tests with Chromatic.
 **Test Cases:** Icon rendering and accessibility tests
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/ui/icons/ system:
 
@@ -1046,6 +1153,7 @@ Update existing components to use new icon system.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/shared/ui/icons/icons.test.tsx that:
 - Tests icon rendering at different sizes
@@ -1060,9 +1168,11 @@ Create src/shared/ui/icons/icons.test.tsx that:
 ## MVP 8 — Navigation & Layout Redesign
 
 ### 8.1 Cyber Navigation Bar
-**User Story:** *Bottom navigation has cyber-ninja styling with glow effects.*
+
+**User Story:** _Bottom navigation has cyber-ninja styling with glow effects._
 
 **Acceptance Criteria:**
+
 - Gray-900 background with Gray-700 top border
 - Active nav items have Ki-Green color with glow
 - Smooth transitions between states
@@ -1072,6 +1182,7 @@ Create src/shared/ui/icons/icons.test.tsx that:
 **Test Cases:** Navigation interaction and visual tests
 
 **Implementation Prompt:**
+
 ```
 Redesign src/app/NavigationBar.tsx with cyber aesthetics:
 
@@ -1090,6 +1201,7 @@ Ensure accessibility with proper ARIA labels.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberNavigation.e2e.ts that:
 - Tests navigation item styling
@@ -1102,9 +1214,11 @@ Create e2e/CyberNavigation.e2e.ts that:
 ---
 
 ### 8.2 Floating Action Button Redesign
-**User Story:** *FAB has cyber styling with Hyper-Magenta glow and animations.*
+
+**User Story:** _FAB has cyber styling with Hyper-Magenta glow and animations._
 
 **Acceptance Criteria:**
+
 - Hyper-Magenta background (#FF2EEA)
 - Strong glow effect with shadow
 - Hover and press animations
@@ -1114,6 +1228,7 @@ Create e2e/CyberNavigation.e2e.ts that:
 **Test Cases:** FAB interaction and animation tests
 
 **Implementation Prompt:**
+
 ```
 Redesign src/app/GlobalFab.tsx with cyber aesthetics:
 
@@ -1131,6 +1246,7 @@ Add context awareness for different routes.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberFab.e2e.ts that:
 - Tests FAB visibility on different routes
@@ -1143,9 +1259,11 @@ Create e2e/CyberFab.e2e.ts that:
 ---
 
 ### 8.3 App Header Redesign
-**User Story:** *Header shows cyber-styled Perfect Zenkai branding with level badge.*
+
+**User Story:** _Header shows cyber-styled Perfect Zenkai branding with level badge._
 
 **Acceptance Criteria:**
+
 - Press Start 2P font for "Perfect Zenkai" title
 - Optional level badge with Hyper-Magenta background
 - Subtle background pattern or glow
@@ -1155,6 +1273,7 @@ Create e2e/CyberFab.e2e.ts that:
 **Test Cases:** Header responsive and visual tests
 
 **Implementation Prompt:**
+
 ```
 Redesign src/app/AppShell.tsx header section:
 
@@ -1171,6 +1290,7 @@ Add subtle animations and micro-interactions.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/test/AppHeader.test.tsx that:
 - Tests header rendering and typography
@@ -1185,9 +1305,11 @@ Create src/test/AppHeader.test.tsx that:
 ## MVP 9 — Dashboard Cyber Redesign
 
 ### 9.1 Cyber Dashboard Cards
-**User Story:** *Dashboard cards have cyber aesthetics with neon accents and data visualization.*
+
+**User Story:** _Dashboard cards have cyber aesthetics with neon accents and data visualization._
 
 **Acceptance Criteria:**
+
 - Cards use CyberCard component with glow effects
 - Progress rings with Ki-Green to Plasma-Cyan gradients
 - Hover effects with scale and glow animations
@@ -1197,6 +1319,7 @@ Create src/test/AppHeader.test.tsx that:
 **Test Cases:** Dashboard card interaction and visual tests
 
 **Implementation Prompt:**
+
 ```
 Redesign dashboard cards in src/modules/dashboard/components/:
 
@@ -1227,6 +1350,7 @@ Redesign dashboard cards in src/modules/dashboard/components/:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberDashboard.e2e.ts that:
 - Tests card hover animations
@@ -1239,9 +1363,11 @@ Create e2e/CyberDashboard.e2e.ts that:
 ---
 
 ### 9.2 XP Progress System
-**User Story:** *Dashboard shows XP progress with cyber-styled progress rings and level badges.*
+
+**User Story:** _Dashboard shows XP progress with cyber-styled progress rings and level badges._
 
 **Acceptance Criteria:**
+
 - Circular progress ring with gradient (Ki-Green to Plasma-Cyan)
 - Current XP and level display
 - Animated progress updates
@@ -1251,6 +1377,7 @@ Create e2e/CyberDashboard.e2e.ts that:
 **Test Cases:** XP system calculation and animation tests
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/components/XPProgressRing.tsx:
 
@@ -1271,6 +1398,7 @@ Add to dashboard with proper data integration.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/shared/components/XPProgressRing.test.tsx that:
 - Tests progress calculation accuracy
@@ -1285,9 +1413,11 @@ Create src/shared/components/XPProgressRing.test.tsx that:
 ## MVP 10 — Form & Input Cyber Styling
 
 ### 10.1 Weight Entry Cyber Form
-**User Story:** *Weight entry form has cyber styling with glow effects and smooth animations.*
+
+**User Story:** _Weight entry form has cyber styling with glow effects and smooth animations._
 
 **Acceptance Criteria:**
+
 - CyberInput components with focus glow
 - Number pad with cyber button styling
 - Date picker with neon accents
@@ -1297,6 +1427,7 @@ Create src/shared/components/XPProgressRing.test.tsx that:
 **Test Cases:** Form interaction and validation tests
 
 **Implementation Prompt:**
+
 ```
 Redesign src/modules/weight/components/WeightSheet.tsx:
 
@@ -1314,6 +1445,7 @@ Add form validation with cyber-styled error messages.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberWeightForm.e2e.ts that:
 - Tests form input interactions
@@ -1326,9 +1458,11 @@ Create e2e/CyberWeightForm.e2e.ts that:
 ---
 
 ### 10.2 Task Entry Cyber Form
-**User Story:** *Task creation and editing has cyber aesthetics with smooth interactions.*
+
+**User Story:** _Task creation and editing has cyber aesthetics with smooth interactions._
 
 **Acceptance Criteria:**
+
 - Inline task creation with cyber input styling
 - Task items with cyber checkbox design
 - Swipe-to-delete with neon feedback
@@ -1338,6 +1472,7 @@ Create e2e/CyberWeightForm.e2e.ts that:
 **Test Cases:** Task form and interaction tests
 
 **Implementation Prompt:**
+
 ```
 Redesign src/modules/tasks/components/:
 
@@ -1360,6 +1495,7 @@ Redesign src/modules/tasks/components/:
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberTaskForm.e2e.ts that:
 - Tests task creation flow
@@ -1374,9 +1510,11 @@ Create e2e/CyberTaskForm.e2e.ts that:
 ## MVP 11 — Micro-Interactions & Polish
 
 ### 11.1 Loading States & Skeletons
-**User Story:** *Loading states have cyber aesthetics with pixel-scan shimmer effects.*
+
+**User Story:** _Loading states have cyber aesthetics with pixel-scan shimmer effects._
 
 **Acceptance Criteria:**
+
 - Skeleton loaders with cyber styling
 - Pixel-scan shimmer animation
 - Loading spinners with Ki-Green color
@@ -1386,6 +1524,7 @@ Create e2e/CyberTaskForm.e2e.ts that:
 **Test Cases:** Loading state visual and timing tests
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/components/loading/:
 
@@ -1410,6 +1549,7 @@ Apply to all existing components with loading states.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/shared/components/loading/loading.test.tsx that:
 - Tests skeleton animation timing
@@ -1422,9 +1562,11 @@ Create src/shared/components/loading/loading.test.tsx that:
 ---
 
 ### 11.2 Success & Error Feedback
-**User Story:** *User feedback has cyber styling with appropriate animations and effects.*
+
+**User Story:** _User feedback has cyber styling with appropriate animations and effects._
 
 **Acceptance Criteria:**
+
 - Success notifications with Ki-Green glow and particle effects
 - Error states with red glow and shake animations
 - Warning states with amber cyber styling
@@ -1434,6 +1576,7 @@ Create src/shared/components/loading/loading.test.tsx that:
 **Test Cases:** Feedback system interaction tests
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/components/feedback/:
 
@@ -1459,6 +1602,7 @@ Integrate with existing form submissions and actions.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create e2e/CyberFeedback.e2e.ts that:
 - Tests toast notification display
@@ -1471,9 +1615,11 @@ Create e2e/CyberFeedback.e2e.ts that:
 ---
 
 ### 11.3 Transition Animations
-**User Story:** *Page transitions and route changes have cyber-themed animations.*
+
+**User Story:** _Page transitions and route changes have cyber-themed animations._
 
 **Acceptance Criteria:**
+
 - Page transitions with diagonal rain sweep effect
 - Route changes with smooth slide animations
 - Modal/sheet animations with glow effects
@@ -1483,6 +1629,7 @@ Create e2e/CyberFeedback.e2e.ts that:
 **Test Cases:** Animation performance and accessibility tests
 
 **Implementation Prompt:**
+
 ```
 Create src/shared/animations/:
 
@@ -1511,6 +1658,7 @@ Apply to router transitions and component animations.
 ```
 
 **Test‑Code Prompt:**
+
 ```
 Create src/shared/animations/animations.test.tsx that:
 - Tests animation timing and easing

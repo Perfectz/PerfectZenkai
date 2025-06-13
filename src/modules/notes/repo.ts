@@ -10,7 +10,7 @@ class NotesDatabase extends Dexie {
     const dbName = userId ? `NotesDatabase_${userId}` : 'NotesDatabase'
     super(dbName)
     this.version(1).stores({
-      notes: 'id, title, content, createdAt, updatedAt'
+      notes: 'id, title, content, createdAt, updatedAt',
     })
   }
 }
@@ -41,18 +41,21 @@ export const notesRepo = {
     const database = getDatabase()
     const newNote: Note = {
       id: uuidv4(),
-      ...note
+      ...note,
     }
-    
+
     await database.notes.add(newNote)
     return newNote
   },
 
-  async updateNote(id: string, updates: Partial<Omit<Note, 'id'>>): Promise<void> {
+  async updateNote(
+    id: string,
+    updates: Partial<Omit<Note, 'id'>>
+  ): Promise<void> {
     const database = getDatabase()
     await database.notes.update(id, {
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
   },
 
@@ -74,5 +77,5 @@ export const notesRepo = {
   async clearAll(): Promise<void> {
     const database = getDatabase()
     await database.notes.clear()
-  }
-} 
+  },
+}

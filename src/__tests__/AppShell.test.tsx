@@ -13,4 +13,4 @@ describe('AppLayout', () => {
     expect(screen.getByText('Training Mode')).toBeInTheDocument()
     expect(screen.getByText('Exit')).toBeInTheDocument()
   })
-}) 
+})

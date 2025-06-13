@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
 import { Button } from '@/shared/ui/button'
 import { useDeferredInstallPrompt } from '@/shared/hooks/useDeferredInstallPrompt'
 import { Download, X } from 'lucide-react'
@@ -9,16 +15,17 @@ const INSTALL_SHEET_DELAY = 30000 // 30 seconds
 
 export default function InstallSheet() {
   const [showSheet, setShowSheet] = useState(false)
-  const { isInstallable, showInstallPrompt, declineInstallPrompt } = useDeferredInstallPrompt()
+  const { isInstallable, showInstallPrompt, declineInstallPrompt } =
+    useDeferredInstallPrompt()
 
   useEffect(() => {
     // Check if this is the first visit
     const hasVisited = localStorage.getItem(FIRST_VISIT_KEY)
-    
+
     if (!hasVisited && isInstallable) {
       // Mark as visited
       localStorage.setItem(FIRST_VISIT_KEY, 'true')
-      
+
       // Show install sheet after delay
       const timer = setTimeout(() => {
         setShowSheet(true)
@@ -58,26 +65,27 @@ export default function InstallSheet() {
             Install Perfect Zenkai
           </SheetTitle>
           <SheetDescription>
-            Install the app on your device for quick access and a better experience. 
-            You can access it from your home screen just like any other app.
+            Install the app on your device for quick access and a better
+            experience. You can access it from your home screen just like any
+            other app.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex gap-3 mt-6">
+        <div className="mt-6 flex gap-3">
           <Button onClick={handleInstall} className="flex-1">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Install App
           </Button>
           <Button variant="outline" onClick={handleLater} className="flex-1">
-            <X className="h-4 w-4 mr-2" />
+            <X className="mr-2 h-4 w-4" />
             Later
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground text-center mt-4">
+        <div className="mt-4 text-center text-xs text-muted-foreground">
           You can always install later from your browser's menu
         </div>
       </SheetContent>
     </Sheet>
   )
-} 
+}

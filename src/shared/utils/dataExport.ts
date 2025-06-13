@@ -21,7 +21,7 @@ export const exportAllData = async (): Promise<AppDataExport> => {
     const [weights, tasks, notes] = await Promise.all([
       weightRepo.getAllWeights(),
       tasksRepo.getAllTodos(),
-      notesRepo.getAllNotes()
+      notesRepo.getAllNotes(),
     ])
 
     const exportData: AppDataExport = {
@@ -30,8 +30,8 @@ export const exportAllData = async (): Promise<AppDataExport> => {
       data: {
         weights,
         tasks,
-        notes
-      }
+        notes,
+      },
     }
 
     return exportData
@@ -45,16 +45,18 @@ export const downloadDataAsFile = (data: AppDataExport, filename?: string) => {
   const jsonString = JSON.stringify(data, null, 2)
   const blob = new Blob([jsonString], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
-  
+
   const link = document.createElement('a')
   link.href = url
-  link.download = filename || `perfect-zenkai-backup-${new Date().toISOString().split('T')[0]}.json`
-  
+  link.download =
+    filename ||
+    `perfect-zenkai-backup-${new Date().toISOString().split('T')[0]}.json`
+
   // Trigger download
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   // Clean up
   URL.revokeObjectURL(url)
 }
@@ -65,6 +67,6 @@ export const getDataSummary = (data: AppDataExport) => {
     totalTasks: data.data.tasks.length,
     totalNotes: data.data.notes.length,
     exportDate: new Date(data.exportDate).toLocaleDateString(),
-    appVersion: data.appVersion
+    appVersion: data.appVersion,
   }
-} 
+}

@@ -9,4 +9,4 @@ export const weightRoutes: RouteObject[] = [
     path: '/weight',
     element: <WeightPage />,
   },
-] 
+]

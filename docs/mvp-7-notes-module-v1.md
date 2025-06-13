@@ -13,6 +13,7 @@
 This MVP implements note-taking functionality, allowing users to create, edit, search, and manage their personal notes. This adds another core productivity feature to Perfect Zenkai, complementing weight tracking and task management.
 
 ### Success Criteria
+
 - ✅ Users can create, edit, and delete notes
 - ✅ Notes persist offline via Dexie
 - ✅ Full-text search across note titles and content
@@ -25,19 +26,22 @@ This MVP implements note-taking functionality, allowing users to create, edit, s
 ## 🎯 User Stories & Tasks
 
 ### 7.1 Notes Store + Repo
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 3  
 **Status:** ✅ Complete
 
-**User Story:** *As a user, I want my notes to persist locally with full CRUD operations.*
+**User Story:** _As a user, I want my notes to persist locally with full CRUD operations._
 
 **Acceptance Criteria:**
+
 - ✅ Zustand + Dexie following same pattern as weight/tasks modules
 - ✅ Note type: `{id: string, title: string, content: string, createdAt: string, updatedAt: string}`
 - ✅ Full CRUD methods with proper error handling
 - ✅ Module isolation maintained
 
 **Technical Details:**
+
 ```typescript
 interface Note {
   id: string;           // UUID v4
@@ -55,10 +59,11 @@ interface Note {
 ```
 
 **Implementation:**
+
 ```
 Files created:
 - src/modules/notes/types.ts
-- src/modules/notes/repo.ts  
+- src/modules/notes/repo.ts
 - src/modules/notes/store.ts
 - src/modules/notes/index.ts
 ```
@@ -66,13 +71,15 @@ Files created:
 ---
 
 ### 7.2 Notes Page + Components
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 4  
 **Status:** ✅ Complete
 
-**User Story:** *As a user, I can create, search, and manage notes with an intuitive interface.*
+**User Story:** _As a user, I can create, search, and manage notes with an intuitive interface._
 
 **Acceptance Criteria:**
+
 - ✅ NotesPage with search bar and add note form
 - ✅ NoteRow component with click-to-edit functionality
 - ✅ Inline editing with title and content fields
@@ -81,6 +88,7 @@ Files created:
 - ✅ Real-time search filtering
 
 **Technical Details:**
+
 - Search functionality filters by title and content
 - Click anywhere on note to enter edit mode
 - Edit mode shows input fields with save/cancel buttons
@@ -88,6 +96,7 @@ Files created:
 - Responsive design with proper mobile touch targets
 
 **Implementation:**
+
 ```
 Files created:
 - src/modules/notes/pages/NotesPage.tsx
@@ -99,25 +108,29 @@ Files created:
 ---
 
 ### 7.3 Navigation Integration
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 1  
 **Status:** ✅ Complete
 
-**User Story:** *As a user, I can access notes from the main navigation.*
+**User Story:** _As a user, I can access notes from the main navigation._
 
-**Acceptance Criteria:**  
+**Acceptance Criteria:**
+
 - ✅ Notes tab added to bottom navigation
 - ✅ BookOpen icon for notes section
 - ✅ Proper active state styling
 - ✅ Route configured in app routes
 
 **Technical Details:**
+
 - Added `/notes` route to app router
 - Added navigation tab with BookOpen lucide icon
 - Follows same pattern as weight/tasks navigation
 - Proper active state highlighting
 
 **Implementation:**
+
 ```
 Files modified:
 - src/app/routes.tsx
@@ -128,13 +141,15 @@ Files modified:
 ---
 
 ### 7.4 Testing
+
 **Priority:** P0 (Blocker)  
 **Story Points:** 2  
 **Status:** ✅ Complete
 
-**User Story:** *As a developer, I want comprehensive tests for the notes module.*
+**User Story:** _As a developer, I want comprehensive tests for the notes module._
 
 **Acceptance Criteria:**
+
 - ✅ Notes store fully tested (11 test cases)
 - ✅ All CRUD operations covered
 - ✅ Error handling scenarios tested
@@ -142,10 +157,11 @@ Files modified:
 - ✅ 100% test coverage for store logic
 
 **Technical Details:**
+
 ```
 Test Coverage:
 - addNote: success and error cases
-- updateNote: success and error cases  
+- updateNote: success and error cases
 - deleteNote: success and error cases
 - loadNotes: success and error cases
 - hydrate: store initialization
@@ -153,6 +169,7 @@ Test Coverage:
 ```
 
 **Implementation:**
+
 ```
 Files created:
 - src/modules/notes/store.test.ts (11 tests)
@@ -163,18 +180,21 @@ Files created:
 ## 🚀 Key Features Implemented
 
 ### Smart Note Management
+
 - **Inline Editing:** Click any note to edit title and content directly
 - **Auto-Save:** Changes persist immediately with proper error handling
 - **Search:** Real-time filtering across all note content
 - **Sorting:** Most recently updated notes appear first
 
-### Mobile-First Design  
+### Mobile-First Design
+
 - **Touch Optimized:** Proper touch targets and press states
 - **Swipe Actions:** Swipe left to delete with confirmation
 - **Responsive Layout:** Adapts to all screen sizes
 - **Keyboard Support:** Proper focus management and navigation
 
 ### Data Persistence
+
 - **Offline First:** All notes stored locally in IndexedDB
 - **Instant Sync:** Changes reflect immediately in UI
 - **Error Recovery:** Graceful handling of database errors
@@ -185,6 +205,7 @@ Files created:
 ## 📊 Technical Implementation
 
 ### Architecture
+
 ```
 src/modules/notes/
 ├── types.ts          # Note interface definition
@@ -200,11 +221,13 @@ src/modules/notes/
 ```
 
 ### Database Schema
+
 ```sql
 notes: 'id, title, content, createdAt, updatedAt'
 ```
 
 ### State Management
+
 ```typescript
 interface NotesState {
   notes: Note[]
@@ -219,13 +242,15 @@ interface NotesState {
 ## 🧪 Testing Results
 
 **Test Suite:** 11/11 passing ✅
+
 - Store operations: 8 tests
-- Error handling: 6 tests  
+- Error handling: 6 tests
 - State management: 3 tests
 
 **Total App Tests:** 44/44 passing ✅
+
 - Weight module: 9 tests
-- Tasks module: 12 tests  
+- Tasks module: 12 tests
 - Notes module: 11 tests
 - Dashboard: 4 tests
 - Engagement: 8 tests
@@ -235,7 +260,7 @@ interface NotesState {
 ## 🎯 Success Metrics
 
 - **Functionality:** All CRUD operations working flawlessly
-- **Performance:** Instant search and filtering 
+- **Performance:** Instant search and filtering
 - **UX:** Intuitive click-to-edit interface
 - **Mobile:** Touch-optimized interactions
 - **Reliability:** Comprehensive error handling
@@ -246,13 +271,15 @@ interface NotesState {
 ## 🔄 Next Steps
 
 **Potential Enhancements:**
+
 - Rich text editing (markdown support)
 - Note categories/tags
-- Export functionality  
+- Export functionality
 - Note sharing capabilities
 - Backup/sync features
 
 **Integration Opportunities:**
+
 - Dashboard note summary card
 - Cross-module note attachments
 - Quick note capture from other modules
@@ -260,4 +287,4 @@ interface NotesState {
 ---
 
 **Previous MVP:** [MVP 6 - Engagement Features](./mvp-6-engagement-features.md)  
-**Next MVP:** TBD - Future roadmap planning 
+**Next MVP:** TBD - Future roadmap planning

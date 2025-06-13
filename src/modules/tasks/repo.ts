@@ -11,8 +11,9 @@ class TasksDatabase extends Dexie {
     const dbName = userId ? `TasksDatabase_${userId}` : 'TasksDatabase'
     super(dbName)
     this.version(2).stores({
-      todos: 'id, text, done, priority, category, dueDate, createdAt, updatedAt',
-      templates: 'id, name, createdAt'
+      todos:
+        'id, text, done, priority, category, dueDate, createdAt, updatedAt',
+      templates: 'id, name, createdAt',
     })
   }
 }
@@ -50,9 +51,9 @@ export const tasksRepo = {
       // Set defaults for required fields if not provided
       subtasks: todo.subtasks || [],
       priority: todo.priority || 'medium',
-      category: todo.category || 'other'
+      category: todo.category || 'other',
     }
-    
+
     await database.todos.add(newTodo)
     return newTodo
   },
@@ -61,7 +62,7 @@ export const tasksRepo = {
     const database = getDatabase()
     const updateData = {
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
     await database.todos.update(id, updateData)
   },
@@ -97,7 +98,7 @@ export const tasksRepo = {
     return await database.todos
       .where('dueDate')
       .below(today)
-      .and(todo => !todo.done)
+      .and((todo) => !todo.done)
       .toArray()
   },
 
@@ -111,19 +112,23 @@ export const tasksRepo = {
       id: uuidv4(),
       text: subtaskText,
       done: false,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     const updatedSubtasks = [...todo.subtasks, newSubtask]
     await this.updateTodo(todoId, { subtasks: updatedSubtasks })
   },
 
-  async updateSubtask(todoId: string, subtaskId: string, updates: Partial<Subtask>): Promise<void> {
+  async updateSubtask(
+    todoId: string,
+    subtaskId: string,
+    updates: Partial<Subtask>
+  ): Promise<void> {
     const database = getDatabase()
     const todo = await database.todos.get(todoId)
     if (!todo) return
 
-    const updatedSubtasks = todo.subtasks.map(subtask =>
+    const updatedSubtasks = todo.subtasks.map((subtask) =>
       subtask.id === subtaskId ? { ...subtask, ...updates } : subtask
     )
     await this.updateTodo(todoId, { subtasks: updatedSubtasks })
@@ -134,7 +139,9 @@ export const tasksRepo = {
     const todo = await database.todos.get(todoId)
     if (!todo) return
 
-    const updatedSubtasks = todo.subtasks.filter(subtask => subtask.id !== subtaskId)
+    const updatedSubtasks = todo.subtasks.filter(
+      (subtask) => subtask.id !== subtaskId
+    )
     await this.updateTodo(todoId, { subtasks: updatedSubtasks })
   },
 
@@ -143,14 +150,17 @@ export const tasksRepo = {
     const database = getDatabase()
     const newTemplate: TaskTemplate = {
       id: uuidv4(),
-      ...template
+      ...template,
     }
-    
+
     await database.templates.add(newTemplate)
     return newTemplate
   },
 
-  async updateTemplate(id: string, updates: Partial<TaskTemplate>): Promise<void> {
+  async updateTemplate(
+    id: string,
+    updates: Partial<TaskTemplate>
+  ): Promise<void> {
     const database = getDatabase()
     await database.templates.update(id, updates)
   },
@@ -175,10 +185,10 @@ export const tasksRepo = {
     if (!template) throw new Error('Template not found')
 
     const now = new Date().toISOString()
-    const subtasks: Subtask[] = template.subtasks.map(subtask => ({
+    const subtasks: Subtask[] = template.subtasks.map((subtask) => ({
       id: uuidv4(),
       createdAt: now,
-      ...subtask
+      ...subtask,
     }))
 
     return await this.addTodo({
@@ -188,7 +198,7 @@ export const tasksRepo = {
       category: template.category,
       subtasks,
       templateId,
-      createdAt: now
+      createdAt: now,
     })
   },
 
@@ -196,5 +206,5 @@ export const tasksRepo = {
     const database = getDatabase()
     await database.todos.clear()
     await database.templates.clear()
-  }
-} 
+  },
+}

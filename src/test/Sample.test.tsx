@@ -3,10 +3,8 @@ import { renderWithProviders } from './test-utils'
 
 describe('Sample Test', () => {
   it('should render button with text using renderWithProviders', () => {
-    const { getByText } = renderWithProviders(
-      <button>Hi</button>
-    )
-    
+    const { getByText } = renderWithProviders(<button>Hi</button>)
+
     expect(getByText('Hi')).toBeInTheDocument()
   })
 
@@ -18,12 +16,11 @@ describe('Sample Test', () => {
       </div>
     )
 
-    const { getByText } = renderWithProviders(
-      <TestComponent />,
-      { initialEntries: ['/test'] }
-    )
-    
+    const { getByText } = renderWithProviders(<TestComponent />, {
+      initialEntries: ['/test'],
+    })
+
     expect(getByText('Hi')).toBeInTheDocument()
     expect(getByText('Routing works')).toBeInTheDocument()
   })
-}) 
+})

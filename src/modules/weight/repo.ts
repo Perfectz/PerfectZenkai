@@ -10,7 +10,7 @@ class WeightDatabase extends Dexie {
     const dbName = userId ? `WeightDatabase_${userId}` : 'WeightDatabase'
     super(dbName)
     this.version(1).stores({
-      weights: 'id, dateISO, kg'
+      weights: 'id, dateISO, kg',
     })
   }
 }
@@ -41,9 +41,9 @@ export const weightRepo = {
     const database = getDatabase()
     const newEntry: WeightEntry = {
       id: uuidv4(),
-      ...entry
+      ...entry,
     }
-    
+
     await database.weights.add(newEntry)
     return newEntry
   },
@@ -66,5 +66,5 @@ export const weightRepo = {
   async clearAll(): Promise<void> {
     const database = getDatabase()
     await database.weights.clear()
-  }
-} 
+  },
+}

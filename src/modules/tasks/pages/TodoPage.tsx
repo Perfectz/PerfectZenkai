@@ -7,7 +7,12 @@ import { Plus, Filter, Layout, Calendar, AlertCircle } from 'lucide-react'
 import { useTasksStore } from '../store'
 import { TodoRow } from '../components/TodoRow'
 import { Priority, Category } from '../types'
-import { PRIORITIES, CATEGORIES, sortTodosByPriority, sortTodosByDueDate } from '../utils'
+import {
+  PRIORITIES,
+  CATEGORIES,
+  sortTodosByPriority,
+  sortTodosByDueDate,
+} from '../utils'
 
 export default function TodoPage() {
   const [inputValue, setInputValue] = useState('')
@@ -17,9 +22,20 @@ export default function TodoPage() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [filterPriority, setFilterPriority] = useState<Priority | 'all'>('all')
   const [filterCategory, setFilterCategory] = useState<Category | 'all'>('all')
-  const [sortBy, setSortBy] = useState<'created' | 'priority' | 'dueDate'>('created')
+  const [sortBy, setSortBy] = useState<'created' | 'priority' | 'dueDate'>(
+    'created'
+  )
 
-  const { todos, templates, addTodo, loadTodos, loadTemplates, createTodoFromTemplate, getOverdueTodos, isLoading } = useTasksStore()
+  const {
+    todos,
+    templates,
+    addTodo,
+    loadTodos,
+    loadTemplates,
+    createTodoFromTemplate,
+    getOverdueTodos,
+    isLoading,
+  } = useTasksStore()
 
   useEffect(() => {
     if (todos.length === 0) {
@@ -31,9 +47,11 @@ export default function TodoPage() {
   }, [todos.length, templates.length, loadTodos, loadTemplates])
 
   // Filter todos based on selected filters
-  const filteredTodos = todos.filter(todo => {
-    if (filterPriority !== 'all' && todo.priority !== filterPriority) return false
-    if (filterCategory !== 'all' && todo.category !== filterCategory) return false
+  const filteredTodos = todos.filter((todo) => {
+    if (filterPriority !== 'all' && todo.priority !== filterPriority)
+      return false
+    if (filterCategory !== 'all' && todo.category !== filterCategory)
+      return false
     return true
   })
 
@@ -45,14 +63,15 @@ export default function TodoPage() {
       case 'dueDate':
         return sortTodosByDueDate(filteredTodos)
       default:
-        return [...filteredTodos].sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        return [...filteredTodos].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
     }
   })()
 
-  const incompleteTodos = sortedTodos.filter(todo => !todo.done)
-  const completedTodos = sortedTodos.filter(todo => todo.done)
+  const incompleteTodos = sortedTodos.filter((todo) => !todo.done)
+  const completedTodos = sortedTodos.filter((todo) => todo.done)
   const overdueTodos = getOverdueTodos()
 
   const handleAddTodo = async () => {
@@ -66,7 +85,7 @@ export default function TodoPage() {
         category: selectedCategory,
         dueDate: dueDate || undefined,
         subtasks: [],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       })
       setInputValue('')
       setDueDate('')
@@ -91,7 +110,7 @@ export default function TodoPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 pb-24 pt-4 space-y-6">      
+    <div className="container mx-auto space-y-6 px-4 pb-24 pt-4">
       {/* Overdue Tasks Alert */}
       {overdueTodos.length > 0 && (
         <Card className="border-red-200 bg-red-50">
@@ -99,7 +118,8 @@ export default function TodoPage() {
             <div className="flex items-center gap-2 text-red-700">
               <AlertCircle className="h-4 w-4" />
               <span className="font-medium">
-                {overdueTodos.length} overdue task{overdueTodos.length > 1 ? 's' : ''}
+                {overdueTodos.length} overdue task
+                {overdueTodos.length > 1 ? 's' : ''}
               </span>
             </div>
           </CardContent>
@@ -136,22 +156,28 @@ export default function TodoPage() {
               onClick={handleAddTodo}
               disabled={isLoading || !inputValue.trim()}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Add
             </Button>
           </div>
 
           {/* Advanced options */}
           {showAdvanced && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Priority */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Priority</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Priority
+                </label>
                 <div className="flex gap-1">
                   {PRIORITIES.map((priority) => (
                     <Button
                       key={priority.value}
-                      variant={selectedPriority === priority.value ? 'default' : 'outline'}
+                      variant={
+                        selectedPriority === priority.value
+                          ? 'default'
+                          : 'outline'
+                      }
                       size="sm"
                       onClick={() => setSelectedPriority(priority.value)}
                       className="flex-1"
@@ -165,12 +191,18 @@ export default function TodoPage() {
 
               {/* Category */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Category
+                </label>
                 <div className="grid grid-cols-2 gap-1">
                   {CATEGORIES.map((category) => (
                     <Button
                       key={category.value}
-                      variant={selectedCategory === category.value ? 'default' : 'outline'}
+                      variant={
+                        selectedCategory === category.value
+                          ? 'default'
+                          : 'outline'
+                      }
                       size="sm"
                       onClick={() => setSelectedCategory(category.value)}
                       className="text-xs"
@@ -184,7 +216,9 @@ export default function TodoPage() {
 
               {/* Due Date */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Due Date</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Due Date
+                </label>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <Input
@@ -201,11 +235,11 @@ export default function TodoPage() {
           {/* Templates */}
           {templates.length > 0 && (
             <div>
-              <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+              <label className="mb-2 block flex items-center gap-2 text-sm font-medium">
                 <Layout className="h-4 w-4" />
                 Quick Templates
               </label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-2">
                 {templates.map((template) => (
                   <Button
                     key={template.id}
@@ -226,7 +260,7 @@ export default function TodoPage() {
       {/* Filters and Sorting */}
       <Card>
         <CardContent className="pt-4">
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex flex-wrap items-center gap-4">
             {/* Priority Filter */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Priority:</span>
@@ -242,7 +276,9 @@ export default function TodoPage() {
                 {PRIORITIES.map((priority) => (
                   <Button
                     key={priority.value}
-                    variant={filterPriority === priority.value ? 'default' : 'outline'}
+                    variant={
+                      filterPriority === priority.value ? 'default' : 'outline'
+                    }
                     size="sm"
                     onClick={() => setFilterPriority(priority.value)}
                     className="text-xs"
@@ -268,7 +304,9 @@ export default function TodoPage() {
                 {CATEGORIES.map((category) => (
                   <Button
                     key={category.value}
-                    variant={filterCategory === category.value ? 'default' : 'outline'}
+                    variant={
+                      filterCategory === category.value ? 'default' : 'outline'
+                    }
                     size="sm"
                     onClick={() => setFilterCategory(category.value)}
                     className="text-xs"
@@ -286,13 +324,17 @@ export default function TodoPage() {
                 {[
                   { value: 'created', label: 'Created' },
                   { value: 'priority', label: 'Priority' },
-                  { value: 'dueDate', label: 'Due Date' }
+                  { value: 'dueDate', label: 'Due Date' },
                 ].map((sort) => (
                   <Button
                     key={sort.value}
                     variant={sortBy === sort.value ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSortBy(sort.value as 'created' | 'priority' | 'dueDate')}
+                    onClick={() =>
+                      setSortBy(
+                        sort.value as 'created' | 'priority' | 'dueDate'
+                      )
+                    }
                     className="text-xs"
                   >
                     {sort.label}
@@ -322,8 +364,8 @@ export default function TodoPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center text-muted-foreground py-12">
-              <p className="text-4xl mb-2">🎉</p>
+            <div className="py-12 text-center text-muted-foreground">
+              <p className="mb-2 text-4xl">🎉</p>
               <p className="text-lg font-medium">All quests completed!</p>
               <p className="text-sm">Ready for new adventures?</p>
             </div>
@@ -333,7 +375,9 @@ export default function TodoPage() {
           {completedTodos.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-muted-foreground">Completed Quests</h3>
+                <h3 className="text-lg font-semibold text-muted-foreground">
+                  Completed Quests
+                </h3>
                 <Badge variant="outline">{completedTodos.length}</Badge>
               </div>
               <div className="space-y-2">
@@ -347,4 +391,4 @@ export default function TodoPage() {
       )}
     </div>
   )
-} 
+}

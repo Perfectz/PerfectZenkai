@@ -4,7 +4,11 @@ import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
 import { localAuthService } from '../services/localAuth'
 import { supabase } from '@/lib/supabase'
-import { initializeUserDatabases, clearUserDatabases, sanitizeUserId } from '../utils/dataIsolation'
+import {
+  initializeUserDatabases,
+  clearUserDatabases,
+  sanitizeUserId,
+} from '../utils/dataIsolation'
 
 interface LoginCredentials {
   username: string
@@ -46,26 +50,27 @@ export const useAuthStore = create<AuthStore>()(
       // Actions
       login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null })
-        
+
         try {
           console.log('🚀 Starting login process for:', credentials.username)
           const authService = getAuthService()
           console.log('🔧 Using auth service:', authService)
-          
+
           let user: User | null = null
           let token: string = ''
-          
+
           if (authService === 'supabase') {
-            const { user: supabaseUser, error } = await supabaseAuth.loginWithUsername(
-              credentials.username, 
-              credentials.password
-            )
-            
+            const { user: supabaseUser, error } =
+              await supabaseAuth.loginWithUsername(
+                credentials.username,
+                credentials.password
+              )
+
             if (error) {
               console.error('❌ Supabase login error:', error)
               throw new Error(error.message)
             }
-            
+
             user = supabaseUser
             token = user?.id || ''
           } else {
@@ -74,16 +79,16 @@ export const useAuthStore = create<AuthStore>()(
             user = result.user
             token = result.token
           }
-          
+
           console.log('🔍 Login result:', { user, token })
-          
+
           if (!user) {
             console.error('❌ No user returned from login')
             throw new Error('Login failed - no user returned')
           }
-          
+
           console.log('✅ Login successful, setting user state')
-          
+
           set({
             user,
             token,
@@ -95,9 +100,8 @@ export const useAuthStore = create<AuthStore>()(
           // Initialize user-specific databases for data isolation
           const sanitizedUserId = sanitizeUserId(user.id)
           initializeUserDatabases(sanitizedUserId)
-          
-          console.log('🎉 Login process completed successfully')
 
+          console.log('🎉 Login process completed successfully')
         } catch (error) {
           console.error('💥 Login error in store:', error)
           set({
@@ -112,7 +116,7 @@ export const useAuthStore = create<AuthStore>()(
 
       register: async (data: RegisterData) => {
         set({ isLoading: true, error: null })
-        
+
         try {
           // Validate password length
           if (data.password.length < 6) {
@@ -121,14 +125,14 @@ export const useAuthStore = create<AuthStore>()(
 
           const authService = getAuthService()
           console.log('🔧 Using auth service for registration:', authService)
-          
+
           if (authService === 'supabase') {
             const { user, error } = await supabaseAuth.register(
               data.username,
               data.email,
               data.password
             )
-            
+
             if (error) {
               throw new Error(error.message)
             }
@@ -140,7 +144,7 @@ export const useAuthStore = create<AuthStore>()(
             // Use local auth service
             await localAuthService.register(data)
           }
-          
+
           // For registration, we'll just set loading to false and not authenticate
           // This allows the UI to handle the success state and redirect to login
           set({
@@ -150,12 +154,12 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
           })
-
         } catch (error) {
           console.error('Registration error:', error)
           set({
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Registration failed',
+            error:
+              error instanceof Error ? error.message : 'Registration failed',
             user: null,
             token: null,
             isAuthenticated: false,
@@ -165,7 +169,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         const state = get()
-        
+
         set({ isLoading: true })
 
         // Clear user-specific databases if user exists
@@ -210,7 +214,7 @@ export const useAuthStore = create<AuthStore>()(
           const authService = getAuthService()
           let user: User | null = null
           let token: string = ''
-          
+
           if (authService === 'supabase') {
             user = await supabaseAuth.getCurrentUser()
             token = user?.id || ''
@@ -222,19 +226,19 @@ export const useAuthStore = create<AuthStore>()(
               token = session.token
             }
           }
-          
+
           if (!user) {
             set({ isAuthenticated: false, user: null, token: null })
             return
           }
 
           // Update state with current session
-          set({ 
-            isAuthenticated: true, 
-            user, 
-            token
+          set({
+            isAuthenticated: true,
+            user,
+            token,
           })
-          
+
           // Initialize user databases if user exists and is authenticated
           if (user?.id) {
             const sanitizedUserId = sanitizeUserId(user.id)
@@ -254,7 +258,7 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           error: null,
         })
-        
+
         // Initialize user-specific databases
         const sanitizedUserId = sanitizeUserId(user.id)
         initializeUserDatabases(sanitizedUserId)
@@ -279,4 +283,4 @@ supabaseAuth.onAuthStateChange((user) => {
   } else if (!user && store.isAuthenticated) {
     store.logout()
   }
-}) 
+})

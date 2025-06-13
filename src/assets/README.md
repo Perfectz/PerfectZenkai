@@ -22,6 +22,7 @@ src/assets/
 ## Usage Examples
 
 ### Navigation Icons
+
 ```typescript
 import { WeightIcon, TasksIcon, DashboardIcon } from '@/assets/icons/navigation';
 
@@ -29,6 +30,7 @@ import { WeightIcon, TasksIcon, DashboardIcon } from '@/assets/icons/navigation'
 ```
 
 ### Dashboard Card Icons
+
 ```typescript
 import { WeightCardIcon } from '@/assets/icons/dashboard';
 
@@ -36,6 +38,7 @@ import { WeightCardIcon } from '@/assets/icons/dashboard';
 ```
 
 ### Empty State Illustrations
+
 ```typescript
 import { NoWeightData } from '@/assets/illustrations/empty-states';
 
@@ -51,18 +54,21 @@ import { NoWeightData } from '@/assets/illustrations/empty-states';
 ## Import Methods
 
 ### SVG as React Component
+
 ```typescript
-import Icon from './icon.svg?react';
+import Icon from './icon.svg?react'
 ```
 
 ### SVG as URL String
+
 ```typescript
-import iconUrl from './icon.svg';
+import iconUrl from './icon.svg'
 ```
 
 ## PWA Icons
 
 PWA icons are stored in `public/icons/` and referenced in `manifest.json`:
+
 - `icon-192.png` - Standard app icon
 - `icon-512.png` - Large app icon
 - `icon-maskable-192.png` - Maskable icon (safe area)
@@ -73,10 +79,11 @@ PWA icons are stored in `public/icons/` and referenced in `manifest.json`:
 ## Module-Specific Assets
 
 Each module can have its own assets folder:
+
 ```
 src/modules/weight/assets/
 src/modules/tasks/assets/
 src/modules/dashboard/assets/
 ```
 
-Use these for module-specific graphics that aren't shared across the app. 
+Use these for module-specific graphics that aren't shared across the app.

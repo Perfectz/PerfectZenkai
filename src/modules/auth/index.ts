@@ -14,4 +14,4 @@ export { localAuthService } from './services/localAuth'
 export { authRoutes } from './routes'
 
 // Types
-export type { User, AuthState } from './types/auth' 
+export type { User, AuthState } from './types/auth'
