@@ -66,18 +66,7 @@ export class SupabaseAuthService {
         }
       }
 
-      // Create user profile
-      const { error: profileError } = await supabase!
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          username,
-          email
-        })
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError)
-      }
+      // Profile is created automatically via trigger
 
       const user: User = {
         id: authData.user.id,
@@ -176,7 +165,7 @@ export class SupabaseAuthService {
       
       // First, find the profile with this username and get the associated email
       const profilePromise = supabase!
-        .from('profiles')
+        .from('user_lookup')
         .select('id, username, email')
         .eq('username', username)
         .single()
