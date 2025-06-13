@@ -6,6 +6,7 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
   CI = "false"
+  NODE_OPTIONS = "--max-old-space-size=4096"
 
 # PWA and SPA routing
 [[redirects]]

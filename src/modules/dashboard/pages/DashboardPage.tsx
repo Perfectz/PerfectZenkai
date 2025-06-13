@@ -6,7 +6,7 @@ import { TodayWeightCard } from '../components/TodayWeightCard'
 import { TodoSummaryCard } from '../components/TodoSummaryCard'
 import { StreakCard } from '../components/StreakCard'
 import { DataExportCard } from '../components/DataExportCard'
-import headerVideo from '@/assets/videos/header.mp4'
+import headerVideo from '../../../assets/videos/header.mp4'
 
 export default function DashboardPage() {
   const { loadWeights } = useWeightStore()
