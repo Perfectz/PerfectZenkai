@@ -19,14 +19,22 @@ const mockTodo: Todo = {
   id: 'test-id-1',
   text: 'Test todo',
   done: false,
-  createdAt: '2024-01-01T00:00:00.000Z'
+  priority: 'medium',
+  category: 'personal',
+  subtasks: [],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z'
 }
 
 const mockCompletedTodo: Todo = {
   id: 'test-id-2',
   text: 'Completed todo',
   done: true,
-  createdAt: '2024-01-01T01:00:00.000Z'
+  priority: 'low',
+  category: 'work',
+  subtasks: [],
+  createdAt: '2024-01-01T01:00:00.000Z',
+  updatedAt: '2024-01-01T01:00:00.000Z'
 }
 
 describe('useTasksStore', () => {
@@ -47,11 +55,15 @@ describe('useTasksStore', () => {
       const mockNewTodo = {
         text: 'New todo',
         done: false,
+        priority: 'medium' as const,
+        category: 'personal' as const,
+        subtasks: [],
         createdAt: '2024-01-01T02:00:00.000Z'
       }
 
       vi.mocked(tasksRepo.addTodo).mockResolvedValue({
         id: 'new-id',
+        updatedAt: '2024-01-01T02:00:00.000Z',
         ...mockNewTodo
       })
 
@@ -77,6 +89,9 @@ describe('useTasksStore', () => {
       await expect(addTodo({
         text: 'Test',
         done: false,
+        priority: 'medium',
+        category: 'personal',
+        subtasks: [],
         createdAt: '2024-01-01T00:00:00.000Z'
       })).rejects.toThrow(errorMessage)
 

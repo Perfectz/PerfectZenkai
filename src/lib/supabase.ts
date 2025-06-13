@@ -8,7 +8,7 @@ const isTestEnvironment = import.meta.env.MODE === 'test' || process.env.NODE_EN
 const hasSupabaseConfig = supabaseUrl && supabaseAnonKey
 
 if (!hasSupabaseConfig && !isTestEnvironment) {
-  throw new Error('Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.')
+  console.warn('Supabase environment variables not found. Running in offline mode.')
 }
 
 // Create client only if we have proper configuration

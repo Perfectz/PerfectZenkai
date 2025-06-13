@@ -3,13 +3,14 @@ import { renderWithProviders as render, screen } from '../test/test-utils'
 import AppLayout from '../app/AppLayout'
 
 describe('AppLayout', () => {
-  it('should render Perfect Zenkai title', () => {
+  it('should render user header', () => {
     render(<AppLayout />)
-    expect(screen.getByText('Perfect Zenkai')).toBeInTheDocument()
+    expect(screen.getByText('Cyber Warrior')).toBeInTheDocument()
   })
 
-  it('should render layout', () => {
+  it('should render layout components', () => {
     render(<AppLayout />)
-    expect(screen.getByText('Perfect Zenkai')).toBeInTheDocument()
+    expect(screen.getByText('Training Mode')).toBeInTheDocument()
+    expect(screen.getByText('Exit')).toBeInTheDocument()
   })
 }) 

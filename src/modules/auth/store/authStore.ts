@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
+import { localAuthService } from '../services/localAuth'
+import { supabase } from '@/lib/supabase'
 import { initializeUserDatabases, clearUserDatabases, sanitizeUserId } from '../utils/dataIsolation'
 
 interface LoginCredentials {
@@ -26,6 +28,11 @@ interface AuthStore extends AuthState {
   setUser: (user: User, token: string) => void
 }
 
+// Helper function to determine which auth service to use
+const getAuthService = () => {
+  return supabase !== null ? 'supabase' : 'local'
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -42,19 +49,34 @@ export const useAuthStore = create<AuthStore>()(
         
         try {
           console.log('🚀 Starting login process for:', credentials.username)
+          const authService = getAuthService()
+          console.log('🔧 Using auth service:', authService)
           
-          const { user, error } = await supabaseAuth.loginWithUsername(
-            credentials.username, 
-            credentials.password
-          )
+          let user: User | null = null
+          let token: string = ''
           
-          console.log('🔍 Login result:', { user, error })
-          
-          if (error) {
-            console.error('❌ Login error from service:', error)
-            throw new Error(error.message)
+          if (authService === 'supabase') {
+            const { user: supabaseUser, error } = await supabaseAuth.loginWithUsername(
+              credentials.username, 
+              credentials.password
+            )
+            
+            if (error) {
+              console.error('❌ Supabase login error:', error)
+              throw new Error(error.message)
+            }
+            
+            user = supabaseUser
+            token = user?.id || ''
+          } else {
+            // Use local auth service
+            const result = await localAuthService.login(credentials)
+            user = result.user
+            token = result.token
           }
-
+          
+          console.log('🔍 Login result:', { user, token })
+          
           if (!user) {
             console.error('❌ No user returned from login')
             throw new Error('Login failed - no user returned')
@@ -64,7 +86,7 @@ export const useAuthStore = create<AuthStore>()(
           
           set({
             user,
-            token: user.id, // Use user ID as token for simplicity
+            token,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -97,18 +119,26 @@ export const useAuthStore = create<AuthStore>()(
             throw new Error('Password must be at least 6 characters long')
           }
 
-          const { user, error } = await supabaseAuth.register(
-            data.username,
-            data.email,
-            data.password
-          )
+          const authService = getAuthService()
+          console.log('🔧 Using auth service for registration:', authService)
           
-          if (error) {
-            throw new Error(error.message)
-          }
+          if (authService === 'supabase') {
+            const { user, error } = await supabaseAuth.register(
+              data.username,
+              data.email,
+              data.password
+            )
+            
+            if (error) {
+              throw new Error(error.message)
+            }
 
-          if (!user) {
-            throw new Error('Registration failed')
+            if (!user) {
+              throw new Error('Registration failed')
+            }
+          } else {
+            // Use local auth service
+            await localAuthService.register(data)
           }
           
           // For registration, we'll just set loading to false and not authenticate
@@ -148,8 +178,13 @@ export const useAuthStore = create<AuthStore>()(
           }
         }
 
-        // Logout from Supabase
-        await supabaseAuth.logout()
+        // Logout from appropriate service
+        const authService = getAuthService()
+        if (authService === 'supabase') {
+          await supabaseAuth.logout()
+        } else {
+          localAuthService.logout()
+        }
 
         // Clear local state
         set({
@@ -160,8 +195,10 @@ export const useAuthStore = create<AuthStore>()(
           error: null,
         })
 
-        // Clear localStorage
-        localStorage.clear()
+        // Clear localStorage (but preserve local auth data if using local service)
+        if (authService === 'supabase') {
+          localStorage.clear()
+        }
       },
 
       clearError: () => {
@@ -170,7 +207,21 @@ export const useAuthStore = create<AuthStore>()(
 
       checkAuthStatus: async () => {
         try {
-          const user = await supabaseAuth.getCurrentUser()
+          const authService = getAuthService()
+          let user: User | null = null
+          let token: string = ''
+          
+          if (authService === 'supabase') {
+            user = await supabaseAuth.getCurrentUser()
+            token = user?.id || ''
+          } else {
+            // Use local auth service
+            const session = localAuthService.getCurrentUser()
+            if (session) {
+              user = session.user
+              token = session.token
+            }
+          }
           
           if (!user) {
             set({ isAuthenticated: false, user: null, token: null })
@@ -181,7 +232,7 @@ export const useAuthStore = create<AuthStore>()(
           set({ 
             isAuthenticated: true, 
             user, 
-            token: user.id
+            token
           })
           
           // Initialize user databases if user exists and is authenticated

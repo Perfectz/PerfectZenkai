@@ -5,16 +5,20 @@ test.describe('AppShell', () => {
     await page.goto('/')
 
     // Check header is visible
-    await expect(page.getByText('Perfect Zenkai')).toBeVisible()
+    await expect(page.getByText('Cyber Warrior')).toBeVisible()
+    await expect(page.getByText('Training Mode')).toBeVisible()
 
-    // Check navigation bar is visible
-    await expect(page.locator('nav')).toBeVisible()
+    // Check navigation bar is visible - look for navigation items instead
+    await expect(page.getByText('HQ')).toBeVisible()
+    await expect(page.getByText('Weight')).toBeVisible()
+    await expect(page.getByText('Quests')).toBeVisible()
+    await expect(page.getByText('Intel')).toBeVisible()
 
     // Check FAB is visible
     await expect(page.locator('button[class*="fixed bottom-20 right-4"]')).toBeVisible()
 
-    // Check main content
-    await expect(page.getByText('Welcome to Perfect Zenkai')).toBeVisible()
+    // Check main content - look for dashboard content
+    await expect(page.getByText('CONTROL NEXUS')).toBeVisible()
   })
 
   test('should have proper layout on mobile viewport', async ({ page }) => {
@@ -23,10 +27,12 @@ test.describe('AppShell', () => {
 
     // Verify elements are positioned correctly
     const fab = page.locator('button[class*="fixed bottom-20 right-4"]')
-    const nav = page.locator('nav')
-
+    
     await expect(fab).toBeVisible()
-    await expect(nav).toBeVisible()
+    
+    // Check navigation items are visible
+    await expect(page.getByText('HQ')).toBeVisible()
+    await expect(page.getByText('Weight')).toBeVisible()
 
     // Take screenshot for visual verification
     await page.screenshot({ path: 'test-results/appshell-mobile.png' })

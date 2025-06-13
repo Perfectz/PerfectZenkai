@@ -37,7 +37,7 @@ describe('Data Export Utils', () => {
             { id: '1', kg: 75, dateISO: '2024-01-15' }, 
             { id: '2', kg: 76, dateISO: '2024-01-16' }
           ],
-          tasks: [{ id: '1', text: 'Test task', done: false, createdAt: '2024-01-15T10:00:00.000Z' }],
+          tasks: [{ id: '1', text: 'Test task', done: false, priority: 'medium' as const, category: 'personal' as const, subtasks: [], createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }],
           notes: [
             { id: '1', title: 'Note 1', content: 'Content 1', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
             { id: '2', title: 'Note 2', content: 'Content 2', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' },
@@ -88,7 +88,7 @@ describe('Data Export Utils', () => {
       const { notesRepo } = await import('@/modules/notes/repo')
 
       const mockWeights = [{ id: '1', kg: 75, dateISO: '2024-01-15' }]
-      const mockTasks = [{ id: '1', text: 'Test task', done: false, createdAt: '2024-01-15T10:00:00.000Z' }]
+      const mockTasks = [{ id: '1', text: 'Test task', done: false, priority: 'medium' as const, category: 'personal' as const, subtasks: [], createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }]
       const mockNotes = [{ id: '1', title: 'Test note', content: 'Content', createdAt: '2024-01-15T10:00:00.000Z', updatedAt: '2024-01-15T10:00:00.000Z' }]
 
       vi.mocked(weightRepo.getAllWeights).mockResolvedValue(mockWeights)
