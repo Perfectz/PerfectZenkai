@@ -19,9 +19,16 @@ CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE 
   USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile" 
-  ON profiles FOR INSERT 
+CREATE POLICY "Users can insert own profile"
+  ON profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
+
+-- Public view to allow username/email lookup for login
+CREATE VIEW public.user_lookup AS
+  SELECT id, username, email FROM public.profiles;
+ALTER TABLE public.user_lookup ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public user lookup" ON public.user_lookup
+  FOR SELECT USING (true);
 
 -- Create function to handle new user
 CREATE OR REPLACE FUNCTION public.handle_new_user()
