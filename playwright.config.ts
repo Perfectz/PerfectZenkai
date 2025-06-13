@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5182',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -17,14 +17,14 @@ export default defineConfig({
   projects: [
     {
       name: 'Mobile Chrome',
-      use: { 
+      use: {
         ...devices['Pixel 5'],
         viewport: { width: 375, height: 667 }, // Mobile-first testing
       },
     },
     {
       name: 'Mobile Safari',
-      use: { 
+      use: {
         ...devices['iPhone 12'],
         viewport: { width: 375, height: 667 }, // Mobile-first testing
       },
@@ -33,8 +33,8 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:5182',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes timeout
   },
-}) 
+})
