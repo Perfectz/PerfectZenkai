@@ -1,6 +1,8 @@
 export * from './types'
 export * from './store'
-export { tasksRepo } from './repo'
+export { tasksRepo, initializeTasksDatabase } from './repo'
 
 // Re-export initialization function for main.tsx
-export { initializeTasksStore } from './store' 
+export { useTasksStore, initializeTasksStore } from './store'
+
+export type { Todo } from './types' 

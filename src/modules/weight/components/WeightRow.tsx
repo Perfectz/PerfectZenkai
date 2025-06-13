@@ -3,7 +3,7 @@ import { useSwipeable } from 'react-swipeable'
 import { Card, CardContent } from '@/shared/ui/card'
 
 import { WeightEntry } from '../types'
-import { useWeightStore } from '../store'
+import { useWeightActions } from '../hooks/useWeightActions'
 
 interface WeightRowProps {
   entry: WeightEntry
@@ -12,7 +12,7 @@ interface WeightRowProps {
 export function WeightRow({ entry }: WeightRowProps) {
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
   const [isPressed, setIsPressed] = useState(false)
-  const { deleteWeight } = useWeightStore()
+  const { deleteWeight } = useWeightActions()
 
   const formatDate = (dateISO: string) => {
     const date = new Date(dateISO)
@@ -33,7 +33,7 @@ export function WeightRow({ entry }: WeightRowProps) {
       `Delete weight entry for ${formatDate(entry.dateISO)}?`
     )
     if (confirmed) {
-      deleteWeight(entry.id)
+      deleteWeight(entry.id, entry.kg, entry.dateISO)
     }
   }
 
@@ -64,9 +64,10 @@ export function WeightRow({ entry }: WeightRowProps) {
   return (
     <Card
       {...swipeHandlers}
-      className={`transition-all duration-150 ${
-        isPressed ? 'bg-muted scale-95' : 'hover:bg-muted/50'
-      }`}
+      className={`
+        cyber-card py-3 transition-all duration-200 cursor-pointer
+        ${isPressed ? 'scale-95 shadow-inner' : 'hover:scale-[1.01]'}
+      `}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleTouchStart}
@@ -76,15 +77,16 @@ export function WeightRow({ entry }: WeightRowProps) {
       <CardContent className="py-3 px-4">
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-gray-400 font-mono">
               {formatDate(entry.dateISO)}
             </span>
-            <span className="text-lg font-semibold">
+            <span className="text-lg font-semibold gradient-text-ki metric-display">
               {formatWeight(entry.kg)}
             </span>
           </div>
-          <div className="text-xs text-muted-foreground">
-            Hold to delete
+          <div className="text-xs text-gray-500 font-mono text-right">
+            <div>Hold to delete</div>
+            <div className="text-plasma-cyan">← Swipe left</div>
           </div>
         </div>
       </CardContent>

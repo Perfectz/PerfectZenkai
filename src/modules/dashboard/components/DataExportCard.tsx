@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Download, Database, CheckCircle, AlertCircle } from 'lucide-react'
+import { StatusChip } from '@/shared/ui/status-chip'
+import { Download, HardDrive } from 'lucide-react'
 import { exportAllData, downloadDataAsFile, getDataSummary, AppDataExport } from '@/shared/utils/dataExport'
 
 export function DataExportCard() {
@@ -36,57 +36,114 @@ export function DataExportCard() {
   const summary = lastExport ? getDataSummary(lastExport) : null
 
   return (
-    <Card className="hover:bg-muted/50 transition-colors">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-muted-foreground" />
-            <h3 className="font-medium text-sm">Data Backup</h3>
+    <div className="cyber-card transition-cyber h-full flex flex-col">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-gray-700 border border-gray-600 flex items-center justify-center">
+          <HardDrive className="h-5 w-5 text-plasma-cyan cyber-icon glow-cyan" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white">Data Backup</h3>
+          <p className="text-xs text-gray-400 font-mono">System export</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* Status indicator */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-300 font-inter">
+            Export all training data
           </div>
           
           {exportStatus === 'success' && (
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <StatusChip variant="success" size="sm">
+              Complete
+            </StatusChip>
           )}
           {exportStatus === 'error' && (
-            <AlertCircle className="h-4 w-4 text-red-500" />
+            <StatusChip variant="error" size="sm">
+              Failed
+            </StatusChip>
+          )}
+          {isExporting && (
+            <StatusChip variant="active" size="sm">
+              Processing
+            </StatusChip>
+          )}
+          {exportStatus === 'idle' && !isExporting && (
+            <StatusChip variant="info" size="sm" showIcon={false}>
+              Ready
+            </StatusChip>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground mb-4">
-          Export all your data as a backup file for future app updates
-        </p>
-
+        {/* Data summary */}
         {summary && (
-          <div className="text-xs text-muted-foreground mb-3 space-y-1">
-            <div>Last export: {summary.exportDate}</div>
-            <div>
-              {summary.totalWeights} weights • {summary.totalTasks} tasks • {summary.totalNotes} notes
+          <div className="p-3 bg-gray-900 rounded-lg border border-gray-700">
+            <div className="text-xs text-gray-400 font-mono mb-2">
+              Last Export: {new Date(summary.exportDate).toLocaleDateString()}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center">
+                <div className="text-sm font-bold text-ki-green font-mono">{summary.totalWeights}</div>
+                <div className="text-xs text-gray-500">Weights</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-plasma-cyan font-mono">{summary.totalTasks}</div>
+                <div className="text-xs text-gray-500">Quests</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-hyper-magenta font-mono">{summary.totalNotes}</div>
+                <div className="text-xs text-gray-500">Notes</div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* Export button */}
         <Button
           onClick={handleExport}
           disabled={isExporting}
-          size="sm"
-          className="w-full"
+          className="
+            w-full neon-button transition-cyber
+            bg-plasma-cyan hover:bg-plasma-cyan
+            text-dark-navy font-mono font-semibold
+            cyan-glow
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
         >
-          <Download className="h-4 w-4 mr-2" />
-          {isExporting ? 'Exporting...' : 'Export Data'}
+          <Download className="h-4 w-4 mr-2 cyber-icon" />
+          {isExporting ? 'EXPORTING...' : 'EXPORT DATA'}
         </Button>
 
+        {/* Status messages */}
         {exportStatus === 'success' && (
-          <p className="text-xs text-green-600 mt-2 text-center">
-            ✓ Data exported successfully!
-          </p>
+          <div className="text-center p-2 bg-ki-green/10 border border-ki-green rounded-lg">
+            <div className="text-sm text-ki-green font-mono">
+              ✓ Data exported successfully!
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Backup file downloaded to your device
+            </div>
+          </div>
         )}
         
         {exportStatus === 'error' && (
-          <p className="text-xs text-red-600 mt-2 text-center">
-            ✗ Export failed. Please try again.
-          </p>
+          <div className="text-center p-2 bg-red-400/10 border border-red-400 rounded-lg">
+            <div className="text-sm text-red-400 font-mono">
+              ✗ Export failed. Please try again.
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Check console for error details
+            </div>
+          </div>
         )}
-      </CardContent>
-    </Card>
+
+        {!summary && exportStatus === 'idle' && (
+          <div className="text-xs text-gray-500 text-center font-mono">
+            Secure backup for app updates and migrations
+          </div>
+        )}
+      </div>
+    </div>
   )
 } 

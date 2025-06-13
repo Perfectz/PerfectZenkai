@@ -5,47 +5,74 @@ import { Note } from './types'
 class NotesDatabase extends Dexie {
   notes!: Table<Note>
 
-  constructor() {
-    super('NotesDatabase')
+  constructor(userId?: string) {
+    // Create user-specific database name
+    const dbName = userId ? `NotesDatabase_${userId}` : 'NotesDatabase'
+    super(dbName)
     this.version(1).stores({
       notes: 'id, title, content, createdAt, updatedAt'
     })
   }
 }
 
-const db = new NotesDatabase()
+// Global database instance - will be reinitialized per user
+let db: NotesDatabase
+
+// Initialize database for specific user
+export const initializeNotesDatabase = (userId: string) => {
+  if (db) {
+    db.close()
+  }
+  db = new NotesDatabase(userId)
+  return db
+}
+
+// Get current database instance
+const getDatabase = (): NotesDatabase => {
+  if (!db) {
+    // Fallback to anonymous database if no user
+    db = new NotesDatabase()
+  }
+  return db
+}
 
 export const notesRepo = {
   async addNote(note: Omit<Note, 'id'>): Promise<Note> {
+    const database = getDatabase()
     const newNote: Note = {
       id: uuidv4(),
       ...note
     }
     
-    await db.notes.add(newNote)
+    await database.notes.add(newNote)
     return newNote
   },
 
   async updateNote(id: string, updates: Partial<Omit<Note, 'id'>>): Promise<void> {
-    await db.notes.update(id, {
+    const database = getDatabase()
+    await database.notes.update(id, {
       ...updates,
       updatedAt: new Date().toISOString()
     })
   },
 
   async deleteNote(id: string): Promise<void> {
-    await db.notes.delete(id)
+    const database = getDatabase()
+    await database.notes.delete(id)
   },
 
   async getAllNotes(): Promise<Note[]> {
-    return await db.notes.orderBy('updatedAt').reverse().toArray()
+    const database = getDatabase()
+    return await database.notes.orderBy('updatedAt').reverse().toArray()
   },
 
   async getNoteById(id: string): Promise<Note | undefined> {
-    return await db.notes.get(id)
+    const database = getDatabase()
+    return await database.notes.get(id)
   },
 
   async clearAll(): Promise<void> {
-    await db.notes.clear()
+    const database = getDatabase()
+    await database.notes.clear()
   }
 } 

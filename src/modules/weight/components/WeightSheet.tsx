@@ -4,6 +4,7 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { useWeightStore } from '../store'
+import { useWeightActions } from '../hooks/useWeightActions'
 
 interface WeightSheetProps {
   open: boolean
@@ -19,7 +20,8 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
   const [weight, setWeight] = useState('')
   const [errors, setErrors] = useState<{ date?: string; weight?: string }>({})
 
-  const { addWeight, isLoading } = useWeightStore()
+  const { isLoading } = useWeightStore()
+  const { addWeight } = useWeightActions()
 
   const validateForm = () => {
     const newErrors: { date?: string; weight?: string } = {}
@@ -60,7 +62,7 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
       setErrors({})
       onOpenChange(false)
     } catch (error) {
-      // Error is handled by the store
+      // Error is handled by the useWeightActions hook with toasts
       console.error('Failed to add weight:', error)
     }
   }
@@ -77,31 +79,35 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="bottom" className="h-[400px]">
+      <SheetContent side="bottom" className="h-[400px] cyber-card">
         <SheetHeader>
-          <SheetTitle>Add Weight Entry</SheetTitle>
-          <SheetDescription>
+          <SheetTitle className="cyber-subtitle text-ki-green">Add Weight Entry</SheetTitle>
+          <SheetDescription className="text-gray-400 font-mono">
             Log your weight for today or a specific date.
           </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date" className="cyber-label text-gray-300">Date</Label>
             <Input
               id="date"
               type="date"
               value={date}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
-              className={errors.date ? 'border-red-500' : ''}
+              className={`
+                bg-gray-900 border-gray-600 text-white
+                focus:border-ki-green focus:ring-ki-green/20
+                ${errors.date ? 'border-red-500' : ''}
+              `}
             />
             {errors.date && (
-              <p className="text-sm text-red-500">{errors.date}</p>
+              <p className="text-sm text-red-400 font-mono">{errors.date}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="weight">Weight (kg)</Label>
+            <Label htmlFor="weight" className="cyber-label text-gray-300">Weight (kg)</Label>
             <Input
               id="weight"
               type="number"
@@ -111,29 +117,34 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
               placeholder="75.5"
               value={weight}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWeight(e.target.value)}
-              className={errors.weight ? 'border-red-500' : ''}
+              className={`
+                bg-gray-900 border-gray-600 text-white font-mono
+                focus:border-ki-green focus:ring-ki-green/20
+                ${errors.weight ? 'border-red-500' : ''}
+              `}
             />
             {errors.weight && (
-              <p className="text-sm text-red-500">{errors.weight}</p>
+              <p className="text-sm text-red-400 font-mono">{errors.weight}</p>
             )}
           </div>
 
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              className="flex-1"
+              className="flex-1 bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800"
               disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
+              variant="cyber-ki"
               className="flex-1"
               disabled={isLoading}
             >
-              {isLoading ? 'Adding...' : 'Add Weight'}
+              {isLoading ? 'LOGGING...' : 'LOG WEIGHT'}
             </Button>
           </div>
         </form>

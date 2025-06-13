@@ -1,12 +1,25 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
-import { googleAuthService } from '../services/googleAuth'
+import { localAuthService } from '../services/localAuth'
+import { initializeUserDatabases, clearUserDatabases, sanitizeUserId } from '../utils/dataIsolation'
+
+interface LoginCredentials {
+  username: string
+  password: string
+}
+
+interface RegisterData {
+  username: string
+  password: string
+  email?: string
+  name?: string
+}
 
 interface AuthStore extends AuthState {
   // Actions
-  login: () => void
-  handleCallback: (code: string) => Promise<void>
+  login: (credentials: LoginCredentials) => Promise<void>
+  register: (data: RegisterData) => Promise<void>
   logout: () => Promise<void>
   clearError: () => void
   checkAuthStatus: () => void
@@ -24,53 +37,74 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
 
       // Actions
-      login: () => {
-        set({ isLoading: true, error: null })
-        try {
-          googleAuthService.login()
-        } catch (error) {
-          set({ 
-            isLoading: false, 
-            error: error instanceof Error ? error.message : 'Login failed' 
-          })
-        }
-      },
-
-      handleCallback: async (code: string) => {
+      login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null })
         
         try {
-          // Exchange code for tokens
-          const tokens = await googleAuthService.handleCallback(code)
+          const { user, token } = await localAuthService.login(credentials)
           
-          // Decode ID token to get user info
-          const decodedToken = googleAuthService.decodeToken(tokens.id_token)
-          
-          // Create user object
-          const user: User = {
-            id: decodedToken.sub,
-            email: decodedToken.email,
-            name: decodedToken.name,
-            picture: decodedToken.picture,
-            given_name: decodedToken.given_name,
-            family_name: decodedToken.family_name,
-          }
-
           set({
             user,
-            token: tokens.id_token,
+            token,
             isAuthenticated: true,
             isLoading: false,
             error: null,
           })
 
-          // Redirect to dashboard after successful login
-          window.location.href = '/dashboard'
+          // Initialize user-specific databases for data isolation
+          const sanitizedUserId = sanitizeUserId(user.id)
+          initializeUserDatabases(sanitizedUserId)
+
+          // Note: Navigation will be handled by React Router
+          // No need for manual redirect here
         } catch (error) {
-          console.error('Authentication callback error:', error)
+          console.error('Login error:', error)
           set({
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Authentication failed',
+            error: error instanceof Error ? error.message : 'Login failed',
+            user: null,
+            token: null,
+            isAuthenticated: false,
+          })
+        }
+      },
+
+      register: async (data: RegisterData) => {
+        set({ isLoading: true, error: null })
+        
+        try {
+          // Validate password length
+          if (data.password.length < 6) {
+            throw new Error('Password must be at least 6 characters long')
+          }
+
+          const user = await localAuthService.register(data)
+          
+          // Auto-login after registration
+          const { user: loginUser, token } = await localAuthService.login({
+            username: data.username,
+            password: data.password
+          })
+          
+          set({
+            user: loginUser,
+            token,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          })
+
+          // Initialize user-specific databases for data isolation
+          const sanitizedUserId = sanitizeUserId(loginUser.id)
+          initializeUserDatabases(sanitizedUserId)
+
+          // Note: Navigation will be handled by React Router
+          // No need for manual redirect here
+        } catch (error) {
+          console.error('Registration error:', error)
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'Registration failed',
             user: null,
             token: null,
             isAuthenticated: false,
@@ -79,19 +113,22 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: async () => {
-        const { token } = get()
+        const { user } = get()
         
         set({ isLoading: true })
 
-        try {
-          // Revoke token with Google
-          if (token) {
-            await googleAuthService.revokeToken(token)
+        // Clear user-specific databases if user exists
+        if (user?.id) {
+          try {
+            const sanitizedUserId = sanitizeUserId(user.id)
+            await clearUserDatabases(sanitizedUserId)
+          } catch (error) {
+            console.error('Error clearing user databases:', error)
           }
-        } catch (error) {
-          console.error('Token revocation error:', error)
-          // Continue with local logout even if revocation fails
         }
+
+        // Logout from local auth service
+        localAuthService.logout()
 
         // Clear local state
         set({
@@ -102,29 +139,11 @@ export const useAuthStore = create<AuthStore>()(
           error: null,
         })
 
-        // Clear all user data from localStorage and IndexedDB
+        // Clear localStorage
         localStorage.clear()
-        
-        // Clear IndexedDB databases
-        try {
-          const databases = await indexedDB.databases()
-          await Promise.all(
-            databases.map(db => {
-              if (db.name) {
-                return new Promise<void>((resolve, reject) => {
-                  const deleteReq = indexedDB.deleteDatabase(db.name!)
-                  deleteReq.onsuccess = () => resolve()
-                  deleteReq.onerror = () => reject(deleteReq.error)
-                })
-              }
-            })
-          )
-        } catch (error) {
-          console.error('Error clearing IndexedDB:', error)
-        }
 
-        // Redirect to login
-        window.location.href = '/login'
+        // Note: Redirect will be handled by ProtectedRoute
+        // No need for manual redirect here
       },
 
       clearError: () => {
@@ -132,26 +151,27 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       checkAuthStatus: () => {
-        const { token } = get()
+        const currentSession = localAuthService.getCurrentUser()
         
-        if (!token) {
-          set({ isAuthenticated: false, user: null })
+        if (!currentSession) {
+          set({ isAuthenticated: false, user: null, token: null })
           return
         }
 
-        // Check if token is still valid
-        if (!googleAuthService.isTokenValid(token)) {
-          set({
-            isAuthenticated: false,
-            user: null,
-            token: null,
-            error: 'Session expired. Please log in again.',
-          })
-          return
-        }
+        const { user, token } = currentSession
 
-        // Token is valid, user remains authenticated
-        set({ isAuthenticated: true })
+        // Update state with current session
+        set({ 
+          isAuthenticated: true, 
+          user, 
+          token 
+        })
+        
+        // Initialize user databases if user exists and is authenticated
+        if (user?.id) {
+          const sanitizedUserId = sanitizeUserId(user.id)
+          initializeUserDatabases(sanitizedUserId)
+        }
       },
 
       setUser: (user: User, token: string) => {
@@ -162,6 +182,10 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           error: null,
         })
+        
+        // Initialize user-specific databases
+        const sanitizedUserId = sanitizeUserId(user.id)
+        initializeUserDatabases(sanitizedUserId)
       },
     }),
     {

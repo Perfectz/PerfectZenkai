@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
+import { Navigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
 interface ProtectedRouteProps {
@@ -34,8 +35,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    window.location.href = '/login'
-    return null
+    return <Navigate to="/login" replace />
   }
 
   // Render protected content
