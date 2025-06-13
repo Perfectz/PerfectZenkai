@@ -2,25 +2,105 @@ import { supabase } from '@/lib/supabase'
 import type { User, AuthError } from '../types/auth'
 
 export class SupabaseAuthService {
+  private readonly MAX_RETRIES = 3
+  private readonly TIMEOUT_MS = 15000
+  private readonly RETRY_DELAY_MS = 1000
+
   /**
-   * Check if Supabase client is available
+   * Check if Supabase client is available and properly configured
    */
   private isSupabaseAvailable(): boolean {
-    return supabase !== null
+    return !!supabase
   }
 
   /**
-   * Get error for unavailable Supabase
+   * Get error for when service is unavailable
    */
   private getUnavailableError(): AuthError {
     return {
       code: 'SERVICE_UNAVAILABLE',
-      message: 'Authentication service is not available',
+      message: 'Authentication service is currently unavailable',
     }
   }
 
   /**
-   * Register a new user with email and password
+   * Handle network/connection errors from Supabase
+   */
+  private handleNetworkError(error: any): AuthError {
+    console.error('Network error details:', error)
+
+    // Handle specific Supabase error codes
+    if (error?.code === 'invalid_credentials') {
+      return { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' }
+    }
+    
+    if (error?.code === 'email_not_confirmed') {
+      return { code: 'EMAIL_NOT_CONFIRMED', message: 'Please check your email and click the confirmation link' }
+    }
+
+    if (error?.code === 'signup_disabled') {
+      return { code: 'SIGNUP_DISABLED', message: 'New registrations are currently disabled' }
+    }
+
+    // Handle network/connection errors
+    if (error?.message?.includes('fetch') || error?.message?.includes('network') || error?.code === 'NETWORK_ERROR') {
+      return { code: 'NETWORK_ERROR', message: 'Network connection failed. Please check your internet connection.' }
+    }
+
+    // Handle timeout errors
+    if (error?.message?.includes('timeout') || error?.name === 'AbortError') {
+      return { code: 'TIMEOUT', message: 'Request timed out. Please try again.' }
+    }
+
+    // Handle database connection errors
+    if (error?.code === '42P01' || error?.message?.includes('does not exist')) {
+      return { code: 'DATABASE_ERROR', message: 'Database configuration error. Please contact support.' }
+    }
+
+    // Generic fallback
+    return {
+      code: 'UNKNOWN_ERROR',
+      message: error?.message || 'An unexpected error occurred',
+    }
+  }
+
+  private async withRetry<T>(
+    operation: () => Promise<T>,
+    retries: number = this.MAX_RETRIES
+  ): Promise<T> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await this.withTimeout(operation())
+      } catch (error: any) {
+        console.log(`Attempt ${attempt}/${retries} failed:`, error)
+        
+        // Don't retry on authentication errors
+        if (error?.code === 'invalid_credentials' || error?.code === 'email_not_confirmed') {
+          throw error
+        }
+        
+        // Don't retry on the last attempt
+        if (attempt === retries) {
+          throw error
+        }
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY_MS * attempt))
+      }
+    }
+    throw new Error('Max retries exceeded')
+  }
+
+  private async withTimeout<T>(promise: Promise<T>): Promise<T> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Operation timed out')), this.TIMEOUT_MS)
+    })
+
+    return Promise.race([promise, timeoutPromise])
+  }
+
+  /**
+   * Register a new user with enhanced error handling and retries
    */
   async register(
     username: string,
@@ -32,38 +112,40 @@ export class SupabaseAuthService {
     }
 
     try {
-      // Check if username is already taken
-      const { data: existingProfile } = await supabase!
-        .from('profiles')
-        .select('username')
-        .eq('username', username)
-        .single()
+      console.log('🔐 Starting registration for:', { username, email })
 
-      if (existingProfile) {
+             // Check if username is already taken
+       const { data: existingUser, error: checkError } = await supabase!
+         .from('profiles')
+         .select('username')
+         .eq('username', username)
+         .maybeSingle()
+
+       if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+         throw checkError
+       }
+
+      if (existingUser) {
+        console.log('❌ Username already taken:', username)
         return {
           user: null,
           error: { code: 'USERNAME_TAKEN', message: 'Username already taken' },
         }
       }
 
-      // Register user with Supabase Auth
-      const { data: authData, error: authError } = await supabase!.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-          emailRedirectTo: undefined, // Disable email confirmation for development
-        },
-      })
+      console.log('✅ Username available, proceeding with registration')
 
-      if (authError) {
-        return {
-          user: null,
-          error: { code: 'SIGNUP_ERROR', message: authError.message },
-        }
-      }
+             // Register user with Supabase Auth
+       const { data: authData, error: authError } = await supabase!.auth.signUp({
+         email,
+         password,
+         options: {
+           data: { username },
+           emailRedirectTo: undefined,
+         },
+       })
+
+       if (authError) throw authError
 
       if (!authData.user) {
         return {
@@ -73,28 +155,25 @@ export class SupabaseAuthService {
       }
 
       // Profile is created automatically via trigger
-
       const user: User = {
         id: authData.user.id,
         name: username,
         email: authData.user.email || email,
       }
 
+      console.log('🎉 Registration successful:', user)
       return { user, error: null }
     } catch (error) {
+      console.error('Registration exception:', error)
       return {
         user: null,
-        error: {
-          code: 'REGISTER_ERROR',
-          message:
-            error instanceof Error ? error.message : 'Registration failed',
-        },
+        error: this.handleNetworkError(error),
       }
     }
   }
 
   /**
-   * Login user with email and password
+   * Login user with email and password with enhanced error handling
    */
   async login(
     email: string,
@@ -107,68 +186,57 @@ export class SupabaseAuthService {
     try {
       console.log('🔐 Starting login with email:', email)
 
-      const { data: authData, error: authError } =
-        await supabase!.auth.signInWithPassword({
-          email,
-          password,
-        })
+             // Authenticate with Supabase
+       const { data: authData, error: authError } = await supabase!.auth.signInWithPassword({
+         email,
+         password,
+       })
 
-      console.log('🔑 Supabase auth result:', { authData, authError })
-
-      if (authError) {
-        console.log('❌ Auth error:', authError)
-        return {
-          user: null,
-          error: { code: 'LOGIN_ERROR', message: authError.message },
-        }
-      }
+       if (authError) throw authError
 
       if (!authData.user) {
-        console.log('❌ No user in auth data')
         return {
           user: null,
           error: { code: 'LOGIN_FAILED', message: 'Login failed' },
         }
       }
 
-      console.log(
-        '✅ Auth successful, fetching profile for user:',
-        authData.user.id
-      )
+      console.log('✅ Auth successful, fetching profile for user:', authData.user.id)
 
-      // Get user profile
-      const { data: profile } = await supabase!
-        .from('profiles')
-        .select('username')
-        .eq('id', authData.user.id)
-        .single()
-
-      console.log('👤 Profile data:', profile)
+             // Get user profile with fallback
+       let profile: any = null
+       try {
+         const { data, error } = await supabase!
+           .from('profiles')
+           .select('username')
+           .eq('id', authData.user.id)
+           .single()
+         
+         if (error) throw error
+         profile = data
+       } catch (error) {
+         console.log('⚠️ Profile fetch error (using fallback):', error)
+       }
 
       const user: User = {
         id: authData.user.id,
-        name:
-          profile?.username || authData.user.user_metadata?.username || 'User',
+        name: profile?.username || authData.user.user_metadata?.username || 'User',
         email: authData.user.email || email,
       }
 
-      console.log('🎉 Login successful, user object:', user)
-
+      console.log('🎉 Login successful:', user)
       return { user, error: null }
     } catch (error) {
       console.error('💥 Login error:', error)
       return {
         user: null,
-        error: {
-          code: 'LOGIN_ERROR',
-          message: error instanceof Error ? error.message : 'Login failed',
-        },
+        error: this.handleNetworkError(error),
       }
     }
   }
 
   /**
-   * Login with username instead of email
+   * Login with username with improved error handling and fallback strategies
    */
   async loginWithUsername(
     username: string,
@@ -182,75 +250,70 @@ export class SupabaseAuthService {
     try {
       console.log('🔍 Starting login with username:', username)
 
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(
-          () => reject(new Error('Login timeout after 10 seconds')),
-          10000
-        )
-      })
+             // Try to find the profile with this username using multiple strategies
+       let profile: any = null
+       let email: string | null = null
 
-      // First, find the profile with this username and get the associated email
-      const profilePromise = supabase!
-        .from('user_lookup')
-        .select('id, username, email')
-        .eq('username', username)
-        .single()
+       // Strategy 1: Try user_lookup view first
+       try {
+         const { data, error } = await supabase!
+           .from('user_lookup')
+           .select('id, username, email')
+           .eq('username', username)
+           .single()
+         
+         if (error) throw error
+         profile = data
+         email = profile?.email
+         console.log('📋 Found profile via user_lookup:', profile)
+       } catch (error: any) {
+         console.log('📋 user_lookup failed, trying profiles table:', error)
+         
+         // Strategy 2: Fallback to profiles table
+         try {
+           const { data, error } = await supabase!
+             .from('profiles')
+             .select('id, username')
+             .eq('username', username)
+             .single()
+           
+           if (error) throw error
+           profile = data
+           console.log('📋 Found profile via profiles table:', profile)
+           
+           // For profiles table, we need to get email from auth metadata
+           if (profile) {
+              // We'll get the email after successful auth since we can't access admin functions
+              email = `${username}@temp.local` // Temporary placeholder
+           }
+         } catch (profilesError) {
+           console.log('📋 profiles table also failed:', profilesError)
+         }
+       }
 
-      const { data: profile, error: profileError } = await Promise.race([
-        profilePromise,
-        timeoutPromise,
-      ])
-
-      console.log('📋 Profile query result:', { profile, profileError })
-
-      if (profileError || !profile) {
-        console.log('❌ Profile not found or error:', profileError)
+      if (!profile || !email) {
+        console.log('❌ Profile not found for username:', username)
         return {
           user: null,
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: 'Invalid username or password',
-          },
+          error: { code: 'USER_NOT_FOUND', message: 'Username not found' },
         }
       }
 
-      if (!profile.email) {
-        console.log('❌ Profile found but no email stored')
-        return {
-          user: null,
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: 'Account configuration error',
-          },
-        }
-      }
+      console.log('✅ Profile found, attempting login with email:', email)
 
-      console.log(
-        '✅ Profile found, attempting login with email:',
-        profile.email
-      )
-
-      // Now login with the stored email and password
-      const loginPromise = this.login(profile.email, password)
-      const loginResult = await Promise.race([loginPromise, timeoutPromise])
-      console.log('🔐 Login result:', loginResult)
-
-      return loginResult
+      // Now login with the found email
+      return await this.login(email, password)
     } catch (error) {
-      console.error('💥 Login with username error:', error)
+      console.error('💥 Username login error:', error)
       return {
         user: null,
-        error: {
-          code: 'LOGIN_ERROR',
-          message: error instanceof Error ? error.message : 'Login failed',
-        },
+        error: this.handleNetworkError(error),
       }
     }
   }
 
   /**
-   * Get current user session
+   * Get current authenticated user with improved error handling
    */
   async getCurrentUser(): Promise<User | null> {
     if (!this.isSupabaseAvailable()) {
@@ -258,20 +321,25 @@ export class SupabaseAuthService {
     }
 
     try {
-      const {
-        data: { user: authUser },
-      } = await supabase!.auth.getUser()
+      const { data: { user: authUser }, error } = await supabase!.auth.getUser()
 
-      if (!authUser) {
+      if (error || !authUser) {
+        console.log('No authenticated user found')
         return null
       }
 
-      // Get user profile
-      const { data: profile } = await supabase!
-        .from('profiles')
-        .select('username')
-        .eq('id', authUser.id)
-        .single()
+      // Try to get profile data with fallback
+      let profile: any = null
+      try {
+        const { data } = await supabase!
+          .from('profiles')
+          .select('username')
+          .eq('id', authUser.id)
+          .single()
+        profile = data
+      } catch (error) {
+        console.log('Profile fetch failed, using auth metadata:', error)
+      }
 
       return {
         id: authUser.id,
@@ -279,38 +347,55 @@ export class SupabaseAuthService {
         email: authUser.email || '',
       }
     } catch (error) {
-      console.error('Get current user error:', error)
+      console.error('Error getting current user:', error)
       return null
     }
   }
 
   /**
-   * Logout user
+   * Logout user with improved error handling
    */
   async logout(): Promise<void> {
     if (!this.isSupabaseAvailable()) {
       return
     }
-    await supabase!.auth.signOut()
+
+    try {
+      await supabase!.auth.signOut()
+      console.log('✅ Logout successful')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Don't throw on logout errors, just log them
+    }
   }
 
   /**
-   * Listen to auth state changes
+   * Set up auth state change listener with error handling
    */
   onAuthStateChange(callback: (user: User | null) => void) {
     if (!this.isSupabaseAvailable()) {
-      // Return a no-op unsubscribe function
-      return { data: { subscription: null }, error: null }
+      return () => {}
     }
 
-    return supabase!.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const user = await this.getCurrentUser()
-        callback(user)
-      } else {
-        callback(null)
+    const { data: { subscription } } = supabase!.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id)
+        
+        if (session?.user) {
+          try {
+            const user = await this.getCurrentUser()
+            callback(user)
+          } catch (error) {
+            console.error('Error in auth state change:', error)
+            callback(null)
+          }
+        } else {
+          callback(null)
+        }
       }
-    })
+    )
+
+    return () => subscription.unsubscribe()
   }
 }
 

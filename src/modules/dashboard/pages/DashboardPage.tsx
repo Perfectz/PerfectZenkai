@@ -7,7 +7,7 @@ import { TodoSummaryCard } from '../components/TodoSummaryCard'
 import { StreakCard } from '../components/StreakCard'
 import { DataExportCard } from '../components/DataExportCard'
 import { DashboardSkeleton } from '@/shared/ui/skeleton'
-import headerVideo from '../../../assets/videos/header.mp4'
+import headerVideo from '../../../assets/videos/header.webm'
 
 export default function DashboardPage() {
   const { loadWeights, isLoading: weightLoading } = useWeightStore()
