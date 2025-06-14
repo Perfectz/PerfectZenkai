@@ -3,6 +3,7 @@ import {
   Home,
   BarChart3,
   CheckSquare,
+  Target,
   BookOpen,
   LogOut,
   User,
@@ -82,6 +83,7 @@ export default function NavigationBar() {
           <NavItem to="/" icon={Home} label="Home" />
           <NavItem to="/weight" icon={BarChart3} label="Weight" />
           <NavItem to="/todo" icon={CheckSquare} label="Todo" />
+          <NavItem to="/goals" icon={Target} label="Goals" />
           <NavItem to="/notes" icon={BookOpen} label="Notes" />
         </div>
       </div>

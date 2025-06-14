@@ -45,6 +45,7 @@ export interface Todo {
   reminders?: Reminder[] // Array of reminder settings
   subtasks: Subtask[] // Array of subtasks
   templateId?: string // Reference to template (optional)
+  goalId?: string // Reference to goal (MVP 14 - Simple Goals)
   completedAt?: string // ISO timestamp when task was completed
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp for last edit

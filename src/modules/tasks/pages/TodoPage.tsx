@@ -7,6 +7,7 @@ import { Plus, Filter, Layout, Calendar, AlertCircle, FileText, Star } from 'luc
 import { useTasksStore } from '../store'
 import EnhancedTodoRow from '../components/EnhancedTodoRow'
 import { PointSelector, EnhancedDatePicker, RichTextEditor } from '../components/rich-content'
+import { GoalSelector } from '@/modules/goals'
 import { Priority, Category } from '../types'
 import {
   PRIORITIES,
@@ -21,6 +22,7 @@ export default function TodoPage() {
   const [selectedPriority, setSelectedPriority] = useState<Priority>('medium')
   const [selectedCategory, setSelectedCategory] = useState<Category>('other')
   const [selectedPoints, setSelectedPoints] = useState(5)
+  const [selectedGoal, setSelectedGoal] = useState<string | undefined>()
   const [dueDate, setDueDate] = useState('')
   const [dueDateTimeEnhanced, setDueDateTimeEnhanced] = useState<string | undefined>()
   const [taskDescription, setTaskDescription] = useState('')
@@ -99,6 +101,7 @@ export default function TodoPage() {
       priority: selectedPriority,
       category: selectedCategory,
       points: selectedPoints,
+      goalId: selectedGoal,
       dueDate: dueDate || undefined,
       dueDateTime: dueDateTimeEnhanced || undefined,
       description: taskDescription.trim() || undefined,
@@ -114,6 +117,7 @@ export default function TodoPage() {
       setDueDate('')
       setDueDateTimeEnhanced(undefined)
       setSelectedPoints(5)
+      setSelectedGoal(undefined)
       setShowAdvanced(false)
       setShowDescription(false)
     } catch (error) {
@@ -274,7 +278,7 @@ export default function TodoPage() {
           </div>
 
           {/* Essential options - Always visible */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {/* Points */}
             <div>
               <label className="mb-2 block text-sm font-medium">
@@ -311,6 +315,17 @@ export default function TodoPage() {
                   </Button>
                 ))}
               </div>
+            </div>
+
+            {/* Goal */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Link to Goal
+              </label>
+              <GoalSelector
+                value={selectedGoal}
+                onChange={setSelectedGoal}
+              />
             </div>
 
             {/* Due Date */}

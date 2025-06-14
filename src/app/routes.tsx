@@ -6,6 +6,7 @@ import DietHubPage from '@/modules/diet/pages/DietHubPage'
 import TodoPage from '@/modules/tasks/pages/TodoPage'
 import NotesPage from '@/modules/notes/pages/NotesPage'
 import DashboardPage from '@/modules/dashboard/pages/DashboardPage'
+import { GoalsPage } from '@/modules/goals'
 import { authRoutes, ProtectedRoute } from '@/modules/auth'
 
 export const appRoutes: RouteObject[] = [
@@ -25,6 +26,7 @@ export const appRoutes: RouteObject[] = [
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'weight', element: <DietHubPage /> },
       { path: 'todo', element: <TodoPage /> },
+      { path: 'goals', element: <GoalsPage /> },
       { path: 'notes', element: <NotesPage /> },
     ],
   },
