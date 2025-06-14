@@ -1,0 +1,368 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# MVP Template & Documentation Standards
+
+## Rule Type
+**Auto-Attach:** `docs/mvp-*.md`
+
+## Purpose
+Template and standards for creating MVP documents with TDD and Vertical Slice approach for Perfect Zenkai project.
+
+## When This Rule Applies
+- Creating new MVP documentation files
+- Updating existing MVP documents
+- Planning MVP implementation phases
+- Documenting TDD progress and results
+
+## MVP Document Structure
+
+### Required Header Format
+```markdown
+# MVP X — Feature Name
+
+**Status:** 🔴 Not Started | 🟡 In Progress | ✅ Complete  
+**Sprint:** Sprint Name  
+**Estimated Effort:** X-Y hours (including TDD time)  
+**Dependencies:** MVP Dependencies  
+**Last Updated:** [Date]  
+**TDD Progress:** RED ⭕ | GREEN ⭕ | REFACTOR ⭕
+
+
+---
+
+## 📋 Sprint Overview
+
+Brief description of what this MVP delivers from a user perspective.
+
+### Success Criteria
+- ✅ Functional requirement 1
+- ✅ Functional requirement 2
+- ✅ All tests pass (≥90% coverage)
+- ✅ E2E workflows complete successfully
+- ✅ Performance benchmarks met (Lighthouse ≥90)
+
+### Vertical Slice Delivered
+**Complete User Journey:** [Describe end-to-end user value]
+
+**Slice Components:**
+- 🎨 **UI Layer:** [React components and user interactions]
+- 🧠 **Business Logic:** [Zustand store and state management]
+- 💾 **Data Layer:** [Dexie repository and data persistence]
+- 🔧 **Type Safety:** [TypeScript interfaces and types]
+- 🧪 **Test Coverage:** [Unit, integration, component, e2e tests]
+```
+
+### Required Task Structure
+```markdown
+### X.1 Primary Feature
+
+**Priority:** P0 (Blocker) | P1 (High) | P2 (Medium) | P3 (Low)  
+**Story Points:** X  
+**Status:** 🔴 Not Started | 🟡 In Progress | ✅ Complete  
+**TDD Phase:** RED ⭕ | GREEN ⭕ | REFACTOR ⭕
+
+**User Story:** _As a [user type], I want [goal] so that [benefit]._
+
+**Acceptance Criteria:**
+- ✅ Functional requirement 1
+- ✅ Functional requirement 2
+- ✅ All tests written and passing
+- ✅ Code coverage ≥90%
+- ✅ Performance benchmarks met
+- ✅ Mobile UX optimized
+
+**Test Plan:**
+
+**Unit Tests:**
+- ✅ Store actions and state management
+- ✅ Repository CRUD operations
+- ✅ Utility functions and helpers
+- ✅ Error handling scenarios
+
+**Integration Tests:**
+- ✅ Store + Repository data flow
+- ✅ Component + Store interactions
+- ✅ Offline/online state transitions
+- ✅ Cross-module boundaries
+
+**Component Tests:**
+- ✅ User interactions (clicks, inputs, forms)
+- ✅ Error states and validation
+- ✅ Loading states and feedback
+- ✅ Responsive behavior
+
+**E2E Tests:**
+- ✅ Complete user workflow on mobile (375×667)
+- ✅ Offline functionality
+- ✅ Performance under load
+- ✅ Cross-browser compatibility
+
+**TDD Implementation Results:**
+
+**RED Phase (Failing Tests):**
+```typescript
+// ✅ Completed - All tests written first
+test('should [describe behavior]', () => {
+  // Test implementation
+})
+```
+
+**GREEN Phase (Minimal Implementation):**
+```typescript
+// ✅ Completed - Working implementation
+// Implementation structure and key components
+```
+
+**REFACTOR Phase (Clean & Polish):**
+- ✅ Enhanced [specific improvements]
+- ✅ Improved [performance/UX aspects]
+- ✅ Advanced [additional features]
+- ✅ Optimized [technical aspects]
+- ✅ Comprehensive [quality aspects]
+
+**Performance Requirements:**
+- ✅ [Specific metric]: <Xms
+- ✅ [Another metric]: <Yms
+
+**Definition of Done:**
+- [x] TDD cycle completed (RED → GREEN → REFACTOR) ✅
+- [x] All acceptance criteria met ✅
+- [x] All tests pass (unit, integration, component, e2e) ✅
+- [x] Code coverage ≥90% ✅
+- [x] Performance requirements met ✅
+```
+
+## Required Sections
+
+### Design Decisions
+```markdown
+## 🏗️ Design Decisions
+
+### Architecture Strategy
+**Decision 1: [Technology/Pattern Choice]**
+- **Problem:** [What problem does this solve?]
+- **Solution:** [Chosen approach]
+- **Alternatives Considered:** [Other options evaluated]
+- **Rationale:** [Why this choice was made]
+- **Test Impact:** [How this affects testing strategy]
+
+### Technology Choices
+**Decision 2: [Technical Choice]**
+- **Problem:** [Technical challenge]
+- **Solution:** [Chosen technology/approach]
+- **Trade-offs:** [What we gain/lose]
+- **Future Impact:** [How this affects future development]
+```
+
+### Progress Tracking
+```markdown
+## 📊 Progress Tracking
+
+### Sprint Velocity
+- **Planned Story Points:** X
+- **Completed Story Points:** Y
+- **Sprint Progress:** Z% ✅
+- **TDD Cycle Efficiency:** [Percentage] (excellent RED/GREEN/REFACTOR distribution)
+
+### Task Status
+| Task | Status | TDD Phase | Assignee | Est Hours | Actual Hours | Test Coverage |
+|------|--------|-----------|----------|-----------|--------------|---------------|
+| X.1 Feature | ✅ Complete | RED ✅ GREEN ✅ REFACTOR ✅ | AI Agent | Xh | Yh | Z% |
+
+### Test Metrics
+| Test Type | Written | Passing | Coverage | Performance |
+|-----------|---------|---------|----------|-------------|
+| Unit | X/X | X/X | Y% | <Zms |
+| Integration | A/A | A/A | B% | <Cms |
+| Component | D/D | D/D | E% | <Fms |
+| E2E | G/G | G/G | 100% | <Hs |
+
+### Quality Gates
+- [x] All tests written (TDD RED phase complete) ✅
+- [x] All tests passing (TDD GREEN phase complete) ✅
+- [x] Code refactored and polished (TDD REFACTOR phase complete) ✅
+- [x] Coverage thresholds met (≥90%) ✅
+- [x] Performance requirements met ✅
+- [x] Accessibility audit passed ✅
+```
+
+### Sprint Retrospective
+```markdown
+## 🔄 Sprint Retrospective
+
+### What Went Well
+**TDD Successes:**
+- [Specific TDD benefits realized]
+- [Test-first approach wins]
+
+**Vertical Slice Benefits:**
+- [End-to-end delivery successes]
+- [User value delivered]
+
+**Technical Wins:**
+- [Implementation successes]
+- [Performance achievements]
+
+### What Could Be Improved
+**TDD Challenges:**
+- [TDD process difficulties]
+- [Testing obstacles encountered]
+
+**Process Improvements:**
+- [Workflow improvements needed]
+- [Tool or technique gaps]
+
+### Action Items
+- [x] Specific improvement 1 (assigned to X) ✅
+- [x] Specific improvement 2 (assigned to Y) ✅
+
+### TDD Metrics Analysis
+**Time Distribution:**
+- RED Phase: X% of development time (test writing)
+- GREEN Phase: Y% of development time (implementation)
+- REFACTOR Phase: Z% of development time (optimization)
+
+**Quality Impact:**
+- Bugs found by tests: X (all caught before implementation)
+- Bugs found in production: 0
+- Test execution time: Y seconds (within target)
+```
+
+### Test Results & Coverage
+```markdown
+## 📝 Test Results & Coverage
+
+### Test Execution Summary
+```bash
+# Commands run and results
+npm run test:coverage -- [module]
+# Module coverage: X%
+# All tests passing: Y/Y
+
+npm run test:e2e -- [feature]
+# E2E tests passing: Z/Z
+
+npm run lighthouse -- /[route]
+# PWA Score: A/100
+# Performance: B/100
+# Accessibility: 100/100
+```
+
+### Coverage Report
+**[Module] Coverage:** X%
+
+| Component | Lines | Functions | Branches | Statements |
+|-----------|-------|-----------|----------|------------|
+| [Component 1] | X% | Y% | Z% | A% |
+| [Component 2] | B% | C% | D% | E% |
+
+### Performance Metrics
+**Lighthouse Scores:**
+- Performance: X/100 ✅
+- Accessibility: 100/100 ✅
+- Best Practices: Y/100 ✅
+- SEO: 100/100 ✅
+- PWA: Z/100 ✅
+
+**Feature Performance:**
+- [Metric 1]: Xms ✅
+- [Metric 2]: Yms ✅
+```
+
+## TDD Implementation Standards
+
+### RED Phase Requirements
+- Write failing E2E test first (complete user workflow)
+- Write failing integration tests (data flow)
+- Write failing unit tests (individual functions)
+- All tests must fail initially
+- Document test plan in MVP document
+
+### GREEN Phase Requirements
+- Implement minimal code to pass tests
+- Follow established architecture patterns
+- Maintain module isolation
+- Focus on functionality over optimization
+- Update TDD progress in documentation
+
+### REFACTOR Phase Requirements
+- Improve code quality and organization
+- Optimize performance
+- Enhance error handling
+- Polish user experience
+- Complete documentation updates
+
+## Quality Standards
+
+### Test Coverage Requirements
+- Overall coverage: ≥90%
+- Unit test coverage: ≥90%
+- Integration test coverage: ≥85%
+- Component test coverage: ≥90%
+- E2E test coverage: 100% of user workflows
+
+### Performance Requirements
+- Lighthouse Performance: ≥90/100
+- Lighthouse Accessibility: 100/100
+- Lighthouse PWA: ≥90/100
+- Initial load time: <2s on 3G
+- Interaction response: <100ms
+
+### Documentation Requirements
+- Complete TDD progress tracking
+- Detailed test plans and results
+- Design decision documentation
+- Sprint retrospective with metrics
+- Performance and coverage reports
+
+## File Organization
+
+### MVP Document Location
+- All MVP documents in `docs/` folder
+- Naming convention: `mvp-X-feature-name.md`
+- Sequential numbering for dependencies
+
+### Implementation Structure
+```
+src/modules/[feature]/
+├── types.ts           # TypeScript interfaces
+├── store.ts           # Zustand slice
+├── repo.ts            # Dexie repository
+├── routes.ts          # React Router routes
+├── pages/
+│   └── [Feature]Page.tsx
+├── components/
+│   └── [Feature]Component.tsx
+└── __tests__/
+    ├── store.test.ts
+    ├── repo.test.ts
+    └── integration.test.ts
+```
+
+## Cross-References
+
+### MVP Linking
+- Each MVP document must link to next MVP
+- Maintain dependency chain documentation
+- Update master MVP list when adding new MVPs
+
+### Documentation Updates
+- Update solution design when architecture changes
+- Maintain consistency across all MVP documents
+- Keep template updated based on learnings
+
+## Enforcement
+
+When working with MVP documentation:
+1. **ALWAYS** follow this template structure
+2. **ALWAYS** include TDD progress tracking
+3. **ALWAYS** document test plans and results
+4. **ALWAYS** include performance metrics
+5. **ALWAYS** complete retrospective analysis
+6. **NEVER** skip quality gates or coverage requirements
+7. **NEVER** mark MVP complete without full documentation
+
+

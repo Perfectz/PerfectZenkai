@@ -2,15 +2,20 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/shared/ui/button'
 import { Download, Smartphone, AlertCircle } from 'lucide-react'
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export default function ForceInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstallable, setIsInstallable] = useState(false)
   const [showButton, setShowButton] = useState(true)
   const [status, setStatus] = useState('Checking PWA status...')
 
   useEffect(() => {
     // Listen for beforeinstallprompt
-    const handleBeforeInstallPrompt = (e: any) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
       setDeferredPrompt(e)
       setIsInstallable(true)
@@ -25,7 +30,7 @@ export default function ForceInstallButton() {
       setStatus('✅ PWA installed successfully!')
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
     window.addEventListener('appinstalled', handleAppInstalled)
 
     // Check if already in standalone mode
@@ -42,13 +47,13 @@ export default function ForceInstallButton() {
 
       return () => {
         clearTimeout(timer)
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
         window.removeEventListener('appinstalled', handleAppInstalled)
       }
     }
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [deferredPrompt])

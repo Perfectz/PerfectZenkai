@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { hybridTasksRepo, tasksRepo } from './repo'
 import { useAuthStore } from '@/modules/auth'
+import { supabase } from '@/lib/supabase'
 
 interface TasksState {
   todos: Todo[]
@@ -12,6 +13,7 @@ interface TasksState {
   // Todo Actions
   addTodo: (todo: Omit<Todo, 'id' | 'updatedAt'>) => Promise<void>
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>
+  updateTodoField: (id: string, field: keyof Todo, value: unknown) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleTodo: (id: string) => Promise<void>
   loadTodos: () => Promise<void>
@@ -39,6 +41,18 @@ interface TasksState {
   getOverdueTodos: () => Todo[]
   getTodosByCategory: (category: Category) => Todo[]
   getTodosByPriority: (priority: Priority) => Todo[]
+
+  // New actions
+  getPointsStats: () => {
+    dailyPoints: number
+    weeklyPoints: number
+    totalPoints: number
+    totalPossiblePoints: number
+    completedTasks: number
+    totalTasks: number
+    completionPercentage: number
+    averageTaskPoints: number
+  }
 }
 
 export const useTasksStore = create<TasksState>((set, get) => ({
@@ -149,11 +163,124 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     }
   },
 
-  toggleTodo: async (id) => {
-    const todo = get().todos.find((t) => t.id === id)
-    if (!todo) return
+  updateTodoField: async (id, field, value) => {
+    try {
+      const todo = get().todos.find(t => t.id === id)
+      if (!todo) throw new Error('Todo not found')
 
-    await get().updateTodo(id, { done: !todo.done })
+      const now = new Date().toISOString()
+      const updatedTodo = {
+        ...todo,
+        [field]: value,
+        updatedAt: now
+      }
+
+      // Optimistic update
+      set(state => ({
+        todos: state.todos.map(t => t.id === id ? updatedTodo : t)
+      }))
+
+      // Prepare database update object
+      const dbUpdate: Record<string, unknown> = {
+        updated_at: now
+      }
+
+      // Map frontend fields to database columns
+      switch (field) {
+        case 'summary':
+          dbUpdate.summary = value
+          break
+        case 'description':
+          dbUpdate.description = value
+          break
+        case 'descriptionFormat':
+          dbUpdate.description_format = value
+          break
+        case 'points':
+          dbUpdate.points = value
+          break
+        case 'priority':
+          dbUpdate.priority = value
+          break
+        case 'category':
+          dbUpdate.category = value
+          break
+        case 'dueDateTime':
+          dbUpdate.due_date_time = value
+          break
+        case 'done':
+          dbUpdate.done = value
+          if (value) {
+            dbUpdate.completed_at = now
+          } else {
+            dbUpdate.completed_at = null
+          }
+          break
+        default:
+          console.warn(`Field ${field} not mapped for database update`)
+          return
+      }
+
+             // Update in database
+       if (!supabase) throw new Error('Supabase client not available')
+       const { error } = await supabase
+         .from('todos')
+         .update(dbUpdate)
+         .eq('id', id)
+
+      if (error) {
+        // Rollback on error
+        set(state => ({
+          todos: state.todos.map(t => t.id === id ? todo : t)
+        }))
+        throw error
+      }
+    } catch (error) {
+      console.error(`Failed to update todo ${field}:`, error)
+      throw error
+    }
+  },
+
+  toggleTodo: async (id: string) => {
+    try {
+      const todo = get().todos.find(t => t.id === id)
+      if (!todo) throw new Error('Todo not found')
+
+      const now = new Date().toISOString()
+      const updatedTodo = {
+        ...todo,
+        done: !todo.done,
+        completedAt: !todo.done ? now : undefined, // Set completion time when marking as done
+        updatedAt: now
+      }
+
+      // Optimistic update
+      set(state => ({
+        todos: state.todos.map(t => t.id === id ? updatedTodo : t)
+      }))
+
+             // Update in database
+       if (!supabase) throw new Error('Supabase client not available')
+       const { error } = await supabase
+         .from('todos')
+         .update({
+           done: updatedTodo.done,
+           completed_at: updatedTodo.completedAt,
+           updated_at: updatedTodo.updatedAt
+         })
+         .eq('id', id)
+
+      if (error) {
+        // Rollback on error
+        set(state => ({
+          todos: state.todos.map(t => t.id === id ? todo : t)
+        }))
+        throw error
+      }
+    } catch (error) {
+      console.error('Failed to toggle todo:', error)
+      throw error
+    }
   },
 
   loadTodos: async () => {
@@ -411,6 +538,38 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   getTodosByPriority: (priority) => {
     return get().todos.filter((todo) => todo.priority === priority)
   },
+
+  // New actions
+  getPointsStats: () => {
+    const todos = get().todos
+    const now = new Date()
+    const today = now.toISOString().split('T')[0]
+    const weekStart = new Date(now.setDate(now.getDate() - now.getDay())).toISOString().split('T')[0]
+    
+    const completedTodos = todos.filter(t => t.done && t.completedAt)
+    const todayCompleted = completedTodos.filter(t => 
+      t.completedAt && t.completedAt.split('T')[0] === today
+    )
+    const weekCompleted = completedTodos.filter(t => 
+      t.completedAt && t.completedAt.split('T')[0] >= weekStart
+    )
+    
+    const totalEarnedPoints = completedTodos.reduce((sum, t) => sum + (t.points || 5), 0)
+    const todayPoints = todayCompleted.reduce((sum, t) => sum + (t.points || 5), 0)
+    const weekPoints = weekCompleted.reduce((sum, t) => sum + (t.points || 5), 0)
+    const totalPossiblePoints = todos.reduce((sum, t) => sum + (t.points || 5), 0)
+    
+    return {
+      dailyPoints: todayPoints,
+      weeklyPoints: weekPoints,
+      totalPoints: totalEarnedPoints,
+      totalPossiblePoints,
+      completedTasks: completedTodos.length,
+      totalTasks: todos.length,
+      completionPercentage: todos.length > 0 ? Math.round((completedTodos.length / todos.length) * 100) : 0,
+      averageTaskPoints: todos.length > 0 ? Math.round(todos.reduce((sum, t) => sum + (t.points || 5), 0) / todos.length) : 0
+    }
+  }
 }))
 
 // Initialize store hydration

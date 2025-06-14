@@ -334,21 +334,96 @@ exportUserData() → {
 - **Backup**: Local JSON file download
 - **Privacy**: User controls data export/sharing
 
-## 🧪 **Testing Strategy**
+## 🧪 **Testing Strategy - Enhanced TDD Approach**
 
-### **Test Coverage Areas**
+### **Test-Driven Development (TDD) Framework**
 
-- **Unit Tests**: Store functions, utilities, components
-- **Integration Tests**: Authentication flow, data persistence
-- **E2E Tests**: Critical user journeys (Playwright)
-- **Visual Tests**: Component rendering, responsive design
+**TDD Cycle Implementation:**
+```
+RED Phase: Write failing tests first
+├── Unit tests for core functionality
+├── Integration tests for data flow
+├── Component tests for user interactions
+└── E2E tests for complete workflows
 
-### **Quality Assurance**
+GREEN Phase: Minimal implementation
+├── Write just enough code to pass tests
+├── Follow existing architecture patterns
+├── Maintain module isolation
+└── Verify all tests pass
 
-- **TypeScript**: Compile-time error prevention
-- **ESLint**: Code quality enforcement
-- **Prettier**: Consistent code formatting
-- **Git Hooks**: Pre-commit quality checks
+REFACTOR Phase: Clean and optimize
+├── Improve code quality while keeping tests green
+├── Add error handling and edge cases
+├── Optimize performance
+└── Update documentation
+```
+
+### **Vertical Slice Testing Architecture**
+
+**Complete Feature Testing:**
+```
+Feature Slice Testing = UI + Logic + Data + Integration + E2E
+├── UI Layer: Component behavior and user interactions
+├── Business Logic: Store actions and state management
+├── Data Layer: Repository CRUD operations and persistence
+├── Integration: End-to-end data flow validation
+└── User Journey: Complete workflow testing
+```
+
+### **Test Coverage Areas with TDD Integration**
+
+**E2E Tests (Playwright) - User Story Validation:**
+- Mobile viewport (375×667) - Primary target device
+- Complete user workflows - End-to-end value delivery
+- Offline functionality - PWA requirements
+- Cross-browser compatibility - Quality assurance
+- Performance under load - Real-world scenarios
+
+**Integration Tests (Vitest) - Vertical Slice Validation:**
+- Store + Repository interactions - Data flow integrity
+- Component + Store integration - UI to business logic
+- Authentication boundaries - Security and access control
+- Route navigation flows - User journey completeness
+- Offline/online state transitions - PWA functionality
+
+**Unit Tests (Vitest) - Component Isolation:**
+- Store actions and state management - Business logic purity
+- Repository CRUD operations - Data persistence reliability
+- Utility functions and helpers - Shared functionality
+- Component behavior and props - UI component isolation
+- Error handling scenarios - System robustness
+
+**Performance Tests (Lighthouse CI) - Quality Gates:**
+- PWA score ≥90 - Progressive Web App compliance
+- Bundle size monitoring - Performance budget adherence
+- Mobile performance metrics - Target device optimization
+- Accessibility compliance - WCAG 2.1 AA standards
+- Best practices validation - Code quality assurance
+
+### **Test Coverage Requirements**
+
+**Mandatory Coverage Thresholds:**
+- **Unit Tests:** ≥90% for new features, ≥80% for modifications
+- **Integration Tests:** 100% of critical data flows
+- **Component Tests:** 100% of user interactions and error states
+- **E2E Tests:** 100% of primary user workflows
+
+**TDD Quality Gates:**
+- All tests must be written before implementation (RED phase)
+- All tests must pass before task completion (GREEN phase)
+- Code must be refactored with tests remaining green (REFACTOR phase)
+- Coverage thresholds must be maintained throughout development
+
+### **Quality Assurance with TDD**
+
+**Automated Quality Pipeline:**
+- **TypeScript**: Compile-time error prevention with strict mode
+- **ESLint**: Code quality enforcement with custom rules
+- **Prettier**: Consistent code formatting across team
+- **Git Hooks**: Pre-commit TDD cycle verification
+- **CI/CD**: Automated test execution on every commit
+- **Documentation**: Auto-generated from test results
 
 ## 🔮 **Future Enhancements**
 

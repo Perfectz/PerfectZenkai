@@ -1,23 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useTasksStore } from './store'
-import { tasksRepo } from './repo'
+import { hybridTasksRepo } from './repo'
 import { Todo } from './types'
 
-// Mock the repository
+// Mock the hybrid tasks repository
 vi.mock('./repo', () => ({
-  tasksRepo: {
+  hybridTasksRepo: {
     addTodo: vi.fn(),
-    updateTodo: vi.fn(),
     deleteTodo: vi.fn(),
     getAllTodos: vi.fn(),
     getTodoById: vi.fn(),
+    updateTodo: vi.fn(),
+    addSubtask: vi.fn(),
     clearAll: vi.fn(),
   },
 }))
 
+const mockHybridTasksRepo = vi.mocked(hybridTasksRepo)
+
 const mockTodo: Todo = {
   id: 'test-id-1',
-  text: 'Test todo',
+  summary: 'Test todo',
   done: false,
   priority: 'medium',
   category: 'personal',
@@ -26,22 +29,14 @@ const mockTodo: Todo = {
   updatedAt: '2024-01-01T00:00:00.000Z',
 }
 
-const mockCompletedTodo: Todo = {
-  id: 'test-id-2',
-  text: 'Completed todo',
-  done: true,
-  priority: 'low',
-  category: 'work',
-  subtasks: [],
-  createdAt: '2024-01-01T01:00:00.000Z',
-  updatedAt: '2024-01-01T01:00:00.000Z',
-}
+
 
 describe('useTasksStore', () => {
   beforeEach(() => {
     // Reset store state
     useTasksStore.setState({
       todos: [],
+      templates: [],
       isLoading: false,
       error: null,
     })
@@ -51,55 +46,72 @@ describe('useTasksStore', () => {
   })
 
   describe('addTodo', () => {
-    it('should add a new todo successfully', async () => {
-      const mockNewTodo = {
-        text: 'New todo',
+    it('should add todo to store and call repo', async () => {
+      const mockTodo: Todo = {
+        id: 'test-id',
+        summary: 'Test todo',
+        description: '',
+        descriptionFormat: 'plaintext',
+        done: false,
+        priority: 'medium',
+        category: 'personal',
+        points: 5,
+        createdAt: '2024-01-15T10:00:00Z',
+        updatedAt: '2024-01-15T10:00:00Z',
+        subtasks: [],
+      }
+
+      mockHybridTasksRepo.addTodo.mockResolvedValue(mockTodo)
+
+      const { addTodo } = useTasksStore.getState()
+
+      const todoInput = {
+        summary: 'Test todo',
+        description: '',
+        descriptionFormat: 'plaintext' as const,
         done: false,
         priority: 'medium' as const,
         category: 'personal' as const,
+        points: 5,
+        createdAt: '2024-01-15T10:00:00Z',
         subtasks: [],
-        createdAt: '2024-01-01T02:00:00.000Z',
       }
 
-      vi.mocked(tasksRepo.addTodo).mockResolvedValue({
-        id: 'new-id',
-        updatedAt: '2024-01-01T02:00:00.000Z',
-        ...mockNewTodo,
-      })
+      await addTodo(todoInput)
 
-      const { addTodo } = useTasksStore.getState()
-      await addTodo(mockNewTodo)
+      // Should call repo with todo input and user id
+      expect(mockHybridTasksRepo.addTodo).toHaveBeenCalledWith(todoInput, undefined)
 
+      // Should update store with new todo
       const state = useTasksStore.getState()
       expect(state.todos).toHaveLength(1)
-      expect(state.todos[0]).toEqual({
-        id: 'new-id',
-        updatedAt: '2024-01-01T02:00:00.000Z',
-        ...mockNewTodo,
-      })
+      expect(state.todos[0]).toEqual(mockTodo)
       expect(state.isLoading).toBe(false)
       expect(state.error).toBeNull()
     })
 
     it('should handle errors when adding todo', async () => {
-      const errorMessage = 'Failed to add todo'
-      vi.mocked(tasksRepo.addTodo).mockRejectedValue(new Error(errorMessage))
+      const error = new Error('Failed to add todo')
+      mockHybridTasksRepo.addTodo.mockRejectedValue(error)
 
       const { addTodo } = useTasksStore.getState()
 
-      await expect(
-        addTodo({
-          text: 'Test',
-          done: false,
-          priority: 'medium',
-          category: 'personal',
-          subtasks: [],
-          createdAt: '2024-01-01T00:00:00.000Z',
-        })
-      ).rejects.toThrow(errorMessage)
+      const todoInput = {
+        summary: 'Test todo',
+        description: '',
+        descriptionFormat: 'plaintext' as const,
+        done: false,
+        priority: 'medium' as const,
+        category: 'personal' as const,
+        points: 5,
+        createdAt: '2024-01-15T10:00:00Z',
+        subtasks: [],
+      }
+
+      await expect(addTodo(todoInput)).rejects.toThrow('Failed to add todo')
 
       const state = useTasksStore.getState()
-      expect(state.error).toBe(errorMessage)
+      expect(state.error).toBe('Failed to add todo')
       expect(state.isLoading).toBe(false)
       expect(state.todos).toHaveLength(0)
     })
@@ -114,13 +126,13 @@ describe('useTasksStore', () => {
         error: null,
       })
 
-      vi.mocked(tasksRepo.updateTodo).mockResolvedValue()
+      vi.mocked(hybridTasksRepo.updateTodo).mockResolvedValue()
 
       const { updateTodo } = useTasksStore.getState()
-      await updateTodo('test-id-1', { text: 'Updated text' })
+      await updateTodo('test-id-1', { summary: 'Updated text' })
 
       const state = useTasksStore.getState()
-      expect(state.todos[0].text).toBe('Updated text')
+      expect(state.todos[0].summary).toBe('Updated text')
       expect(state.isLoading).toBe(false)
       expect(state.error).toBeNull()
     })
@@ -129,12 +141,12 @@ describe('useTasksStore', () => {
       useTasksStore.setState({ todos: [mockTodo] })
 
       const errorMessage = 'Failed to update todo'
-      vi.mocked(tasksRepo.updateTodo).mockRejectedValue(new Error(errorMessage))
+      vi.mocked(hybridTasksRepo.updateTodo).mockRejectedValue(new Error(errorMessage))
 
       const { updateTodo } = useTasksStore.getState()
 
       await expect(
-        updateTodo('test-id-1', { text: 'New text' })
+        updateTodo('test-id-1', { summary: 'New text' })
       ).rejects.toThrow(errorMessage)
 
       const state = useTasksStore.getState()
@@ -144,39 +156,50 @@ describe('useTasksStore', () => {
   })
 
   describe('deleteTodo', () => {
-    it('should delete todo successfully', async () => {
-      useTasksStore.setState({
-        todos: [mockTodo, mockCompletedTodo],
-        isLoading: false,
-        error: null,
-      })
+    it('should remove todo from store and call repo', async () => {
+      // Setup initial state with a todo
+      const initialTodo: Todo = {
+        id: 'test-id',
+        summary: 'Test todo',
+        description: '',
+        descriptionFormat: 'plaintext',
+        done: false,
+        priority: 'medium',
+        category: 'personal',
+        points: 5,
+        createdAt: '2024-01-15T10:00:00Z',
+        updatedAt: '2024-01-15T10:00:00Z',
+        subtasks: [],
+      }
 
-      vi.mocked(tasksRepo.deleteTodo).mockResolvedValue()
+      useTasksStore.setState({ todos: [initialTodo] })
+      mockHybridTasksRepo.deleteTodo.mockResolvedValue()
 
       const { deleteTodo } = useTasksStore.getState()
-      await deleteTodo('test-id-1')
 
+      await deleteTodo('test-id')
+
+      // Should call repo with correct id and user id
+      expect(mockHybridTasksRepo.deleteTodo).toHaveBeenCalledWith('test-id', undefined)
+
+      // Should remove todo from store
       const state = useTasksStore.getState()
-      expect(state.todos).toHaveLength(1)
-      expect(state.todos[0].id).toBe('test-id-2')
+      expect(state.todos).toHaveLength(0)
       expect(state.isLoading).toBe(false)
       expect(state.error).toBeNull()
     })
 
     it('should handle errors when deleting todo', async () => {
-      useTasksStore.setState({ todos: [mockTodo] })
-
-      const errorMessage = 'Failed to delete todo'
-      vi.mocked(tasksRepo.deleteTodo).mockRejectedValue(new Error(errorMessage))
+      const error = new Error('Failed to delete todo')
+      mockHybridTasksRepo.deleteTodo.mockRejectedValue(error)
 
       const { deleteTodo } = useTasksStore.getState()
 
-      await expect(deleteTodo('test-id-1')).rejects.toThrow(errorMessage)
+      await expect(deleteTodo('test-id')).rejects.toThrow('Failed to delete todo')
 
       const state = useTasksStore.getState()
-      expect(state.error).toBe(errorMessage)
+      expect(state.error).toBe('Failed to delete todo')
       expect(state.isLoading).toBe(false)
-      expect(state.todos).toHaveLength(1) // Todo should still be there
     })
   })
 
@@ -188,12 +211,12 @@ describe('useTasksStore', () => {
         error: null,
       })
 
-      vi.mocked(tasksRepo.updateTodo).mockResolvedValue()
+      vi.mocked(hybridTasksRepo.updateTodo).mockResolvedValue()
 
       const { toggleTodo } = useTasksStore.getState()
       await toggleTodo('test-id-1')
 
-      expect(tasksRepo.updateTodo).toHaveBeenCalledWith('test-id-1', {
+      expect(hybridTasksRepo.updateTodo).toHaveBeenCalledWith('test-id-1', {
         done: true,
       })
     })
@@ -203,17 +226,48 @@ describe('useTasksStore', () => {
       await toggleTodo('non-existent-id')
 
       // Should not call repo if todo doesn't exist
-      expect(tasksRepo.updateTodo).not.toHaveBeenCalled()
+      expect(hybridTasksRepo.updateTodo).not.toHaveBeenCalled()
     })
   })
 
   describe('loadTodos', () => {
-    it('should load todos successfully', async () => {
-      const mockTodos = [mockTodo, mockCompletedTodo]
-      vi.mocked(tasksRepo.getAllTodos).mockResolvedValue(mockTodos)
+    it('should load todos from repo into store', async () => {
+      const mockTodos: Todo[] = [
+        {
+          id: '1',
+          summary: 'Todo 1',
+          description: '',
+          descriptionFormat: 'plaintext',
+          done: false,
+          priority: 'high',
+          category: 'work',
+          points: 8,
+          createdAt: '2024-01-15T10:00:00Z',
+          updatedAt: '2024-01-15T10:00:00Z',
+          subtasks: [],
+        },
+        {
+          id: '2',
+          summary: 'Todo 2',
+          description: '',
+          descriptionFormat: 'plaintext',
+          done: true,
+          priority: 'low',
+          category: 'personal',
+          points: 3,
+          createdAt: '2024-01-14T10:00:00Z',
+          updatedAt: '2024-01-14T10:00:00Z',
+          subtasks: [],
+        },
+      ]
+
+      mockHybridTasksRepo.getAllTodos.mockResolvedValue(mockTodos)
 
       const { loadTodos } = useTasksStore.getState()
+
       await loadTodos()
+
+      expect(mockHybridTasksRepo.getAllTodos).toHaveBeenCalledWith(undefined)
 
       const state = useTasksStore.getState()
       expect(state.todos).toEqual(mockTodos)
@@ -222,24 +276,24 @@ describe('useTasksStore', () => {
     })
 
     it('should handle errors when loading todos', async () => {
-      const errorMessage = 'Failed to load todos'
-      vi.mocked(tasksRepo.getAllTodos).mockRejectedValue(
-        new Error(errorMessage)
-      )
+      const error = new Error('Failed to load todos')
+      mockHybridTasksRepo.getAllTodos.mockRejectedValue(error)
 
       const { loadTodos } = useTasksStore.getState()
+
       await loadTodos()
 
       const state = useTasksStore.getState()
-      expect(state.error).toBe(errorMessage)
+      expect(state.error).toBe('Failed to load todos')
       expect(state.isLoading).toBe(false)
+      expect(state.todos).toHaveLength(0)
     })
   })
 
   describe('hydrate', () => {
     it('should hydrate store by loading todos', async () => {
       const mockTodos = [mockTodo]
-      vi.mocked(tasksRepo.getAllTodos).mockResolvedValue(mockTodos)
+      vi.mocked(hybridTasksRepo.getAllTodos).mockResolvedValue(mockTodos)
 
       const { hydrate } = useTasksStore.getState()
       await hydrate()

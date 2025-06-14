@@ -5,7 +5,6 @@ import OfflineBanner from './components/OfflineBanner'
 import InstallSheet from './components/InstallSheet'
 import ForceInstallButton from './components/ForceInstallButton'
 import { ToastProvider } from '@/shared/ui/toast'
-import RouteDebug from '../debug/RouteDebug'
 
 export default function AppLayout() {
   return (
@@ -30,9 +29,6 @@ export default function AppLayout() {
 
         {/* Force Install Button - Visible for debugging */}
         <ForceInstallButton />
-
-        {/* Debug Component - Remove in production */}
-        {import.meta.env.DEV && <RouteDebug />}
       </div>
     </ToastProvider>
   )

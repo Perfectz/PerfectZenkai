@@ -16,6 +16,7 @@ import {
 } from '../utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { cn } from '@/lib/utils'
 
 interface TodoRowProps {
   todo: Todo
@@ -43,7 +44,7 @@ export function TodoRow({ todo }: TodoRowProps) {
   }
 
   const handleDelete = () => {
-    const confirmed = window.confirm(`Delete task: "${todo.text}"?`)
+    const confirmed = window.confirm(`Delete task: "${todo.summary}"?`)
     if (confirmed) {
       deleteTodo(todo.id)
     }
@@ -134,15 +135,16 @@ export function TodoRow({ todo }: TodoRowProps) {
 
             {/* Todo text and details */}
             <div className="min-w-0 flex-1 space-y-1">
-              <p
-                className={`text-sm transition-all ${
+              <span
+                className={cn(
+                  'flex-1 text-sm transition-all',
                   todo.done
                     ? 'text-muted-foreground line-through'
                     : 'text-foreground'
-                }`}
+                )}
               >
-                {todo.text}
-              </p>
+                {todo.summary}
+              </span>
 
               {/* Progress bar for subtasks */}
               {todo.subtasks && todo.subtasks.length > 0 && (

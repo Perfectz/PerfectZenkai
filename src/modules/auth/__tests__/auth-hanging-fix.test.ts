@@ -150,7 +150,7 @@ describe('🔧 Authentication Hanging Fix', () => {
     // Mock hanging auth service
     vi.mocked(localAuthService.getCurrentUser).mockImplementation(() => {
       // Simulate hanging by returning a promise that never resolves
-      return new Promise(() => {}) as any
+      return new Promise(() => {}) as never
     })
     
     console.log('🧪 Testing timeout handling...')

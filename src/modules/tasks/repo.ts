@@ -50,11 +50,16 @@ export const supabaseTasksRepo = {
       .from('todos')
       .insert({
         user_id: userId,
-        text: todo.text,
+        summary: todo.summary,
+        description: todo.description || '',
+        description_format: todo.descriptionFormat || 'plaintext',
         done: todo.done,
         priority: todo.priority,
         category: todo.category,
+        points: todo.points || 5,
         due_date: todo.dueDate || null,
+        due_date_time: todo.dueDateTime || null,
+        created_at: todo.createdAt,
       })
       .select()
       .single()
@@ -87,12 +92,17 @@ export const supabaseTasksRepo = {
 
     return {
       id: todoData.id,
-      text: todoData.text,
+      summary: todoData.summary,
+      description: todoData.description || '',
+      descriptionFormat: todoData.description_format,
       done: todoData.done,
       priority: todoData.priority,
       category: todoData.category,
+      points: todoData.points,
       dueDate: todoData.due_date,
+      dueDateTime: todoData.due_date_time,
       subtasks,
+      completedAt: todoData.completed_at,
       createdAt: todoData.created_at,
       updatedAt: todoData.updated_at,
     }
@@ -101,15 +111,22 @@ export const supabaseTasksRepo = {
   async updateTodo(id: string, updates: Partial<Todo>): Promise<void> {
     if (!supabase) throw new Error('Supabase not available')
 
+    const updateData: Record<string, unknown> = {}
+    if (updates.summary !== undefined) updateData.summary = updates.summary
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.descriptionFormat !== undefined) updateData.description_format = updates.descriptionFormat
+    if (updates.done !== undefined) updateData.done = updates.done
+    if (updates.priority !== undefined) updateData.priority = updates.priority
+    if (updates.category !== undefined) updateData.category = updates.category
+    if (updates.points !== undefined) updateData.points = updates.points
+    if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate
+    if (updates.dueDateTime !== undefined) updateData.due_date_time = updates.dueDateTime
+    if (updates.completedAt !== undefined) updateData.completed_at = updates.completedAt
+    updateData.updated_at = new Date().toISOString()
+
     const { error } = await supabase
       .from('todos')
-      .update({
-        text: updates.text,
-        done: updates.done,
-        priority: updates.priority,
-        category: updates.category,
-        due_date: updates.dueDate,
-      })
+      .update(updateData)
       .eq('id', id)
 
     if (error) throw error
@@ -141,7 +158,15 @@ export const supabaseTasksRepo = {
 
     // Get all subtasks for these todos
     const todoIds = (todos || []).map(todo => todo.id)
-    let subtasksData: any[] = []
+    interface SubtaskData {
+      id: string
+      todo_id: string
+      text: string
+      done: boolean
+      created_at: string
+    }
+    
+    let subtasksData: SubtaskData[] = []
     
     if (todoIds.length > 0) {
       const { data: subtasks, error: subtasksError } = await supabase
@@ -151,7 +176,7 @@ export const supabaseTasksRepo = {
         .order('created_at', { ascending: true })
 
       if (subtasksError) throw subtasksError
-      subtasksData = subtasks || []
+      subtasksData = (subtasks || []) as SubtaskData[]
     }
 
     // Group subtasks by todo_id
@@ -168,12 +193,17 @@ export const supabaseTasksRepo = {
 
     return (todos || []).map(todo => ({
       id: todo.id,
-      text: todo.text,
+      summary: todo.summary,
+      description: todo.description || '',
+      descriptionFormat: todo.description_format,
       done: todo.done,
       priority: todo.priority,
       category: todo.category,
+      points: todo.points,
       dueDate: todo.due_date,
+      dueDateTime: todo.due_date_time,
       subtasks: subtasksByTodo[todo.id] || [],
+      completedAt: todo.completed_at,
       createdAt: todo.created_at,
       updatedAt: todo.updated_at,
     }))
@@ -273,9 +303,40 @@ export const tasksRepo = {
     await database.todos.delete(id)
   },
 
-  async getAllTodos(): Promise<Todo[]> {
-    const database = getDatabase()
-    return await database.todos.orderBy('createdAt').reverse().toArray()
+  async getAllTodos(userId?: string): Promise<Todo[]> {
+    try {
+      if (supabase && userId) {
+        const { data: todos, error } = await supabase
+          .from('todos')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        return (todos || []).map(todo => ({
+          id: todo.id,
+          summary: todo.summary,
+          description: todo.description,
+          descriptionFormat: todo.description_format,
+          done: todo.done,
+          priority: todo.priority,
+          category: todo.category,
+          points: todo.points,
+          dueDate: todo.due_date,
+          dueDateTime: todo.due_date_time,
+          subtasks: todo.subtasks || [],
+          completedAt: todo.completed_at,
+          createdAt: todo.created_at,
+          updatedAt: todo.updated_at,
+        }))
+      }
+    } catch (error) {
+      console.warn('Supabase fetch failed, using local storage:', error)
+    }
+    
+    // Fallback to local storage
+    return await tasksRepo.getAllTodos()
   },
 
   async getTodoById(id: string): Promise<Todo | undefined> {
@@ -385,22 +446,25 @@ export const tasksRepo = {
     const template = await this.getTemplateById(templateId)
     if (!template) throw new Error('Template not found')
 
-    const now = new Date().toISOString()
-    const subtasks: Subtask[] = template.subtasks.map((subtask) => ({
-      id: uuidv4(),
-      createdAt: now,
-      ...subtask,
-    }))
-
-    return await this.addTodo({
-      text: template.text,
+    const todo: Omit<Todo, 'id' | 'updatedAt'> = {
+      summary: template.name,
+      description: '',
+      descriptionFormat: 'plaintext',
       done: false,
       priority: template.priority,
       category: template.category,
-      subtasks,
-      templateId,
-      createdAt: now,
-    })
+      points: 5,
+      subtasks: template.subtasks.map(st => ({
+        id: uuidv4(),
+        text: st.text,
+        done: st.done,
+        createdAt: new Date().toISOString(),
+      })),
+      templateId: template.id,
+      createdAt: new Date().toISOString(),
+    }
+
+    return await this.addTodo(todo)
   },
 
   async clearAll(): Promise<void> {

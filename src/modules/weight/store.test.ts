@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useWeightStore } from './store'
-import { weightRepo } from './repo'
+import { hybridWeightRepo } from './repo'
 import { WeightEntry } from './types'
 
-// Mock the weight repository
+// Mock the hybrid weight repository
 vi.mock('./repo', () => ({
-  weightRepo: {
+  hybridWeightRepo: {
     addWeight: vi.fn(),
     deleteWeight: vi.fn(),
     getAllWeights: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('./repo', () => ({
   },
 }))
 
-const mockWeightRepo = vi.mocked(weightRepo)
+const mockHybridWeightRepo = vi.mocked(hybridWeightRepo)
 
 describe('Weight Store', () => {
   beforeEach(() => {
@@ -36,17 +36,17 @@ describe('Weight Store', () => {
         kg: 75.5,
       }
 
-      mockWeightRepo.addWeight.mockResolvedValue(mockEntry)
+      mockHybridWeightRepo.addWeight.mockResolvedValue(mockEntry)
 
       const { addWeight } = useWeightStore.getState()
 
       await addWeight({ dateISO: '2024-01-15', kg: 75.5 })
 
-      // Should call repo with entry without id
-      expect(mockWeightRepo.addWeight).toHaveBeenCalledWith({
+      // Should call repo with entry without id and user id
+      expect(mockHybridWeightRepo.addWeight).toHaveBeenCalledWith({
         dateISO: '2024-01-15',
         kg: 75.5,
-      })
+      }, undefined) // No user logged in for test
 
       // Should update store with new entry
       const state = useWeightStore.getState()
@@ -58,7 +58,7 @@ describe('Weight Store', () => {
 
     it('should handle errors when adding weight', async () => {
       const error = new Error('Database error')
-      mockWeightRepo.addWeight.mockRejectedValue(error)
+      mockHybridWeightRepo.addWeight.mockRejectedValue(error)
 
       const { addWeight } = useWeightStore.getState()
 
@@ -77,13 +77,13 @@ describe('Weight Store', () => {
       const entry2: WeightEntry = { id: '2', dateISO: '2024-01-16', kg: 76.0 }
 
       // Add first entry
-      mockWeightRepo.addWeight.mockResolvedValueOnce(entry1)
+      mockHybridWeightRepo.addWeight.mockResolvedValueOnce(entry1)
       await useWeightStore
         .getState()
         .addWeight({ dateISO: '2024-01-15', kg: 75.0 })
 
       // Add second entry (newer date)
-      mockWeightRepo.addWeight.mockResolvedValueOnce(entry2)
+      mockHybridWeightRepo.addWeight.mockResolvedValueOnce(entry2)
       await useWeightStore
         .getState()
         .addWeight({ dateISO: '2024-01-16', kg: 76.0 })
@@ -105,14 +105,14 @@ describe('Weight Store', () => {
       }
 
       useWeightStore.setState({ weights: [initialEntry] })
-      mockWeightRepo.deleteWeight.mockResolvedValue()
+      mockHybridWeightRepo.deleteWeight.mockResolvedValue()
 
       const { deleteWeight } = useWeightStore.getState()
 
       await deleteWeight('test-id')
 
-      // Should call repo with correct id
-      expect(mockWeightRepo.deleteWeight).toHaveBeenCalledWith('test-id')
+      // Should call repo with correct id and user id
+      expect(mockHybridWeightRepo.deleteWeight).toHaveBeenCalledWith('test-id', undefined)
 
       // Should remove entry from store
       const state = useWeightStore.getState()
@@ -123,7 +123,7 @@ describe('Weight Store', () => {
 
     it('should handle errors when deleting weight', async () => {
       const error = new Error('Delete failed')
-      mockWeightRepo.deleteWeight.mockRejectedValue(error)
+      mockHybridWeightRepo.deleteWeight.mockRejectedValue(error)
 
       const { deleteWeight } = useWeightStore.getState()
 
@@ -142,13 +142,13 @@ describe('Weight Store', () => {
         { id: '2', dateISO: '2024-01-15', kg: 75.0 },
       ]
 
-      mockWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
+      mockHybridWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
 
       const { loadWeights } = useWeightStore.getState()
 
       await loadWeights()
 
-      expect(mockWeightRepo.getAllWeights).toHaveBeenCalled()
+      expect(mockHybridWeightRepo.getAllWeights).toHaveBeenCalledWith(undefined)
 
       const state = useWeightStore.getState()
       expect(state.weights).toEqual(mockWeights)
@@ -158,7 +158,7 @@ describe('Weight Store', () => {
 
     it('should handle errors when loading weights', async () => {
       const error = new Error('Load failed')
-      mockWeightRepo.getAllWeights.mockRejectedValue(error)
+      mockHybridWeightRepo.getAllWeights.mockRejectedValue(error)
 
       const { loadWeights } = useWeightStore.getState()
 
@@ -177,13 +177,13 @@ describe('Weight Store', () => {
         { id: '1', dateISO: '2024-01-15', kg: 75.0 },
       ]
 
-      mockWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
+      mockHybridWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
 
       const { hydrate } = useWeightStore.getState()
 
       await hydrate()
 
-      expect(mockWeightRepo.getAllWeights).toHaveBeenCalled()
+      expect(mockHybridWeightRepo.getAllWeights).toHaveBeenCalledWith(undefined)
 
       const state = useWeightStore.getState()
       expect(state.weights).toEqual(mockWeights)

@@ -177,10 +177,19 @@ MIT License - see LICENSE file for details
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📚 Additional Documentation
+## 📚 Documentation
 
+**📋 [Complete Documentation Index](docs/README.md) - Start here for all rules, standards, and guides**
+
+### Core Development Documentation
+- [Development Rules & Standards](docs/ai-development-rules.md) - TDD workflow, quality gates
+- [MVP Template & Standards](docs/mvp-template-standards.md) - Documentation templates
+- [Project Rules](docs/project-rules.md) - Architecture and coding standards
+- [Style Guide](docs/style-guide.md) - UI/UX design system
+- [Technical Architecture](docs/solutiondesign.md) - Complete system design
+
+### Additional Documentation
 - [Authentication Guide](AUTHENTICATION.md)
 - [MVP Sync Documentation](MVP_SUPABASE_SYNC.md)
-- [Style Guide](style-guide.md)
 - [Security Policy](SECURITY.md)
 - [Image Generation Guide](IMAGE_GENERATION_PROMPTS.md)

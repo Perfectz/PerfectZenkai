@@ -23,41 +23,44 @@ export class SupabaseAuthService {
   /**
    * Handle network/connection errors from Supabase
    */
-  private handleNetworkError(error: any): AuthError {
+  private handleNetworkError(error: unknown): AuthError {
     console.error('Network error details:', error)
 
+    const errorObj = error as Record<string, unknown>
+
     // Handle specific Supabase error codes
-    if (error?.code === 'invalid_credentials') {
+    if (errorObj?.code === 'invalid_credentials') {
       return { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' }
     }
     
-    if (error?.code === 'email_not_confirmed') {
+    if (errorObj?.code === 'email_not_confirmed') {
       return { code: 'EMAIL_NOT_CONFIRMED', message: 'Please check your email and click the confirmation link' }
     }
 
-    if (error?.code === 'signup_disabled') {
+    if (errorObj?.code === 'signup_disabled') {
       return { code: 'SIGNUP_DISABLED', message: 'New registrations are currently disabled' }
     }
 
     // Handle network/connection errors
-    if (error?.message?.includes('fetch') || error?.message?.includes('network') || error?.code === 'NETWORK_ERROR') {
+    const message = typeof errorObj?.message === 'string' ? errorObj.message : ''
+    if (message.includes('fetch') || message.includes('network') || errorObj?.code === 'NETWORK_ERROR') {
       return { code: 'NETWORK_ERROR', message: 'Network connection failed. Please check your internet connection.' }
     }
 
     // Handle timeout errors
-    if (error?.message?.includes('timeout') || error?.name === 'AbortError') {
+    if (message.includes('timeout') || errorObj?.name === 'AbortError') {
       return { code: 'TIMEOUT', message: 'Request timed out. Please try again.' }
     }
 
     // Handle database connection errors
-    if (error?.code === '42P01' || error?.message?.includes('does not exist')) {
+    if (errorObj?.code === '42P01' || message.includes('does not exist')) {
       return { code: 'DATABASE_ERROR', message: 'Database configuration error. Please contact support.' }
     }
 
     // Generic fallback
     return {
       code: 'UNKNOWN_ERROR',
-      message: error?.message || 'An unexpected error occurred',
+      message: message || 'An unexpected error occurred',
     }
   }
 
@@ -129,11 +132,13 @@ export class SupabaseAuthService {
 
       console.log('🎉 Registration successful:', user)
       return { user, error: null }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration exception:', error)
       
       // Handle "User already registered" error specifically
-      if (error?.message?.includes('User already registered')) {
+      const errorObj = error as Record<string, unknown>
+      const errorMessage = typeof errorObj?.message === 'string' ? errorObj.message : ''
+      if (errorMessage.includes('User already registered')) {
         return {
           user: null,
           error: {
@@ -182,7 +187,7 @@ export class SupabaseAuthService {
       console.log('✅ Auth successful, fetching profile for user:', authData.user.id)
 
              // Get user profile with fallback
-       let profile: any = null
+       let profile: { username: string } | null = null
        try {
          const { data, error } = await supabase!
            .from('profiles')
@@ -229,7 +234,7 @@ export class SupabaseAuthService {
       console.log('🔍 Starting login with username:', username)
 
              // Try to find the profile with this username using multiple strategies
-       let profile: any = null
+       let profile: { id: string; username: string; email?: string } | null = null
        let email: string | null = null
 
        // Strategy 1: Try user_lookup view first
@@ -242,9 +247,9 @@ export class SupabaseAuthService {
          
          if (error) throw error
          profile = data
-         email = profile?.email
+         email = profile?.email || null
          console.log('📋 Found profile via user_lookup:', profile)
-       } catch (error: any) {
+       } catch (error: unknown) {
          console.log('📋 user_lookup failed, trying profiles table:', error)
          
          // Strategy 2: Fallback to profiles table
@@ -307,7 +312,7 @@ export class SupabaseAuthService {
       }
 
       // Try to get profile data with fallback
-      let profile: any = null
+      let profile: { username: string } | null = null
       try {
         const { data } = await supabase!
           .from('profiles')
