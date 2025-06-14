@@ -1,23 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useWeightStore } from '../store'
 import { WeightRow } from '../components/WeightRow'
+import { WeightEntryForm } from '../components/WeightEntryForm'
+import { WeightAnalytics } from '../components/WeightAnalytics'
+import { WeightGoalForm } from '../components/WeightGoalForm'
 import { useNotifications } from '@/shared/hooks/useNotifications'
 import { ListSkeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
 import { Scale, Target, TrendingUp, Plus } from 'lucide-react'
+import { kgToLbs } from '../types'
 
 const NOTIFICATION_REQUEST_KEY = 'perfect-zenkai-notification-requested'
 
 export default function WeightPage() {
-  const { weights, loadWeights, isLoading } = useWeightStore()
+  const { weights, activeGoal, loadWeights, loadActiveGoal, isLoading } = useWeightStore()
   const { permission, isSupported, requestPermission, scheduleDailyReminder } =
     useNotifications()
+  const [showGoalForm, setShowGoalForm] = useState(false)
 
   useEffect(() => {
     if (weights.length === 0) {
       loadWeights()
     }
-  }, [weights.length, loadWeights])
+    if (!activeGoal) {
+      loadActiveGoal()
+    }
+  }, [weights.length, loadWeights, activeGoal, loadActiveGoal])
 
   useEffect(() => {
     // Request notification permission on first visit to weight page
@@ -41,24 +49,45 @@ export default function WeightPage() {
     }
   }, [isSupported, permission, requestPermission, scheduleDailyReminder])
 
-  const handleFabClick = () => {
-    const fabElement = document.querySelector(
-      '[data-testid="global-fab"]'
-    ) as HTMLButtonElement
-    if (fabElement) {
-      fabElement.click()
-    }
-  }
+
 
   return (
     <div className="container mx-auto px-4 pb-24 pt-4">
       {/* Cyber-styled header */}
       <div className="mb-6">
-        <h1 className="cyber-title gradient-text-ki mb-2">WEIGHT TRACKING</h1>
-        <p className="font-mono text-sm text-gray-400">
-          Progress monitoring system • {weights.length} entries logged
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="cyber-title gradient-text-ki mb-2">WEIGHT TRACKING</h1>
+            <p className="font-mono text-sm text-gray-400">
+              Progress monitoring system • {weights.length} entries logged
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowGoalForm(!showGoalForm)}
+            className="flex items-center gap-2"
+          >
+            <Target className="h-4 w-4" />
+            {activeGoal ? 'Edit Goal' : 'Set Goal'}
+          </Button>
+        </div>
       </div>
+
+      {/* Weight Entry Form - Always visible */}
+      <WeightEntryForm />
+
+      {/* Weight Goal Form - Show when requested */}
+      {showGoalForm && (
+        <div className="mb-6">
+          <WeightGoalForm onClose={() => setShowGoalForm(false)} />
+        </div>
+      )}
+
+      {/* Weight Analytics - Show when there are entries */}
+      {weights.length > 0 && !isLoading && (
+        <WeightAnalytics />
+      )}
 
       {/* Loading state with skeleton */}
       {isLoading && (
@@ -106,7 +135,12 @@ export default function WeightPage() {
               {/* Action button */}
               <Button
                 variant="cyber-ki"
-                onClick={handleFabClick}
+                onClick={() => {
+                  const input = document.getElementById('weight-quick')
+                  if (input) {
+                    input.focus()
+                  }
+                }}
                 className="w-full"
               >
                 <Scale className="mr-2 h-4 w-4" />
@@ -147,7 +181,7 @@ export default function WeightPage() {
               </div>
               <div>
                 <div className="gradient-text-cyan metric-display text-lg font-bold">
-                  {weights[0]?.kg || 0}kg
+                  {weights[0] ? kgToLbs(weights[0].kg).toFixed(1) : 0}lbs
                 </div>
                 <div className="font-mono text-xs text-gray-400">Latest</div>
               </div>
@@ -156,8 +190,8 @@ export default function WeightPage() {
                   {Math.max(...weights.map((w) => w.kg)) -
                     Math.min(...weights.map((w) => w.kg)) >=
                   0.1
-                    ? `${(Math.max(...weights.map((w) => w.kg)) - Math.min(...weights.map((w) => w.kg))).toFixed(1)}kg`
-                    : '0kg'}
+                    ? `${kgToLbs(Math.max(...weights.map((w) => w.kg)) - Math.min(...weights.map((w) => w.kg))).toFixed(1)}lbs`
+                    : '0lbs'}
                 </div>
                 <div className="font-mono text-xs text-gray-400">Range</div>
               </div>

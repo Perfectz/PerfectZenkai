@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { Card, CardContent } from '@/shared/ui/card'
 
-import { WeightEntry } from '../types'
+import { WeightEntry, kgToLbs } from '../types'
 import { useWeightActions } from '../hooks/useWeightActions'
 
 interface WeightRowProps {
@@ -27,7 +27,7 @@ export function WeightRow({ entry }: WeightRowProps) {
   }
 
   const formatWeight = (kg: number) => {
-    return `${kg.toFixed(1)} kg`
+    return `${kgToLbs(kg).toFixed(1)} lbs`
   }
 
   const handleLongPress = () => {

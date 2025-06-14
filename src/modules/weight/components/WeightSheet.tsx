@@ -11,6 +11,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { useWeightStore } from '../store'
 import { useWeightActions } from '../hooks/useWeightActions'
+import { lbsToKg } from '../types'
 
 interface WeightSheetProps {
   open: boolean
@@ -41,8 +42,8 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
       newErrors.weight = 'Weight is required'
     } else if (isNaN(weightNum) || weightNum <= 0) {
       newErrors.weight = 'Weight must be a positive number'
-    } else if (weightNum >= 1000) {
-      newErrors.weight = 'Weight must be less than 1000 kg'
+    } else if (weightNum >= 2200) {
+      newErrors.weight = 'Weight must be less than 2200 lbs'
     }
 
     setErrors(newErrors)
@@ -59,7 +60,7 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
     try {
       await addWeight({
         dateISO: date,
-        kg: parseFloat(weight),
+        kg: lbsToKg(parseFloat(weight)), // Convert lbs to kg for storage
       })
 
       // Reset form and close sheet
@@ -120,15 +121,15 @@ export function WeightSheet({ open, onOpenChange }: WeightSheetProps) {
 
           <div className="space-y-2">
             <Label htmlFor="weight" className="cyber-label text-gray-300">
-              Weight (kg)
+              Weight (lbs)
             </Label>
             <Input
               id="weight"
               type="number"
               step="0.1"
               min="0"
-              max="999.9"
-              placeholder="75.5"
+              max="2199.9"
+              placeholder="165.0"
               value={weight}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setWeight(e.target.value)

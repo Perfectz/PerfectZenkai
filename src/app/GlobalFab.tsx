@@ -2,30 +2,21 @@ import { Button } from '@/shared/ui/button'
 import { Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { WeightSheet } from '@/modules/weight/components/WeightSheet'
 
 export default function GlobalFab() {
   const location = useLocation()
-  const [sheetOpen, setSheetOpen] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
 
-  // Show FAB on weight and todo pages
-  if (
-    !location.pathname.startsWith('/weight') &&
-    !location.pathname.startsWith('/todo')
-  ) {
+  // Show FAB only on todo page now (weight page has inline form)
+  if (!location.pathname.startsWith('/todo')) {
     return null
   }
 
-  // Focus todo input if on todo page
+  // Focus todo input
   const handleFabClick = () => {
-    if (location.pathname.startsWith('/todo')) {
-      const input = document.getElementById('new-task')
-      if (input) {
-        input.focus()
-      }
-    } else if (location.pathname.startsWith('/weight')) {
-      setSheetOpen(true)
+    const input = document.getElementById('new-task')
+    if (input) {
+      input.focus()
     }
   }
 
@@ -73,18 +64,13 @@ export default function GlobalFab() {
         {/* Floating label on hover */}
         <div className="pointer-events-none absolute bottom-full right-0 mb-2 opacity-0 transition-opacity duration-200 hover:opacity-100">
           <div className="whitespace-nowrap rounded-lg border border-gray-700 bg-gray-900 px-3 py-1 font-mono text-xs text-white">
-            {location.pathname.startsWith('/todo')
-              ? 'Focus quest input'
-              : 'Log weight'}
+            Focus quest input
           </div>
           <div className="absolute right-4 top-full h-2 w-2 -translate-y-1 rotate-45 transform border-b border-r border-gray-700 bg-gray-900"></div>
         </div>
       </div>
 
-      {/* Weight sheet for weight page */}
-      {location.pathname.startsWith('/weight') && (
-        <WeightSheet open={sheetOpen} onOpenChange={setSheetOpen} />
-      )}
+
     </>
   )
 }
