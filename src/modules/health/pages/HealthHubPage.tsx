@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Scale, UtensilsCrossed, TrendingUp, Target } from 'lucide-react'
+import { Scale, UtensilsCrossed, TrendingUp, Target, Dumbbell } from 'lucide-react'
 import { useWeightStore } from '@/modules/weight/store'
 import { useMealStore } from '@/modules/meals/store'
 import { WeightEntryForm } from '@/modules/weight/components/WeightEntryForm'
@@ -9,15 +9,18 @@ import { WeightAnalytics } from '@/modules/weight/components/WeightAnalytics'
 import { WeightGoalForm } from '@/modules/weight/components/WeightGoalForm'
 import { MealEntryForm } from '@/modules/meals/components/MealEntryForm'
 import { MealAnalytics } from '@/modules/meals/components/MealAnalytics'
-import { DietTab } from '@/modules/meals/types'
+import { WorkoutEntryForm } from '@/modules/workout/components/WorkoutEntryForm'
+import { WorkoutAnalytics } from '@/modules/workout/components/WorkoutAnalytics'
+import { useWorkoutStore } from '@/modules/workout/store'
+import { HealthTab } from '@/modules/workout/types'
 import { kgToLbs } from '@/modules/weight/types'
 
-const DIET_TAB_KEY = 'perfect-zenkai-diet-tab'
+const HEALTH_TAB_KEY = 'perfect-zenkai-health-tab'
 
-export default function DietHubPage() {
-  const [activeTab, setActiveTab] = useState<DietTab>(() => {
-    const saved = localStorage.getItem(DIET_TAB_KEY)
-    return (saved as DietTab) || 'weight'
+export default function HealthHubPage() {
+  const [activeTab, setActiveTab] = useState<HealthTab>(() => {
+    const saved = localStorage.getItem(HEALTH_TAB_KEY)
+    return (saved as HealthTab) || 'weight'
   })
   const [showGoalForm, setShowGoalForm] = useState(false)
 
@@ -38,6 +41,17 @@ export default function DietHubPage() {
     isLoading: isMealLoading 
   } = useMealStore()
 
+  // Workout store
+  const { 
+    workouts, 
+    exercises,
+    loadWorkouts, 
+    loadExercises,
+    loadAnalytics: loadWorkoutAnalytics,
+    initializeExerciseLibrary,
+    isLoading: isWorkoutLoading 
+  } = useWorkoutStore()
+
   // Load data on mount
   useEffect(() => {
     if (weights.length === 0) {
@@ -49,16 +63,24 @@ export default function DietHubPage() {
     if (meals.length === 0) {
       loadMeals()
     }
+    if (workouts.length === 0) {
+      loadWorkouts()
+    }
+    if (exercises.length === 0) {
+      loadExercises()
+      initializeExerciseLibrary()
+    }
     loadAnalytics()
-  }, [weights.length, loadWeights, activeGoal, loadActiveGoal, meals.length, loadMeals, loadAnalytics])
+    loadWorkoutAnalytics()
+  }, [weights.length, loadWeights, activeGoal, loadActiveGoal, meals.length, loadMeals, loadAnalytics, workouts.length, loadWorkouts, exercises.length, loadExercises, initializeExerciseLibrary, loadWorkoutAnalytics])
 
   // Persist tab selection
-  const handleTabChange = (tab: DietTab) => {
+  const handleTabChange = (tab: HealthTab) => {
     setActiveTab(tab)
-    localStorage.setItem(DIET_TAB_KEY, tab)
+    localStorage.setItem(HEALTH_TAB_KEY, tab)
   }
 
-  const isLoading = isWeightLoading || isMealLoading
+  const isLoading = isWeightLoading || isMealLoading || isWorkoutLoading
 
   return (
     <div className="container mx-auto px-4 pb-24 pt-4">
@@ -66,9 +88,9 @@ export default function DietHubPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="cyber-title gradient-text-ki mb-2">DIET HUB</h1>
+            <h1 className="cyber-title gradient-text-ki mb-2">HEALTH HUB</h1>
             <p className="font-mono text-sm text-gray-400">
-              Unified health tracking • {weights.length} weight entries • {meals.length} meals logged
+              Unified health tracking • {weights.length} weight entries • {meals.length} meals • {workouts.length} workouts
             </p>
           </div>
           <div className="flex gap-2">
@@ -117,6 +139,20 @@ export default function DietHubPage() {
               <UtensilsCrossed className="mr-2 h-4 w-4" />
               Meals
             </Button>
+            <Button
+              variant={activeTab === 'workout' ? 'cyber-ki' : 'ghost'}
+              className={`
+                flex-1 rounded-none border-0 h-12
+                ${activeTab === 'workout' 
+                  ? 'bg-gradient-to-r from-ki-green/20 to-ki-green/10 text-ki-green border-b-2 border-ki-green' 
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                }
+              `}
+              onClick={() => handleTabChange('workout')}
+            >
+              <Dumbbell className="mr-2 h-4 w-4" />
+              Workout
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -128,7 +164,7 @@ export default function DietHubPage() {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className="gradient-text-ki metric-display text-lg font-bold">
-                  {weights.length + meals.length}
+                  {weights.length + meals.length + workouts.length}
                 </div>
                 <div className="font-mono text-xs text-gray-400">Total Entries</div>
               </div>
@@ -136,20 +172,22 @@ export default function DietHubPage() {
                 <div className="gradient-text-cyan metric-display text-lg font-bold">
                   {activeTab === 'weight' 
                     ? `${weights[0] ? kgToLbs(weights[0].kg).toFixed(1) : 0}lbs`
-                    : `${meals.reduce((sum, meal) => sum + meal.nutrition.calories, 0)}cal`
+                    : activeTab === 'meals'
+                    ? `${meals.reduce((sum, meal) => sum + meal.nutrition.calories, 0)}cal`
+                    : `${workouts.reduce((sum, workout) => sum + workout.duration, 0)}min`
                   }
                 </div>
                 <div className="font-mono text-xs text-gray-400">
-                  {activeTab === 'weight' ? 'Latest Weight' : 'Total Calories'}
+                  {activeTab === 'weight' ? 'Latest Weight' : activeTab === 'meals' ? 'Total Calories' : 'Total Duration'}
                 </div>
               </div>
               <div>
                 <div className="gradient-text-magenta metric-display text-lg font-bold">
                   <TrendingUp className="inline h-4 w-4 mr-1" />
-                  {activeTab === 'weight' ? 'Progress' : 'Nutrition'}
+                  {activeTab === 'weight' ? 'Progress' : activeTab === 'meals' ? 'Nutrition' : 'Fitness'}
                 </div>
                 <div className="font-mono text-xs text-gray-400">
-                  {activeTab === 'weight' ? 'Tracking' : 'Balance'}
+                  {activeTab === 'weight' ? 'Tracking' : activeTab === 'meals' ? 'Balance' : 'Training'}
                 </div>
               </div>
             </div>
@@ -192,6 +230,21 @@ export default function DietHubPage() {
 
           {/* Meal entries list would go here */}
           {/* TODO: Add MealList component */}
+        </div>
+      )}
+
+      {activeTab === 'workout' && (
+        <div className="space-y-6">
+          {/* Workout Entry Form */}
+          <WorkoutEntryForm />
+
+          {/* Workout Analytics */}
+          {workouts.length > 0 && !isWorkoutLoading && (
+            <WorkoutAnalytics />
+          )}
+
+          {/* Workout entries list would go here */}
+          {/* TODO: Add WorkoutList component */}
         </div>
       )}
 

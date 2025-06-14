@@ -2,7 +2,7 @@
 
 import { RouteObject } from 'react-router-dom'
 import AppLayout from './AppLayout'
-import DietHubPage from '@/modules/diet/pages/DietHubPage'
+import HealthHubPage from '@/modules/health/pages/HealthHubPage'
 import TodoPage from '@/modules/tasks/pages/TodoPage'
 import NotesPage from '@/modules/notes/pages/NotesPage'
 import DashboardPage from '@/modules/dashboard/pages/DashboardPage'
@@ -24,7 +24,7 @@ export const appRoutes: RouteObject[] = [
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'weight', element: <DietHubPage /> },
+      { path: 'health', element: <HealthHubPage /> },
       { path: 'todo', element: <TodoPage /> },
       { path: 'goals', element: <GoalsPage /> },
       { path: 'notes', element: <NotesPage /> },

@@ -81,7 +81,7 @@ export default function NavigationBar() {
       <div className="fixed inset-x-0 bottom-0 z-40 bg-gray-900 border-t border-gray-700">
         <div className="flex h-16 items-center justify-around px-2">
           <NavItem to="/" icon={Home} label="Home" />
-          <NavItem to="/weight" icon={BarChart3} label="Weight" />
+          <NavItem to="/health" icon={BarChart3} label="Health" />
           <NavItem to="/todo" icon={CheckSquare} label="Todo" />
           <NavItem to="/goals" icon={Target} label="Goals" />
           <NavItem to="/notes" icon={BookOpen} label="Notes" />
