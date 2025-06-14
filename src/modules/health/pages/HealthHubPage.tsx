@@ -11,6 +11,7 @@ import { MealEntryForm } from '@/modules/meals/components/MealEntryForm'
 import { MealAnalytics } from '@/modules/meals/components/MealAnalytics'
 import { WorkoutEntryForm } from '@/modules/workout/components/WorkoutEntryForm'
 import { WorkoutAnalytics } from '@/modules/workout/components/WorkoutAnalytics'
+import { DailyCounter } from '@/modules/workout/components/DailyCounter'
 import { useWorkoutStore } from '@/modules/workout/store'
 import { HealthTab } from '@/modules/workout/types'
 import { kgToLbs } from '@/modules/weight/types'
@@ -235,6 +236,9 @@ export default function HealthHubPage() {
 
       {activeTab === 'workout' && (
         <div className="space-y-6">
+          {/* Daily Strike Counter */}
+          <DailyCounter />
+
           {/* Workout Entry Form */}
           <WorkoutEntryForm />
 

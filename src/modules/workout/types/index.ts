@@ -113,6 +113,13 @@ export const EXERCISE_LIBRARY: Omit<Exercise, 'id' | 'createdAt' | 'updatedAt' |
   { name: 'Basketball', type: 'sports', category: 'Team Sports', muscleGroups: ['legs', 'core'], equipment: ['basketball'] },
   { name: 'Tennis', type: 'sports', category: 'Racquet Sports', muscleGroups: ['arms', 'legs', 'core'], equipment: ['tennis-racquet'] },
   { name: 'Soccer', type: 'sports', category: 'Team Sports', muscleGroups: ['legs', 'core'], equipment: ['soccer-ball'] },
+  
+  // Martial Arts
+  { name: 'Boxing Training', type: 'cardio', category: 'Martial Arts', muscleGroups: ['arms', 'core', 'legs'], equipment: ['boxing-gloves'] },
+  { name: 'Kickboxing', type: 'cardio', category: 'Martial Arts', muscleGroups: ['full-body'], equipment: ['boxing-gloves'] },
+  { name: 'Karate Practice', type: 'sports', category: 'Martial Arts', muscleGroups: ['full-body'], equipment: [] },
+  { name: 'Taekwondo', type: 'sports', category: 'Martial Arts', muscleGroups: ['legs', 'core'], equipment: [] },
+  { name: 'Shadow Boxing', type: 'cardio', category: 'Martial Arts', muscleGroups: ['arms', 'core'], equipment: [] },
 ]
 
 // Utility functions
