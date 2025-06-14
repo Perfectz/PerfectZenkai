@@ -12,7 +12,8 @@ initializeWeightStore()
 initializeTasksStore()
 initializeNotesStore()
 
-if (import.meta.env.MODE === 'production' && 'serviceWorker' in navigator) {
+// Register service worker in both development and production for PWA testing
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')

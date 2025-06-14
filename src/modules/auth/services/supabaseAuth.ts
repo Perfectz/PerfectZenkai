@@ -2,9 +2,6 @@ import { supabase } from '@/lib/supabase'
 import type { User, AuthError } from '../types/auth'
 
 export class SupabaseAuthService {
-  private readonly MAX_RETRIES = 3
-  private readonly TIMEOUT_MS = 15000
-  private readonly RETRY_DELAY_MS = 1000
 
   /**
    * Check if Supabase client is available and properly configured
@@ -64,40 +61,9 @@ export class SupabaseAuthService {
     }
   }
 
-  private async withRetry<T>(
-    operation: () => Promise<T>,
-    retries: number = this.MAX_RETRIES
-  ): Promise<T> {
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
-        return await this.withTimeout(operation())
-      } catch (error: any) {
-        console.log(`Attempt ${attempt}/${retries} failed:`, error)
-        
-        // Don't retry on authentication errors
-        if (error?.code === 'invalid_credentials' || error?.code === 'email_not_confirmed') {
-          throw error
-        }
-        
-        // Don't retry on the last attempt
-        if (attempt === retries) {
-          throw error
-        }
-        
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY_MS * attempt))
-      }
-    }
-    throw new Error('Max retries exceeded')
-  }
 
-  private async withTimeout<T>(promise: Promise<T>): Promise<T> {
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Operation timed out')), this.TIMEOUT_MS)
-    })
 
-    return Promise.race([promise, timeoutPromise])
-  }
+
 
   /**
    * Register a new user with enhanced error handling and retries

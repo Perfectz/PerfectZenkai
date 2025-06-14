@@ -106,6 +106,12 @@ DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Public username availability check" ON public.profiles;
 
+-- Drop existing data table policies
+DROP POLICY IF EXISTS "Users can access their own weight entries" ON public.weight_entries;
+DROP POLICY IF EXISTS "Users can access their own todos" ON public.todos;
+DROP POLICY IF EXISTS "Users can access subtasks of their todos" ON public.subtasks;
+DROP POLICY IF EXISTS "Users can access their own notes" ON public.notes;
+
 -- Profiles table policies
 CREATE POLICY "Users can view own profile" 
   ON public.profiles 
@@ -195,6 +201,12 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS handle_profiles_updated_at ON public.profiles;
+DROP TRIGGER IF EXISTS handle_weight_entries_updated_at ON public.weight_entries;
+DROP TRIGGER IF EXISTS handle_todos_updated_at ON public.todos;
+DROP TRIGGER IF EXISTS handle_notes_updated_at ON public.notes;
 
 -- Add updated_at triggers to all tables
 CREATE TRIGGER handle_profiles_updated_at

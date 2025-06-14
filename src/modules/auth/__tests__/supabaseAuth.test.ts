@@ -188,13 +188,14 @@ describe('SupabaseAuthService', () => {
         })),
         insert: vi.fn(),
       }))
-      mockSupabaseClient.from.mockImplementation(mockFrom)
+      const { supabase } = await import('@/lib/supabase')
+      vi.mocked(supabase!.from).mockImplementation(mockFrom)
 
       // Mock auth error for weak password
-      mockSupabaseClient.auth.signUp.mockResolvedValue({
+      vi.mocked(supabase!.auth.signUp).mockResolvedValue({
         data: { user: null },
         error: { message: 'Password is too weak' },
-      })
+      } as any)
 
       const result = await authService.register(
         'newuser',
@@ -344,12 +345,13 @@ describe('SupabaseAuthService', () => {
         insert: vi.fn(),
       }))
 
-      mockSupabaseClient.from
+      const { supabase } = await import('@/lib/supabase')
+      vi.mocked(supabase!.from)
         .mockImplementationOnce(mockUserLookup) // First call for user lookup
         .mockImplementationOnce(mockProfileLookup) // Second call for profile lookup
 
       // Mock successful auth login
-      mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({
+      vi.mocked(supabase!.auth.signInWithPassword).mockResolvedValue({
         data: {
           user: {
             id: testUser1.id,
@@ -386,7 +388,9 @@ describe('SupabaseAuthService', () => {
         })),
         insert: vi.fn(),
       }))
-      mockSupabaseClient.from.mockImplementation(mockFrom)
+      
+      const { supabase } = await import('@/lib/supabase')
+      vi.mocked(supabase!.from).mockImplementation(mockFrom)
 
       const result = await authService.loginWithUsername(
         'nonexistentuser',
