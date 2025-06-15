@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* Mobile Design Tokens */
+@import './styles/mobile-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Mobile Design Tokens */
-@import './styles/mobile-tokens.css';
 
 @layer base {
   :root {

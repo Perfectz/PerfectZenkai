@@ -7,12 +7,16 @@ import { TodoSummaryCard } from '../components/TodoSummaryCard'
 import { StreakCard } from '../components/StreakCard'
 import { DataExportCard } from '../components/DataExportCard'
 import { DashboardSkeleton } from '@/shared/ui/skeleton'
+import { useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 import headerVideo from '../../../assets/videos/header.webm'
 
 export default function DashboardPage() {
   const { loadWeights, isLoading: weightLoading } = useWeightStore()
   const { loadTodos, isLoading: todoLoading } = useTasksStore()
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  
+  // Mobile responsiveness
+  const { isMobile, isGalaxyS24Ultra } = useResponsiveBreakpoint()
 
   useEffect(() => {
     // Load data for both modules when dashboard loads
@@ -41,11 +45,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 pb-24 pt-4">
+    <div className={`container mx-auto px-4 pb-24 pt-4 mobile-safe-area ${isMobile ? 'mobile-layout' : ''}`}>
       {/* Cyber-styled header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="cyber-title gradient-text-ki mb-2 text-xl sm:text-2xl">CONTROL NEXUS</h1>
-        <p className="font-mono text-sm text-gray-400">
+      <div className="mb-6 sm:mb-8 mobile-layout">
+        <h1 className="cyber-title gradient-text-ki mb-2 text-xl sm:text-2xl mobile-heading">CONTROL NEXUS</h1>
+        <p className="font-mono text-sm text-gray-400 mobile-body">
           Mission Status Overview
         </p>
       </div>
@@ -72,27 +76,27 @@ export default function DashboardPage() {
       </div>
 
       {/* Enhanced responsive grid layout with uniform card heights - Mobile optimized */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6">
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 mobile-grid ${isMobile ? 'mobile-stack' : ''}`}>
         {/* Priority cards first - Mobile stacked */}
-        <div className="h-80">
+        <div className={`h-80 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <TodayWeightCard />
         </div>
 
-        <div className="h-80">
+        <div className={`h-80 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <TodoSummaryCard />
         </div>
 
         {/* Secondary cards - Mobile responsive */}
-        <div className="h-80 sm:col-span-1 lg:col-span-1">
+        <div className={`h-80 sm:col-span-1 lg:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <WeightSparkCard />
         </div>
 
-        <div className="h-80 sm:col-span-1 lg:col-span-1 xl:col-span-1">
+        <div className={`h-80 sm:col-span-1 lg:col-span-1 xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <StreakCard />
         </div>
 
         {/* Full width on mobile, spans remaining space on desktop */}
-        <div className="h-80 sm:col-span-2 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
+        <div className={`h-80 sm:col-span-2 lg:col-span-1 xl:col-span-1 2xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <DataExportCard />
         </div>
       </div>

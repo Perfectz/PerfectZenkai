@@ -8,6 +8,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { Dumbbell, Clock, Zap, Plus } from 'lucide-react'
 import { useWorkoutStore } from '../store'
 import { ExerciseType, IntensityLevel } from '../types'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function WorkoutEntryForm() {
   const { exercises, addWorkout, isLoading } = useWorkoutStore()
@@ -21,6 +22,13 @@ export function WorkoutEntryForm() {
   const [reps, setReps] = useState('')
   const [weight, setWeight] = useState('')
   const [distance, setDistance] = useState('')
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+    scale: 0.95, 
+    haptic: true 
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,15 +71,15 @@ export function WorkoutEntryForm() {
   const currentExerciseType = selectedExerciseData?.type || exerciseType
 
   return (
-    <Card className="cyber-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 gradient-text-ki">
+    <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+      <CardHeader className="mobile-layout">
+        <CardTitle className="flex items-center gap-2 gradient-text-ki mobile-heading">
           <Dumbbell className="h-5 w-5" />
           Log Workout
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mobile-form-spacing">
           {/* Exercise Selection */}
           <div className="space-y-2">
             <Label>Exercise</Label>

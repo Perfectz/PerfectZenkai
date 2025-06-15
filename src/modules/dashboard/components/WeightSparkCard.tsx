@@ -1,12 +1,19 @@
 import { useWeightStore } from '@/modules/weight'
+import { kgToLbs } from '@/modules/weight/types'
 import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function WeightSparkCard() {
   const navigate = useNavigate()
   const { weights, isLoading } = useWeightStore()
-  const [isPressed, setIsPressed] = useState(false)
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const cardFeedback = useTouchFeedback<HTMLDivElement>({ 
+    scale: 0.98, 
+    haptic: true 
+  })
 
   // Get last 30 days of weight data
   const thirtyDaysAgo = new Date()
@@ -22,9 +29,6 @@ export function WeightSparkCard() {
   const handleClick = () => {
     navigate('/weight')
   }
-
-  const handleTouchStart = () => setIsPressed(true)
-  const handleTouchEnd = () => setIsPressed(false)
 
   // Calculate trend for the period
   const getTrend = () => {
@@ -45,14 +49,14 @@ export function WeightSparkCard() {
 
   if (isLoading) {
     return (
-      <div className="cyber-card cursor-pointer">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700">
+      <div className="cyber-card cursor-pointer mobile-card mobile-responsive">
+        <div className="mb-4 flex items-center gap-3 mobile-layout">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
             <BarChart3 className="text-ki-green cyber-icon h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Weight Trend</h3>
-            <p className="font-mono text-xs text-gray-400">Loading...</p>
+            <h3 className="font-semibold text-white mobile-heading">Weight Trend</h3>
+            <p className="font-mono text-xs text-gray-400 mobile-caption">Loading...</p>
           </div>
         </div>
         <div className="flex h-16 items-center justify-center">
@@ -64,30 +68,20 @@ export function WeightSparkCard() {
 
   return (
     <div
-      className={`
-        cyber-card flex h-full cursor-pointer flex-col transition-all duration-200
-        ${isPressed ? 'scale-95 shadow-inner' : 'hover:scale-[1.02]'}
-        active:scale-95
-      `}
+      ref={cardFeedback.elementRef}
+      className={`cyber-card flex h-full cursor-pointer flex-col transition-all duration-200 mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
       onClick={handleClick}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleTouchStart}
-      onMouseUp={handleTouchEnd}
-      onMouseLeave={handleTouchEnd}
+      role="button"
+      tabIndex={0}
+      aria-label="Weight trend card - view full weight history"
     >
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700">
-          <BarChart3
-            className={`
-            text-ki-green cyber-icon glow-ki h-5 w-5 transition-all duration-200
-            ${isPressed ? 'scale-90' : ''}
-          `}
-          />
+      <div className="mb-4 flex items-center gap-3 mobile-layout">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
+          <BarChart3 className="text-ki-green cyber-icon glow-ki h-5 w-5 transition-all duration-200" />
         </div>
         <div>
-          <h3 className="font-semibold text-white">Weight Trend</h3>
-          <p className="font-mono text-xs text-gray-400">30-day analysis</p>
+          <h3 className="font-semibold text-white mobile-heading">Weight Trend</h3>
+          <p className="font-mono text-xs text-gray-400 mobile-caption">30-day analysis</p>
         </div>
       </div>
 
@@ -155,24 +149,24 @@ export function WeightSparkCard() {
                 )}
 
                 <div>
-                  <div className="font-mono text-sm text-white">
+                  <div className="font-mono text-sm text-white mobile-small">
                     {trend
                       ? trend.type === 'stable'
                         ? 'Stable'
-                        : `${trend.type === 'up' ? '+' : '-'}${trend.diff.toFixed(1)}kg`
+                        : `${trend.type === 'up' ? '+' : '-'}${kgToLbs(trend.diff).toFixed(1)}lbs`
                       : 'No trend data'}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-400 mobile-caption">
                     {recentWeights.length} entries
                   </div>
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="gradient-text-ki font-mono text-sm font-semibold">
-                  {recentWeights[0]?.kg || 0}kg
+                <div className="gradient-text-ki font-mono text-sm font-semibold mobile-small">
+                  {kgToLbs(recentWeights[0]?.kg || 0).toFixed(1)}lbs
                 </div>
-                <div className="text-xs text-gray-400">current</div>
+                <div className="text-xs text-gray-400 mobile-caption">current</div>
               </div>
             </div>
 

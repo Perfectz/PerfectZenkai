@@ -8,6 +8,7 @@ import {
   getDataSummary,
   AppDataExport,
 } from '@/shared/utils/dataExport'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function DataExportCard() {
   const [isExporting, setIsExporting] = useState(false)
@@ -15,6 +16,13 @@ export function DataExportCard() {
     'idle' | 'success' | 'error'
   >('idle')
   const [lastExport, setLastExport] = useState<AppDataExport | null>(null)
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+    scale: 0.95, 
+    haptic: true 
+  })
 
   const handleExport = async () => {
     try {
@@ -43,14 +51,14 @@ export function DataExportCard() {
   const summary = lastExport ? getDataSummary(lastExport) : null
 
   return (
-    <div className="cyber-card transition-cyber flex h-full flex-col">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700">
+    <div className={`cyber-card transition-cyber flex h-full flex-col mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+      <div className="mb-4 flex items-center gap-3 mobile-layout">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
           <HardDrive className="text-plasma-cyan cyber-icon glow-cyan h-5 w-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-white">Data Backup</h3>
-          <p className="font-mono text-xs text-gray-400">System export</p>
+          <h3 className="font-semibold text-white mobile-heading">Data Backup</h3>
+          <p className="font-mono text-xs text-gray-400 mobile-caption">System export</p>
         </div>
       </div>
 
@@ -114,15 +122,18 @@ export function DataExportCard() {
 
         {/* Export button */}
         <Button
+          ref={buttonFeedback.elementRef}
           onClick={handleExport}
           disabled={isExporting}
-          className="
+          className={`
             neon-button transition-cyber bg-plasma-cyan
             hover:bg-plasma-cyan text-dark-navy
             cyan-glow w-full font-mono
-            font-semibold
+            font-semibold touch-target mobile-button
             disabled:cursor-not-allowed disabled:opacity-50
-          "
+            ${isMobile ? 'mobile-responsive' : ''}
+          `}
+          aria-label="Export all data as backup file"
         >
           <Download className="cyber-icon mr-2 h-4 w-4" />
           {isExporting ? 'EXPORTING...' : 'EXPORT DATA'}

@@ -3,10 +3,18 @@ import { StatusChip } from '@/shared/ui/status-chip'
 import { CheckSquare, Circle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Progress } from '@/shared/ui/progress'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function TodoSummaryCard() {
   const navigate = useNavigate()
   const { todos, isLoading } = useTasksStore()
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const cardFeedback = useTouchFeedback<HTMLDivElement>({ 
+    scale: 0.98, 
+    haptic: true 
+  })
 
   const totalTodos = todos.length
   const completedTodos = todos.filter((todo) => todo.done).length
@@ -47,16 +55,20 @@ export function TodoSummaryCard() {
 
   return (
     <div
-      className="cyber-card transition-cyber flex h-full cursor-pointer flex-col"
+      ref={cardFeedback.elementRef}
+      className={`cyber-card transition-cyber flex h-full cursor-pointer flex-col mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      aria-label="Quest progress card - view todo list"
     >
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700">
+      <div className="mb-4 flex items-center gap-3 mobile-layout">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
           <Clock className="text-ki-green cyber-icon glow-ki h-5 w-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-white">Quest Progress</h3>
-          <p className="font-mono text-xs text-gray-400">Today's missions</p>
+          <h3 className="font-semibold text-white mobile-heading">Quest Progress</h3>
+          <p className="font-mono text-xs text-gray-400 mobile-caption">Today's missions</p>
         </div>
       </div>
 
