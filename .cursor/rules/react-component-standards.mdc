@@ -1,5 +1,104 @@
 ---
-description:
-globs:
+description: 
+globs: src/**/*.tsx
 alwaysApply: false
 ---
+# React Component Standards
+
+## Component Categories
+
+### 1. Page Components (Route Level)
+```typescript
+export function TodoPage() {
+  return (
+    <PageLayout title="Tasks">
+      <TodoDashboard />
+    </PageLayout>
+  );
+}
+```
+
+### 2. Container Components (Business Logic)
+```typescript
+export function TodoDashboard() {
+  const { todos, loading, error, addTodo, updateTodo } = useTodos();
+  
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  
+  return (
+    <TodoDashboardView
+      todos={todos}
+      onAdd={addTodo}
+      onUpdate={updateTodo}
+    />
+  );
+}
+```
+
+### 3. Presentation Components (Pure UI)
+```typescript
+interface TodoDashboardViewProps {
+  todos: Todo[];
+  onAdd: (todo: CreateTodoRequest) => void;
+  onUpdate: (id: string, updates: Partial<Todo>) => void;
+}
+
+export function TodoDashboardView({ todos, onAdd, onUpdate }: TodoDashboardViewProps) {
+  return (
+    <div className="todo-dashboard">
+      <TodoForm onSubmit={onAdd} />
+      <TodoList todos={todos} onUpdate={onUpdate} />
+    </div>
+  );
+}
+```
+
+## Event Handling Patterns
+
+### Event Handler Naming
+```typescript
+// ✅ Descriptive handler names
+const handleTodoToggle = (id: string) => {
+  updateTodo(id, { done: !todo.done });
+};
+
+const handleFormSubmit = (data: FormData) => {
+  createTodo(data);
+};
+```
+
+## Testing Standards
+
+### Component Test Structure
+```typescript
+describe('TodoItem', () => {
+  const defaultProps = {
+    todo: mockTodo,
+    onToggle: jest.fn(),
+    onEdit: jest.fn(),
+    onDelete: jest.fn(),
+  };
+  
+  describe('Rendering', () => {
+    test('should display todo summary', () => {
+      render(<TodoItem {...defaultProps} />);
+      expect(screen.getByText(mockTodo.summary)).toBeInTheDocument();
+    });
+  });
+  
+  describe('Interactions', () => {
+    test('should call onToggle when checkbox clicked', () => {
+      render(<TodoItem {...defaultProps} />);
+      fireEvent.click(screen.getByRole('checkbox'));
+      expect(defaultProps.onToggle).toHaveBeenCalledWith(mockTodo.id);
+    });
+  });
+});
+```
+
+## Performance Optimization
+- Use `React.memo` for pure components
+- Memoize expensive calculations with `useMemo`
+- Memoize callback functions with `useCallback`
+- Avoid inline object/array creation in render

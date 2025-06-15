@@ -5,6 +5,7 @@ import {
   CheckSquare,
   Target,
   BookOpen,
+  PenTool,
   LogOut,
   User,
 } from 'lucide-react'
@@ -84,6 +85,7 @@ export default function NavigationBar() {
           <NavItem to="/health" icon={BarChart3} label="Health" />
           <NavItem to="/todo" icon={CheckSquare} label="Todo" />
           <NavItem to="/goals" icon={Target} label="Goals" />
+          <NavItem to="/journal" icon={PenTool} label="Journal" />
           <NavItem to="/notes" icon={BookOpen} label="Notes" />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { MealEntry, MealEntryInput, DietAnalytics, MealSuggestions } from '../types'
+import { MealEntry, MealEntryInput, DietAnalytics, MealSuggestions, MealType } from '../types'
 
 interface MealState {
   // Data
@@ -232,7 +232,7 @@ export const useMealStore = create<MealState>((set, get) => ({
         weeklyCalories,
         monthlyCalories,
         macroBalance,
-        mealFrequency: mealFrequency as any,
+        mealFrequency: mealFrequency as Record<MealType, number>,
         streak,
       }
       

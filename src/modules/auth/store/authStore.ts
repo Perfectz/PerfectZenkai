@@ -42,7 +42,20 @@ interface AuthStore extends AuthState {
 
 // Helper function to determine which auth service to use
 const getAuthService = () => {
-  return supabase !== null ? 'supabase' : 'local'
+  // Check if Supabase is properly configured with environment variables
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  
+  // Only use Supabase if we have both URL and key, and supabase client exists
+  const hasSupabaseConfig = supabaseUrl && supabaseAnonKey && supabase !== null
+  
+  if (!hasSupabaseConfig) {
+    console.log('🔧 Supabase not configured or missing env vars, using local auth')
+    return 'local'
+  }
+  
+  console.log('🔧 Supabase configured, using Supabase auth')
+  return 'supabase'
 }
 
 // MVP-10: Debounce configuration
@@ -119,19 +132,36 @@ export const useAuthStore = create<AuthStore>()(
           let token: string = ''
 
           if (authService === 'supabase') {
-            const { user: supabaseUser, error } =
-              await supabaseAuth.loginWithUsername(
-                credentials.username,
-                credentials.password
-              )
+            try {
+              const { user: supabaseUser, error } =
+                await supabaseAuth.loginWithUsername(
+                  credentials.username,
+                  credentials.password
+                )
 
-            if (error) {
-              console.error('❌ Supabase login error:', error)
-              throw new Error(error.message)
+              if (error) {
+                console.error('❌ Supabase login error:', error)
+                throw new Error(error.message)
+              }
+
+              user = supabaseUser
+              token = user?.id || ''
+            } catch (supabaseError) {
+              console.error('❌ Supabase login failed:', supabaseError)
+              console.log('🔄 Attempting fallback to local auth for login...')
+              
+              // Fallback to local auth
+              try {
+                const result = await withRetry(() => localAuthService.login(credentials))
+                user = result.user
+                token = result.token
+                console.log('✅ Fallback to local auth login successful:', user.username)
+              } catch (localError) {
+                console.error('❌ Local auth login also failed:', localError)
+                const errorMessage = supabaseError instanceof Error ? supabaseError.message : 'Authentication failed'
+                throw new Error(`Authentication failed: ${errorMessage}`)
+              }
             }
-
-            user = supabaseUser
-            token = user?.id || ''
           } else {
             // Use local auth service with retry logic
             const result = await withRetry(() => localAuthService.login(credentials))
@@ -337,15 +367,33 @@ export const useAuthStore = create<AuthStore>()(
               console.log('✅ Supabase auth check successful:', user?.email)
             } catch (error) {
               console.error('❌ Supabase auth check failed:', error)
-              // Force logout from Supabase and switch to local auth
+              
+              // Try to fallback to local auth if Supabase consistently fails
+              console.log('🔄 Attempting fallback to local auth...')
+              try {
+                const session = localAuthService.getCurrentUser()
+                if (session) {
+                  user = session.user
+                  token = session.token
+                  console.log('✅ Fallback to local auth successful:', user.username)
+                } else {
+                  console.log('ℹ️ No local session found either')
+                  user = null
+                  token = ''
+                }
+              } catch (localError) {
+                console.error('❌ Local auth fallback also failed:', localError)
+                user = null
+                token = ''
+              }
+              
+              // Force logout from Supabase to clean up
               try {
                 await supabaseAuth.logout()
-                console.log('🔄 Logged out from Supabase, switching to local auth')
+                console.log('🔄 Logged out from Supabase after failure')
               } catch (logoutError) {
                 console.error('Failed to logout from Supabase:', logoutError)
               }
-              user = null
-              token = ''
             }
           } else {
             // Use local auth service (no retry needed for synchronous call)
@@ -479,10 +527,29 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({
+        // Only persist user and token, not isAuthenticated
+        // This forces a fresh auth check on app reload
         user: state.user,
         token: state.token,
-        isAuthenticated: state.isAuthenticated,
       }),
+      // Add onRehydrateStorage to handle state restoration
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Force auth check when state is rehydrated
+          console.log('🔄 Auth state rehydrated, forcing auth check')
+          // Don't set isAuthenticated to true immediately
+          // Let checkAuthStatus determine the actual auth state
+          state.isAuthenticated = false
+          state.isCheckingAuth = false
+          state.lastAuthCheck = 0
+          state.retryCount = 0
+          
+          // Trigger auth check after a short delay
+          setTimeout(() => {
+            useAuthStore.getState().checkAuthStatus()
+          }, 100)
+        }
+      },
     }
   )
 )

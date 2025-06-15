@@ -5,6 +5,7 @@ import OfflineBanner from './components/OfflineBanner'
 import InstallSheet from './components/InstallSheet'
 import ForceInstallButton from './components/ForceInstallButton'
 import { ToastProvider } from '@/shared/ui/toast'
+import AuthDebugger from '@/modules/auth/components/AuthDebugger'
 
 export default function AppLayout() {
   return (
@@ -29,6 +30,9 @@ export default function AppLayout() {
 
         {/* Force Install Button - Visible for debugging */}
         <ForceInstallButton />
+
+        {/* Auth Debugger - Temporary for debugging auth issues */}
+        <AuthDebugger />
       </div>
     </ToastProvider>
   )

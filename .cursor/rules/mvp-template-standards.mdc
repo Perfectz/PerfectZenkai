@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: docs/mvp-*.md
 alwaysApply: false
 ---
 # MVP Template & Documentation Standards

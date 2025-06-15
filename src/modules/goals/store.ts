@@ -16,8 +16,8 @@ interface GoalsState {
   loadGoals: () => Promise<void>
 
   // Progress Calculation
-  calculateGoalProgress: (goalId: string, todos: any[]) => GoalProgress
-  getGoalsWithProgress: (todos: any[]) => GoalWithProgress[]
+  calculateGoalProgress: (goalId: string, todos: Array<{ goalId?: string; done: boolean }>) => GoalProgress
+  getGoalsWithProgress: (todos: Array<{ goalId?: string; done: boolean }>) => GoalWithProgress[]
   getActiveGoals: () => SimpleGoal[]
   getGoalsByCategory: (category: GoalCategory) => SimpleGoal[]
 

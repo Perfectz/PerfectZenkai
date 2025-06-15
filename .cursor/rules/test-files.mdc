@@ -1,5 +1,79 @@
 ---
-description:
-globs:
+description: Test File Standards
+globs: 
 alwaysApply: false
 ---
+# Test File Standards
+
+## Test Organization
+```
+__tests__/
+├── unit/           # Individual functions
+├── integration/    # Module interactions  
+├── components/     # React components
+└── e2e/           # End-to-end workflows
+```
+
+## Test Structure
+```typescript
+describe('ComponentName', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  
+  describe('Rendering', () => {
+    test('should display expected content', () => {
+      // Render tests
+    });
+  });
+  
+  describe('Interactions', () => {
+    test('should handle user actions', () => {
+      // Interaction tests
+    });
+  });
+  
+  describe('Edge Cases', () => {
+    test('should handle error scenarios', () => {
+      // Error handling tests
+    });
+  });
+});
+```
+
+## Coverage Requirements
+- **Unit tests**: ≥90% coverage
+- **Integration tests**: All module boundaries
+- **Component tests**: All props and interactions
+- **E2E tests**: Critical user workflows
+
+## Mock Patterns
+```typescript
+// Service mocks
+const mockTodoService = {
+  getTodos: jest.fn(),
+  createTodo: jest.fn(),
+  updateTodo: jest.fn(),
+  deleteTodo: jest.fn(),
+};
+
+// Component mocks
+jest.mock('./TodoItem', () => ({
+  TodoItem: ({ todo, onToggle }: any) => (
+    <div data-testid="todo-item" onClick={() => onToggle(todo.id)}>
+      {todo.summary}
+    </div>
+  ),
+}));
+```
+
+## Performance Testing
+- **Test execution**: <30 seconds total
+- **Individual tests**: <100ms average
+- **E2E tests**: <5 seconds per scenario
+
+## TDD Integration
+- Write tests BEFORE implementation (RED phase)
+- Ensure tests fail for the right reasons
+- Keep tests green during REFACTOR phase
+- Update test coverage in MVP documentation

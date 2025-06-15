@@ -266,7 +266,7 @@ export const supabaseWeightGoalRepo = {
   async updateGoal(id: string, goal: Partial<WeightGoalInput>): Promise<WeightGoal> {
     if (!supabase) throw new Error('Supabase not available')
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (goal.targetWeight !== undefined) updateData.target_weight = goal.targetWeight
     if (goal.goalType !== undefined) updateData.goal_type = goal.goalType
     if (goal.targetDate !== undefined) updateData.target_date = goal.targetDate

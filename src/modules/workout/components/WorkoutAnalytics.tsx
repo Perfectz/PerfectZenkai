@@ -113,7 +113,7 @@ export function WorkoutAnalytics() {
             {Object.entries(analytics.exerciseTypeBreakdown).map(([type, data]) => (
               <div key={type} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`${getExerciseTypeColor(type as any)} text-lg`}>●</span>
+                  <span className={`${getExerciseTypeColor(type as 'cardio' | 'strength' | 'flexibility' | 'sports')} text-lg`}>●</span>
                   <span className="capitalize font-mono text-sm">{type}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">

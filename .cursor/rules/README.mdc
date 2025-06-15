@@ -1,5 +1,53 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
+# Perfect Zenkai Development Rules
+
+## Philosophy
+
+This project follows **Test-Driven Development (TDD)** with **Vertical Slice Architecture** and **comprehensive MVP documentation** for all complex tasks.
+
+## Key Enhancement: Automatic MVP Documentation
+
+**When you request a complex task, I will:**
+1. **Create MVP document first** using `docs/mvp-5-offline-polish.md` as template
+2. **Define success criteria** and break into vertical slices
+3. **Plan TDD approach** with comprehensive test strategy
+4. **Get your confirmation** before starting implementation
+5. **Update documentation** in real-time during development
+6. **Complete retrospective** with actual metrics and learnings
+
+## Rule Categories
+
+### Always Apply
+- `mvp-documentation.mdc` - MVP docs for complex tasks (>2 hours)
+- `tdd-workflow.mdc` - Mandatory RED → GREEN → REFACTOR cycle
+- `architecture-standards.mdc` - Vertical slice architecture
+
+### Auto-Attach (by file pattern)
+- `react-component-standards.mdc` - React patterns (src/**/*.tsx)
+- `tasks-module.mdc` - Tasks module patterns (src/modules/tasks/**/*) 
+- `test-files.mdc` - Testing standards (**/*.{test,spec}.{ts,tsx})
+
+### Agent-Requested (semantic)
+- `quality-gates.mdc` - Performance and coverage standards
+
+### Manual (Applied when explicitly mentioned)
+- `documentation-standards.mdc` - General documentation guidelines
+
+## Core Principles
+
+1. **MVP-First Approach**: All complex tasks (>2 hours estimated) require MVP documentation before implementation
+2. **TDD Mandatory**: Every feature follows RED → GREEN → REFACTOR cycle
+3. **Vertical Slices**: Complete user value delivery (UI + Logic + Data + Tests)
+4. **Quality Gates**: ≥90% test coverage, ≥90 Lighthouse PWA score
+5. **Real-time Documentation**: MVP docs updated with actual progress and metrics
+
+## Success Metrics
+
+- Test Coverage: ≥90% for new features, 100% for critical workflows
+- Performance: <2s load times, ≥90 Lighthouse scores
+- Documentation: Real-time updates with embedded test results
+- TDD Compliance: Mandatory cycle completion for all features

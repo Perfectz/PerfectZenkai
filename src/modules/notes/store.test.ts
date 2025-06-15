@@ -1,11 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useNotesStore } from './store'
-import { notesRepo } from './repo'
+import { hybridNotesRepo } from './repo'
 import { Note } from './types'
+
+// Mock the auth store
+vi.mock('@/modules/auth', () => ({
+  useAuthStore: {
+    getState: vi.fn(() => ({ user: { id: 'test-user-id' } })),
+  },
+}))
 
 // Mock the notes repository
 vi.mock('./repo', () => ({
-  notesRepo: {
+  hybridNotesRepo: {
     addNote: vi.fn(),
     updateNote: vi.fn(),
     deleteNote: vi.fn(),
@@ -15,7 +22,7 @@ vi.mock('./repo', () => ({
   },
 }))
 
-const mockNotesRepo = vi.mocked(notesRepo)
+const mockNotesRepo = vi.mocked(hybridNotesRepo)
 
 describe('Notes Store', () => {
   beforeEach(() => {
@@ -51,13 +58,13 @@ describe('Notes Store', () => {
         updatedAt: '2024-01-15T10:00:00.000Z',
       })
 
-      // Should call repo with note without id
+      // Should call repo with note without id and userId
       expect(mockNotesRepo.addNote).toHaveBeenCalledWith({
         title: 'Test Note',
         content: 'Test content',
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
-      })
+      }, 'test-user-id')
 
       // Should update store with new note
       const state = useNotesStore.getState()
@@ -107,10 +114,10 @@ describe('Notes Store', () => {
 
       await updateNote('test-id', { title: 'Updated Note' })
 
-      // Should call repo with correct id and updates
+      // Should call repo with correct id, updates, and userId
       expect(mockNotesRepo.updateNote).toHaveBeenCalledWith('test-id', {
         title: 'Updated Note',
-      })
+      }, 'test-user-id')
 
       // Should update note in store
       const state = useNotesStore.getState()
@@ -155,8 +162,8 @@ describe('Notes Store', () => {
 
       await deleteNote('test-id')
 
-      // Should call repo with correct id
-      expect(mockNotesRepo.deleteNote).toHaveBeenCalledWith('test-id')
+      // Should call repo with correct id and userId
+      expect(mockNotesRepo.deleteNote).toHaveBeenCalledWith('test-id', 'test-user-id')
 
       // Should remove note from store
       const state = useNotesStore.getState()
@@ -204,7 +211,7 @@ describe('Notes Store', () => {
 
       await loadNotes()
 
-      expect(mockNotesRepo.getAllNotes).toHaveBeenCalled()
+      expect(mockNotesRepo.getAllNotes).toHaveBeenCalledWith('test-user-id')
 
       const state = useNotesStore.getState()
       expect(state.notes).toEqual(mockNotes)
@@ -245,7 +252,7 @@ describe('Notes Store', () => {
 
       await hydrate()
 
-      expect(mockNotesRepo.getAllNotes).toHaveBeenCalled()
+      expect(mockNotesRepo.getAllNotes).toHaveBeenCalledWith('test-user-id')
 
       const state = useNotesStore.getState()
       expect(state.notes).toEqual(mockNotes)

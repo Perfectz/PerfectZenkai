@@ -1,5 +1,158 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# MVP Documentation Standards
+
+## When to Create MVP Documentation
+
+**MANDATORY for any task that:**
+- Estimated effort >2 hours
+- Involves multiple components/modules
+- Requires user-facing changes
+- Implements new features or significant enhancements
+
+## MVP Document Structure (Required Sections)
+
+### 1. Header & Status
+```markdown
+# MVP X — [Feature Name]
+
+**Status:** [🔄 In Progress | ✅ Complete | ❌ Blocked]
+**Sprint:** [Sprint Theme]
+**Estimated Effort:** [X-Y hours (including TDD time)]
+**Dependencies:** [Previous MVPs or external dependencies]
+**Last Updated:** [YYYY-MM-DD]
+**TDD Progress:** RED [❌|✅] | GREEN [❌|✅] | REFACTOR [❌|✅]
+```
+
+### 2. Sprint Overview
+- Clear success criteria (measurable, testable)
+- Vertical slice definition (complete user journey)
+- Slice components breakdown (UI + Logic + Data + Types + Tests)
+
+### 3. User Stories & Tasks
+For each task:
+- Priority (P0/P1/P2)
+- Story points
+- Status with TDD phase tracking
+- User story format
+- Detailed acceptance criteria
+- Comprehensive test plan (Unit/Integration/Component/E2E)
+- TDD implementation results with actual code snippets
+- Technical details and performance requirements
+- Definition of done checklist
+
+### 4. Design Decisions
+- Document all significant technical decisions
+- Include alternatives considered
+- Explain rationale and trade-offs
+- Note test impact and future implications
+
+### 5. Progress Tracking
+- Sprint velocity metrics
+- Task status table with TDD phases
+- Test metrics table (coverage, performance)
+- Quality gates checklist
+
+### 6. Sprint Retrospective
+- What went well (TDD successes, vertical slice benefits)
+- What could be improved (challenges, process improvements)
+- Action items with assignments
+- TDD metrics analysis (time distribution, quality impact)
+
+### 7. Test Results & Coverage
+- Test execution summary with actual commands
+- Coverage report with detailed breakdown
+- Performance metrics (Lighthouse scores, load times)
+
+## Implementation Workflow
+
+### Before Starting Any Complex Task:
+
+1. **Create MVP Document First**
+   - Use `docs/mvp-5-offline-polish.md` as template
+   - Define clear success criteria
+   - Break down into vertical slices
+   - Estimate story points and hours
+
+2. **Plan TDD Approach**
+   - Write test plan for each task
+   - Define acceptance criteria as testable requirements
+   - Plan RED → GREEN → REFACTOR phases
+
+3. **Get User Confirmation**
+   - Present MVP document for review
+   - Confirm scope and approach
+   - Adjust based on feedback
+
+### During Implementation:
+
+1. **Update TDD Progress**
+   - Mark RED/GREEN/REFACTOR phases as completed
+   - Include actual code snippets from each phase
+   - Document any deviations or learnings
+
+2. **Track Metrics**
+   - Update test coverage in real-time
+   - Record actual vs estimated hours
+   - Monitor quality gate compliance
+
+3. **Document Decisions**
+   - Add design decisions as they're made
+   - Include rationale and alternatives considered
+   - Note impact on testing strategy
+
+### After Completion:
+
+1. **Final Updates**
+   - Complete retrospective section
+   - Add final test results and coverage
+   - Include performance metrics
+   - Update status to ✅ Complete
+
+2. **Quality Verification**
+   - Ensure all quality gates passed
+   - Verify TDD cycle completion
+   - Confirm test coverage thresholds met
+
+## Quality Standards
+
+### Documentation Quality
+- Clear, actionable acceptance criteria
+- Comprehensive test plans with specific test types
+- Real code snippets showing TDD phases
+- Actual metrics and performance data
+- Honest retrospective with actionable improvements
+
+### Technical Quality
+- All tasks follow TDD cycle completely
+- Test coverage ≥90% for new features
+- Performance benchmarks met
+- E2E workflows verified
+- Mobile UX tested on actual devices
+
+### Process Quality
+- MVP document created before implementation
+- Real-time updates during development
+- Comprehensive retrospective completed
+- Action items assigned and tracked
+- Lessons learned documented for future MVPs
+
+## Template Usage
+
+When creating MVP documentation:
+1. Copy the structure from `docs/mvp-5-offline-polish.md` as the gold standard
+2. Adapt sections based on task complexity
+3. Ensure all required sections are included
+4. Use consistent formatting and terminology
+5. Include actual data, not placeholder text
+
+## Integration with Development
+
+- MVP documents live in `docs/` directory
+- Named as `mvp-X-feature-name.md`
+- Referenced in commit messages and PRs
+- Updated in real-time during development
+- Used for sprint planning and retrospectives

@@ -83,7 +83,7 @@ export function MealEntryForm() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && foodName.trim() && calories.trim()) {
-      handleSubmit(e as any)
+      handleSubmit(e as React.FormEvent)
     }
   }
 

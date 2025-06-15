@@ -1,5 +1,61 @@
 ---
-description:
-globs:
+description: Performance and coverage standards
+globs: 
 alwaysApply: false
 ---
+# Quality Gates
+
+USE WHEN: Performance optimization, production deployment, or quality assessment needed.
+
+## Test Coverage Gates
+- **New Features**: ≥90% coverage required
+- **Critical Workflows**: 100% coverage required  
+- **Bug Fixes**: Must include regression tests
+- **Refactoring**: Coverage cannot decrease
+
+## Performance Gates
+- **Bundle Size**: <2MB total, <100KB per module
+- **Load Times**: <2s on 3G, <1s on fast connection
+- **Lighthouse Scores**: ≥90 for Performance, PWA, Accessibility
+- **Runtime Performance**: <16ms component renders
+
+## Code Quality Gates
+- **TypeScript**: No 'any' types in production code
+- **Linting**: Zero ESLint errors, warnings acceptable
+- **Console Logs**: Removed from production builds
+- **Error Handling**: All async operations have error handling
+
+## Testing Gates
+- **TDD Compliance**: All features follow RED→GREEN→REFACTOR
+- **Test Types**: Unit, Integration, Component, E2E all present
+- **Test Performance**: <30s full suite, <100ms individual tests
+- **E2E Coverage**: All critical user workflows tested
+
+## Documentation Gates
+- **MVP Documentation**: Required for complex tasks (>2 hours)
+- **API Documentation**: All public interfaces documented
+- **README Updates**: Module changes update documentation
+- **Architecture Decisions**: Significant decisions recorded
+
+## Deployment Gates
+- **All Tests Passing**: No failing tests in CI/CD
+- **Performance Benchmarks**: Lighthouse scores maintained
+- **Security Scan**: No high/critical vulnerabilities
+- **Accessibility**: WCAG 2.1 AA compliance verified
+
+## Quality Verification Commands
+```bash
+# Test coverage check
+npm run test:coverage
+
+# Performance audit
+npm run lighthouse
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# E2E test suite
+npm run test:e2e

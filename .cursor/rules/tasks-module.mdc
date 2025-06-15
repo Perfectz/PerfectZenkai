@@ -1,5 +1,91 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Tasks Module Standards
+
+## Domain Model
+```typescript
+interface Todo {
+  id: string;
+  summary: string;  // Not 'title'
+  done: boolean;    // Not 'completed'
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## Store Patterns
+```typescript
+// Hybrid repository with offline-first + cloud sync
+export interface TodoStore {
+  todos: Todo[];
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  addTodo: (summary: string) => Promise<void>;
+  updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
+  deleteTodo: (id: string) => Promise<void>;
+  
+  // Sync operations
+  syncWithCloud: () => Promise<void>;
+  getOfflineChanges: () => Todo[];
+}
+```
+
+## Component Patterns
+```typescript
+// Enhanced row component pattern
+export function EnhancedTodoRow({ todo, onUpdate, onDelete }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  
+  return (
+    <div className="todo-row">
+      {isEditing ? (
+        <TodoEditForm 
+          todo={todo} 
+          onSave={onUpdate} 
+          onCancel={() => setIsEditing(false)} 
+        />
+      ) : (
+        <TodoDisplay 
+          todo={todo} 
+          onEdit={() => setIsEditing(true)} 
+          onDelete={onDelete} 
+        />
+      )}
+    </div>
+  );
+}
+```
+
+## Logging Standards
+```typescript
+// Conditional development logging
+const log = process.env.NODE_ENV === 'development' ? console.log : () => {};
+
+// Structured error logging
+const logError = (context: string, error: Error, metadata?: object) => {
+  console.error(`[${context}]`, error.message, { error, ...metadata });
+};
+```
+
+## Error Handling
+```typescript
+// Graceful degradation for offline scenarios
+try {
+  await syncWithCloud();
+} catch (error) {
+  logError('TodoSync', error);
+  // Continue with offline data
+  return getOfflineTodos();
+}
+```
+
+## Quality Standards
+- Remove all console.log statements before production
+- Replace TypeScript 'any' with proper types
+- Ensure offline-first functionality
+- Test both online and offline scenarios

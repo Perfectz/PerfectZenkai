@@ -1,5 +1,90 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
+# Architecture Standards
+
+## Vertical Slice Architecture
+
+**Every feature MUST be implemented as a complete vertical slice:**
+
+### Slice Components (All Required)
+```
+Feature Slice:
+├── 🎨 UI Layer (React components)
+├── 🧠 Business Logic (hooks, services)
+├── 💾 Data Layer (stores, API calls)
+├── 🔧 Type Safety (TypeScript interfaces)
+└── 🧪 Test Coverage (all layers tested)
+```
+
+### Module Structure
+```
+src/modules/[feature]/
+├── components/          # UI components
+├── hooks/              # Business logic hooks
+├── services/           # Data services
+├── stores/             # State management
+├── types/              # TypeScript definitions
+├── pages/              # Route components
+├── __tests__/          # Test files
+└── index.ts            # Public API
+```
+
+## Module Isolation Rules
+
+### 1. Clear Boundaries
+- Each module has single responsibility
+- Modules communicate through well-defined interfaces
+- No direct imports between module internals
+- Public API exported through index.ts
+
+### 2. Component Hierarchy
+```typescript
+// Page Component (Route level)
+export function TodoPage() {
+  return (
+    <PageLayout>
+      <TodoList />
+    </PageLayout>
+  );
+}
+
+// Container Component (Business logic)
+export function TodoList() {
+  const { todos, addTodo } = useTodos();
+  return <TodoListView todos={todos} onAdd={addTodo} />;
+}
+
+// Presentation Component (Pure UI)
+export function TodoListView({ todos, onAdd }) {
+  return (
+    <div>
+      {todos.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+    </div>
+  );
+}
+```
+
+### 3. State Management
+```typescript
+// Feature-specific store
+export interface TodoStore {
+  // State
+  todos: Todo[];
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  addTodo: (todo: CreateTodoRequest) => Promise<void>;
+  updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
+  deleteTodo: (id: string) => Promise<void>;
+}
+```
+
+## Performance Standards
+- Individual modules: <100KB
+- Component render time: <16ms
+- State updates: <100ms
+- Bundle splitting at route level

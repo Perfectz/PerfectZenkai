@@ -1,3 +1,5 @@
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
@@ -173,11 +175,11 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         acc[type].duration += workout.duration
         acc[type].calories += workout.calories || 0
         return acc
-      }, {} as any)
+      }, {} as Record<string, { count: number; duration: number; calories: number }>)
       
       // Find favorite exercise type
       const favoriteExerciseType = Object.entries(exerciseTypeBreakdown)
-        .sort(([,a], [,b]) => (b as any).count - (a as any).count)[0]?.[0] || 'cardio'
+        .sort(([,a], [,b]) => b.count - a.count)[0]?.[0] || 'cardio'
       
       // Weekly progress
       const weekStart = new Date()
@@ -207,7 +209,7 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         currentStreak,
         longestStreak,
         averageIntensity: avgIntensity,
-        favoriteExerciseType: favoriteExerciseType as any,
+        favoriteExerciseType: favoriteExerciseType as 'cardio' | 'strength' | 'flexibility' | 'sports',
         weeklyGoal: 150, // Default WHO recommendation
         weeklyProgress,
         monthlyStats,

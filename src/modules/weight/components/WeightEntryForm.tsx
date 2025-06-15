@@ -66,7 +66,7 @@ export function WeightEntryForm() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && weight.trim()) {
-      handleSubmit(e as any)
+      handleSubmit(e as React.FormEvent)
     }
   }
 

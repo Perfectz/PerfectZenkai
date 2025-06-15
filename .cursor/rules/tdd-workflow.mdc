@@ -1,5 +1,88 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
+# TDD Workflow - Mandatory Process
+
+## Core TDD Cycle
+
+**EVERY feature MUST follow this exact cycle:**
+
+### 🔴 RED Phase - Write Failing Tests First
+```typescript
+// 1. Write comprehensive test suite BEFORE any implementation
+describe('Feature Name', () => {
+  test('should handle primary use case', () => {
+    expect(implementation()).toBe(expectedResult);
+  });
+  
+  test('should handle edge cases', () => {
+    // Test boundary conditions
+  });
+  
+  test('should handle error scenarios', () => {
+    // Test error handling
+  });
+});
+
+// 2. Run tests - they MUST fail
+npm run test -- --watch
+// ❌ All tests should fail initially
+```
+
+**RED Phase Requirements:**
+- Write tests for ALL acceptance criteria
+- Include unit, integration, component, and E2E tests
+- Tests must fail for the right reasons
+- Document test plan in MVP documentation
+
+### 🟢 GREEN Phase - Minimal Implementation
+```typescript
+// 3. Write MINIMAL code to make tests pass
+function implementation() {
+  // Simplest possible implementation
+  return expectedResult;
+}
+
+// 4. Run tests - they MUST pass
+npm run test
+// ✅ All tests should pass
+```
+
+**GREEN Phase Requirements:**
+- Write minimal code to pass tests
+- No premature optimization
+- All tests must pass before moving to REFACTOR
+
+### 🔵 REFACTOR Phase - Clean & Optimize
+```typescript
+// 5. Improve code quality while keeping tests green
+function implementation() {
+  // Clean, optimized, maintainable implementation
+  return calculateResult();
+}
+
+// 6. Run tests after each refactor
+npm run test
+// ✅ Tests must remain green throughout refactoring
+```
+
+**REFACTOR Phase Requirements:**
+- Improve code quality, readability, performance
+- Extract functions, remove duplication
+- Add proper error handling and logging
+- Tests must stay green throughout
+
+## Integration with MVP Documentation
+
+### During Development
+1. **Update MVP Doc**: Mark TDD phases as completed (RED ✅ | GREEN ✅ | REFACTOR ✅)
+2. **Include Code Snippets**: Add actual implementation examples from each phase
+3. **Document Learnings**: Note any deviations or insights gained
+
+## Quality Gates
+- **New Features**: ≥90% coverage
+- **Critical Workflows**: 100% coverage
+- **Test Execution**: <30 seconds for full suite
+- **Individual Tests**: <100ms average
