@@ -4,6 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile Design Tokens */
+@import './styles/mobile-tokens.css';
+
 @layer base {
   :root {
     /* Perfect Zenkai Cyber Theme - Style Guide Colors */

@@ -8,6 +8,7 @@ import { useWeightActions } from '../hooks/useWeightActions'
 import { useWeightStore } from '../store'
 import { Badge } from '@/shared/ui/badge'
 import { lbsToKg } from '../types'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function WeightEntryForm() {
   const [date, setDate] = useState(() => {
@@ -20,6 +21,15 @@ export function WeightEntryForm() {
 
   const { isLoading } = useWeightStore()
   const { addWeight } = useWeightActions()
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const submitButtonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+    scale: 0.95, 
+    haptic: true,
+    disabled: isLoading || !weight.trim()
+  })
+  const expandButtonFeedback = useTouchFeedback<HTMLButtonElement>({ scale: 0.9 })
 
   const validateForm = () => {
     const newErrors: { date?: string; weight?: string } = {}
@@ -74,16 +84,16 @@ export function WeightEntryForm() {
   const isToday = date === todayISO
 
   return (
-    <Card className="cyber-card">
-      <CardHeader>
-        <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green">
+    <Card className="cyber-card mobile-card mobile-responsive">
+      <CardHeader className="mobile-layout">
+        <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green mobile-heading">
           <Scale className="cyber-icon h-5 w-5" />
           Log Weight Entry
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 mobile-form" role="form" data-testid="weight-entry-form">
         {/* Quick entry row - always visible */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mobile-button-group">
           <Input
             id="weight-quick"
             type="number"
@@ -97,25 +107,31 @@ export function WeightEntryForm() {
             }
             onKeyPress={handleKeyPress}
             className={`
-              flex-1 font-mono
+              flex-1 font-mono touch-target mobile-body
               focus:border-ki-green focus:ring-ki-green/20 border-gray-600 bg-gray-900 text-white
               ${errors.weight ? 'border-red-500' : ''}
             `}
             disabled={isLoading}
+            aria-label="Weight in pounds"
           />
           <Button
+            ref={expandButtonFeedback.elementRef}
             onClick={() => setIsExpanded(!isExpanded)}
             variant="outline"
             size="icon"
-            className={`border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 ${isExpanded ? 'bg-gray-800' : ''}`}
+            className={`touch-target border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 ${isExpanded ? 'bg-gray-800' : ''} ${isMobile ? 'galaxy-s24-ultra-touch' : ''}`}
             title="Date options"
+            aria-label="Date options"
           >
             <Calendar className="h-4 w-4" />
           </Button>
           <Button
+            ref={submitButtonFeedback.elementRef}
             onClick={handleSubmit}
             variant="cyber-ki"
             disabled={isLoading || !weight.trim()}
+            className={`touch-target-comfortable ${isMobile ? 'galaxy-s24-ultra-touch' : ''}`}
+            aria-label="Add weight entry"
           >
             <Plus className="mr-2 h-4 w-4" />
             {isLoading ? 'LOGGING...' : 'LOG'}
@@ -129,9 +145,9 @@ export function WeightEntryForm() {
 
         {/* Date selection - expandable */}
         {isExpanded && (
-          <div className="space-y-3 border-t border-gray-700 pt-4">
+          <div className="space-y-3 border-t border-gray-700 pt-4 mobile-layout">
             <div className="space-y-2">
-              <Label htmlFor="date" className="cyber-label text-gray-300">
+              <Label htmlFor="date" className="cyber-label text-gray-300 mobile-body">
                 Entry Date
               </Label>
               <Input
@@ -142,24 +158,27 @@ export function WeightEntryForm() {
                   setDate(e.target.value)
                 }
                 className={`
+                  touch-target mobile-body
                   focus:border-ki-green focus:ring-ki-green/20 border-gray-600
                   bg-gray-900 text-white
                   ${errors.date ? 'border-red-500' : ''}
                 `}
+                aria-label="Entry date"
               />
               {errors.date && (
-                <p className="font-mono text-sm text-red-400">{errors.date}</p>
+                <p className="font-mono text-sm text-red-400 mobile-small">{errors.date}</p>
               )}
             </div>
 
             {/* Quick date buttons */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mobile-button-group">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setDate(todayISO)}
-                className={`border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 ${isToday ? 'bg-gray-800 text-ki-green' : ''}`}
+                className={`touch-target border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 ${isToday ? 'bg-gray-800 text-ki-green' : ''}`}
+                aria-label="Set date to today"
               >
                 Today
               </Button>
@@ -172,7 +191,8 @@ export function WeightEntryForm() {
                   yesterday.setDate(yesterday.getDate() - 1)
                   setDate(yesterday.toISOString().split('T')[0])
                 }}
-                className="border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800"
+                className="touch-target border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800"
+                aria-label="Set date to yesterday"
               >
                 Yesterday
               </Button>

@@ -88,19 +88,19 @@ export function WeightEditForm({ entry, onCancel, onSave }: WeightEditFormProps)
   }
 
   return (
-    <Card className="cyber-card border-ki-green/50">
-      <CardHeader className="pb-3">
-        <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green text-sm">
+    <Card className="cyber-card border-ki-green/50 mobile-card mobile-responsive">
+      <CardHeader className="pb-3 mobile-layout">
+        <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green text-sm mobile-heading">
           <Scale className="cyber-icon h-4 w-4" />
           Edit Weight Entry
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 mobile-form" data-testid="weight-edit-form">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Date input */}
           <div className="space-y-2">
-            <Label htmlFor="edit-date" className="cyber-label text-gray-300 text-xs">
+            <Label htmlFor="edit-date" className="cyber-label text-gray-300 text-xs mobile-small">
               Entry Date
             </Label>
             <Input
@@ -112,20 +112,22 @@ export function WeightEditForm({ entry, onCancel, onSave }: WeightEditFormProps)
               }
               onKeyPress={handleKeyPress}
               className={`
+                touch-target mobile-body
                 focus:border-ki-green focus:ring-ki-green/20 border-gray-600
                 bg-gray-900 text-white text-sm
                 ${errors.date ? 'border-red-500' : ''}
               `}
               disabled={isLoading}
+              aria-label="Entry date"
             />
             {errors.date && (
-              <p className="font-mono text-xs text-red-400">{errors.date}</p>
+              <p className="font-mono text-xs text-red-400 mobile-small">{errors.date}</p>
             )}
           </div>
 
           {/* Weight input */}
           <div className="space-y-2">
-            <Label htmlFor="edit-weight" className="cyber-label text-gray-300 text-xs">
+            <Label htmlFor="edit-weight" className="cyber-label text-gray-300 text-xs mobile-small">
               Weight (lbs)
             </Label>
             <Input
@@ -141,15 +143,17 @@ export function WeightEditForm({ entry, onCancel, onSave }: WeightEditFormProps)
               }
               onKeyPress={handleKeyPress}
               className={`
-                font-mono focus:border-ki-green focus:ring-ki-green/20 border-gray-600 
+                font-mono touch-target mobile-body
+                focus:border-ki-green focus:ring-ki-green/20 border-gray-600 
                 bg-gray-900 text-white text-sm
                 ${errors.weight ? 'border-red-500' : ''}
               `}
               disabled={isLoading}
               autoFocus
+              aria-label="Weight in pounds"
             />
             {errors.weight && (
-              <p className="font-mono text-xs text-red-400">{errors.weight}</p>
+              <p className="font-mono text-xs text-red-400 mobile-small">{errors.weight}</p>
             )}
           </div>
 
@@ -177,13 +181,14 @@ export function WeightEditForm({ entry, onCancel, onSave }: WeightEditFormProps)
           )}
 
           {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-2 mobile-button-group">
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
-              className="flex-1 border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 text-sm h-8"
+              className="flex-1 touch-target border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 text-sm"
               disabled={isLoading}
+              aria-label="Cancel editing"
             >
               <X className="mr-1 h-3 w-3" />
               Cancel
@@ -191,8 +196,9 @@ export function WeightEditForm({ entry, onCancel, onSave }: WeightEditFormProps)
             <Button
               type="submit"
               variant="cyber-ki"
-              className="flex-1 text-sm h-8"
+              className="flex-1 touch-target text-sm"
               disabled={isLoading || !hasChanges()}
+              aria-label="Save changes"
             >
               <Save className="mr-1 h-3 w-3" />
               {isLoading ? 'SAVING...' : 'SAVE'}

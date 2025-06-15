@@ -72,17 +72,18 @@ export function WeightPeriodView({ period, onClose }: WeightPeriodViewProps) {
   }
 
   return (
-    <Card className="cyber-card border-ki-green/30">
-      <CardHeader className="pb-3">
+    <Card className="cyber-card border-ki-green/30 mobile-card mobile-responsive" data-testid="period-view-container">
+      <CardHeader className="pb-3 mobile-layout">
         <div className="flex items-center justify-between">
-          <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green">
+          <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green mobile-heading">
             <Calendar className="cyber-icon h-5 w-5" />
             Last {period} Days
           </CardTitle>
           {onClose && (
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-200 text-lg font-bold"
+              className="text-gray-400 hover:text-gray-200 text-lg font-bold touch-target"
+              aria-label="Close period view"
             >
               ✕
             </button>
@@ -90,34 +91,34 @@ export function WeightPeriodView({ period, onClose }: WeightPeriodViewProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 mobile-form">
         {/* Period Summary */}
         {analytics && (
-          <div className="cyber-card bg-gray-900/50 p-3 rounded-lg">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="gradient-text-ki metric-display text-lg font-bold">
+          <div className="cyber-card bg-gray-900/50 p-3 rounded-lg mobile-card">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mobile-grid">
+              <div className="mobile-card">
+                <div className="gradient-text-ki metric-display text-lg font-bold mobile-large">
                   {analytics.entryCount}
                 </div>
-                <div className="font-mono text-xs text-gray-400">Entries</div>
+                <div className="font-mono text-xs text-gray-400 mobile-caption">Entries</div>
               </div>
-              <div>
-                <div className="gradient-text-cyan metric-display text-lg font-bold">
+              <div className="mobile-card">
+                <div className="gradient-text-cyan metric-display text-lg font-bold mobile-large">
                   {kgToLbs(analytics.averageWeight).toFixed(1)}lbs
                 </div>
-                <div className="font-mono text-xs text-gray-400">Average</div>
+                <div className="font-mono text-xs text-gray-400 mobile-caption">Average</div>
               </div>
-              <div>
-                <div className={`metric-display text-lg font-bold ${getTrendColor(analytics.change)}`}>
+              <div className="mobile-card">
+                <div className={`metric-display text-lg font-bold mobile-large ${getTrendColor(analytics.change)}`}>
                   {analytics.change >= 0 ? '+' : ''}{kgToLbs(analytics.change).toFixed(1)}lbs
                 </div>
-                <div className="font-mono text-xs text-gray-400">Change</div>
+                <div className="font-mono text-xs text-gray-400 mobile-caption">Change</div>
               </div>
-              <div>
+              <div className="mobile-card">
                 <div className="flex items-center justify-center">
                   {getTrendIcon(analytics.change)}
                 </div>
-                <div className="font-mono text-xs text-gray-400">Trend</div>
+                <div className="font-mono text-xs text-gray-400 mobile-caption">Trend</div>
               </div>
             </div>
 
@@ -136,19 +137,21 @@ export function WeightPeriodView({ period, onClose }: WeightPeriodViewProps) {
 
         {/* Weight Entries */}
         {periodWeights.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-3 mobile-layout">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-300">
+              <h4 className="text-sm font-medium text-gray-300 mobile-body">
                 Weight Entries ({periodWeights.length})
               </h4>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs mobile-caption">
                 Tap to edit
               </Badge>
             </div>
             
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+            <div className="space-y-2 max-h-80 overflow-y-auto mobile-scroll" data-testid="entries-scroll-container">
               {periodWeights.map((weight) => (
-                <WeightRow key={weight.id} entry={weight} />
+                <div key={weight.id} data-testid={`weight-entry-${weight.id}`} className="mobile-card">
+                  <WeightRow entry={weight} />
+                </div>
               ))}
             </div>
           </div>

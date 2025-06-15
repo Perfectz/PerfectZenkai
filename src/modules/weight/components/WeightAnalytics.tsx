@@ -125,76 +125,82 @@ export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyti
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mobile-responsive">
       {/* Overview Stats */}
-      <Card className="cyber-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green">
+      <Card className="cyber-card mobile-card">
+        <CardHeader className="pb-3 mobile-layout">
+          <CardTitle className="cyber-subtitle flex items-center gap-2 text-ki-green mobile-heading">
             <BarChart3 className="cyber-icon h-5 w-5" />
             Weight Analytics
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="gradient-text-ki metric-display text-2xl font-bold">
+        <CardContent data-testid="analytics-container" className="mobile-stack">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mobile-grid">
+            <div className="text-center mobile-card">
+              <div className="gradient-text-ki metric-display text-2xl font-bold mobile-large">
                 {kgToLbs(analytics.currentWeight).toFixed(1)}
               </div>
-              <div className="font-mono text-xs text-gray-400">Current (lbs)</div>
+              <div className="font-mono text-xs text-gray-400 mobile-caption">Current (lbs)</div>
             </div>
-            <div className="text-center">
-              <div className={`metric-display text-2xl font-bold ${getTrendColor(analytics.totalChange)}`}>
+            <div className="text-center mobile-card">
+              <div className={`metric-display text-2xl font-bold mobile-large ${getTrendColor(analytics.totalChange)}`}>
                 {analytics.totalChange >= 0 ? '+' : ''}{kgToLbs(analytics.totalChange).toFixed(1)}
               </div>
-              <div className="font-mono text-xs text-gray-400">Total Change</div>
+              <div className="font-mono text-xs text-gray-400 mobile-caption">Total Change</div>
             </div>
-            <div className="text-center">
-              <div className="gradient-text-magenta metric-display text-2xl font-bold">
+            <div className="text-center mobile-card">
+              <div className="gradient-text-magenta metric-display text-2xl font-bold mobile-large">
                 {analytics.streak}
               </div>
-              <div className="font-mono text-xs text-gray-400">Day Streak</div>
+              <div className="font-mono text-xs text-gray-400 mobile-caption">Day Streak</div>
             </div>
-            <div className="text-center">
-              <div className="gradient-text-cyan metric-display text-2xl font-bold">
+            <div className="text-center mobile-card">
+              <div className="gradient-text-cyan metric-display text-2xl font-bold mobile-large">
                 {analytics.totalEntries}
               </div>
-              <div className="font-mono text-xs text-gray-400">Total Entries</div>
+              <div className="font-mono text-xs text-gray-400 mobile-caption">Total Entries</div>
             </div>
           </div>
 
           {/* Trend indicators - Now clickable */}
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 mobile-grid">
             <button
               onClick={() => setSelectedPeriod(selectedPeriod === 7 ? null : 7)}
-              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] ${
+              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] touch-friendly ${
                 selectedPeriod === 7 ? 'ring-2 ring-ki-green/50 bg-ki-green/10' : ''
               }`}
+              role="button"
+              data-testid="trend-card-7"
+              aria-label="View 7-day weight trend"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {getTrendIcon(analytics.weeklyChange)}
-                  <span className="font-mono text-sm text-gray-300">7 Days</span>
+                  <span className="font-mono text-sm text-gray-300 mobile-small">7 Days</span>
                 </div>
-                <div className={`font-mono text-sm font-semibold ${getTrendColor(analytics.weeklyChange)}`}>
+                <div className={`font-mono text-sm font-semibold mobile-small ${getTrendColor(analytics.weeklyChange)}`}>
                   {analytics.weeklyChange >= 0 ? '+' : ''}{kgToLbs(analytics.weeklyChange).toFixed(1)}lbs
                 </div>
               </div>
-              <div className="mt-1 text-xs text-gray-500 text-center">
+              <div className="mt-1 text-xs text-gray-500 text-center mobile-caption">
                 Click to view entries
               </div>
             </button>
             <button
               onClick={() => setSelectedPeriod(selectedPeriod === 30 ? null : 30)}
-              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] ${
+              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] touch-friendly ${
                 selectedPeriod === 30 ? 'ring-2 ring-ki-green/50 bg-ki-green/10' : ''
               }`}
+              role="button"
+              data-testid="trend-card-30"
+              aria-label="View 30-day weight trend"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {getTrendIcon(analytics.monthlyChange)}
-                  <span className="font-mono text-sm text-gray-300">30 Days</span>
+                  <span className="font-mono text-sm text-gray-300 mobile-small">30 Days</span>
                 </div>
-                <div className={`font-mono text-sm font-semibold ${getTrendColor(analytics.monthlyChange)}`}>
+                <div className={`font-mono text-sm font-semibold mobile-small ${getTrendColor(analytics.monthlyChange)}`}>
                   {analytics.monthlyChange >= 0 ? '+' : ''}{kgToLbs(analytics.monthlyChange).toFixed(1)}lbs
                 </div>
               </div>
