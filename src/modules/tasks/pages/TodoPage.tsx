@@ -3,7 +3,7 @@ import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
-import { Plus, Filter, Layout, Calendar, AlertCircle, FileText, Star } from 'lucide-react'
+import { Plus, Filter, Calendar, AlertCircle, FileText, Star, CheckSquare } from 'lucide-react'
 import { useTasksStore } from '../store'
 import EnhancedTodoRow from '../components/EnhancedTodoRow'
 import { PointSelector, EnhancedDatePicker, RichTextEditor } from '../components/rich-content'
@@ -15,7 +15,6 @@ import {
   sortTodosByPriority,
   sortTodosByDueDate,
 } from '../utils'
-import { Progress } from '@/shared/ui/progress'
 
 export default function TodoPage() {
   const [inputValue, setInputValue] = useState('')
@@ -43,7 +42,6 @@ export default function TodoPage() {
     loadTemplates,
     createTodoFromTemplate,
     getOverdueTodos,
-    getPointsStats,
     isLoading,
   } = useTasksStore()
 
@@ -139,18 +137,24 @@ export default function TodoPage() {
     }
   }
 
-  // Get points statistics
-  const pointsStats = getPointsStats()
+  // Get points statistics (unused for now)
+  // const pointsStats = getPointsStats()
 
   return (
-    <div className="container mx-auto space-y-6 px-4 pb-24 pt-4">
-      {/* Overdue Tasks Alert */}
+    <div className="space-y-4 sm:space-y-6">
+      {/* Page Header - Mobile optimized */}
+      <div className="space-y-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Tasks</h1>
+        <p className="text-sm text-gray-400">Manage your daily tasks and goals</p>
+      </div>
+
+      {/* Overdue Tasks Alert - Mobile optimized */}
       {overdueTodos.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
           <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-red-700">
-              <AlertCircle className="h-4 w-4" />
-              <span className="font-medium">
+            <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <span className="font-medium text-sm">
                 {overdueTodos.length} overdue task
                 {overdueTodos.length > 1 ? 's' : ''}
               </span>
@@ -159,36 +163,36 @@ export default function TodoPage() {
         </Card>
       )}
 
-      {/* Points Summary Dashboard */}
+      {/* Points Summary Dashboard - Mobile optimized */}
       {todos.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="grid grid-cols-3 gap-4 w-full sm:w-auto">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-700">
+                  <p className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {todos.filter(t => t.done).reduce((sum, t) => sum + (t.points || 5), 0)}
                   </p>
-                  <p className="text-xs text-blue-600">Points Earned</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Points Earned</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-700">
+                  <p className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {todos.reduce((sum, t) => sum + (t.points || 5), 0)}
                   </p>
-                  <p className="text-xs text-blue-600">Total Points</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Total Points</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-700">
+                  <p className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {incompleteTodos.reduce((sum, t) => sum + (t.points || 5), 0)}
                   </p>
-                  <p className="text-xs text-blue-600">Remaining</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Remaining</p>
                 </div>
               </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-blue-700">
+              <div className="text-center w-full sm:w-auto">
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
                   {Math.round((todos.filter(t => t.done).length / todos.length) * 100)}% Complete
                 </p>
-                <div className="mt-1 h-2 w-24 rounded-full bg-blue-200">
+                <div className="mt-1 h-2 w-full sm:w-24 rounded-full bg-blue-200 dark:bg-blue-800">
                   <div 
                     className="h-2 rounded-full bg-blue-500 transition-all"
                     style={{ width: `${(todos.filter(t => t.done).length / todos.length) * 100}%` }}
@@ -200,426 +204,305 @@ export default function TodoPage() {
         </Card>
       )}
 
-      {/* Points Dashboard */}
+      {/* Add Todo Form - Mobile optimized */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Star className="h-5 w-5 text-yellow-500" />
-            Points Dashboard
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Plus className="h-5 w-5" />
+            Add New Task
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Main input - Mobile optimized */}
+          <div className="space-y-2">
+            <Input
+              type="text"
+              placeholder="What do you need to do?"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="text-base"
+              autoComplete="off"
+            />
+          </div>
+
+          {/* Quick options - Mobile optimized grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</label>
+              <select
+                value={selectedPriority}
+                onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              >
+                                 {PRIORITIES.map((priority) => (
+                   <option key={priority.value} value={priority.value}>
+                     {priority.icon} {priority.label}
+                   </option>
+                 ))}
+               </select>
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Category</label>
+               <select
+                 value={selectedCategory}
+                 onChange={(e) => setSelectedCategory(e.target.value as Category)}
+                 className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+               >
+                 {CATEGORIES.map((category) => (
+                   <option key={category.value} value={category.value}>
+                     {category.icon} {category.label}
+                   </option>
+                 ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Points</label>
+              <PointSelector 
+                value={selectedPoints} 
+                onChange={setSelectedPoints}
+                className="text-sm"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Goal</label>
+                             <GoalSelector 
+                 value={selectedGoal}
+                 onChange={setSelectedGoal}
+               />
+            </div>
+          </div>
+
+          {/* Advanced options toggle - Mobile optimized */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex-1 sm:flex-none"
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              {showAdvanced ? 'Hide' : 'Show'} Advanced
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDescription(!showDescription)}
+              className="flex-1 sm:flex-none"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              {showDescription ? 'Hide' : 'Add'} Description
+            </Button>
+          </div>
+
+          {/* Advanced options */}
+          {showAdvanced && (
+            <div className="space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Due Date</label>
+                <EnhancedDatePicker
+                  value={dueDateTimeEnhanced}
+                  onChange={setDueDateTimeEnhanced}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Description */}
+          {showDescription && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+              <RichTextEditor
+                value={taskDescription}
+                onChange={setTaskDescription}
+                placeholder="Add task details, notes, or links..."
+                className="min-h-[100px]"
+              />
+            </div>
+          )}
+
+          {/* Add button - Mobile optimized */}
+          <Button
+            onClick={handleAddTodo}
+            className="w-full sm:w-auto min-h-[44px]"
+            disabled={!inputValue.trim() || isLoading}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Task
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Filters and Sort - Mobile optimized */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Filter className="h-5 w-5" />
+            Filters & Sort
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{pointsStats.dailyPoints}</div>
-              <div className="text-sm text-muted-foreground">Today</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</label>
+              <select
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value as Priority | 'all')}
+                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              >
+                                 <option value="all">All Priorities</option>
+                 {PRIORITIES.map((priority) => (
+                   <option key={priority.value} value={priority.value}>
+                     {priority.icon} {priority.label}
+                   </option>
+                 ))}
+               </select>
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Category</label>
+               <select
+                 value={filterCategory}
+                 onChange={(e) => setFilterCategory(e.target.value as Category | 'all')}
+                 className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+               >
+                 <option value="all">All Categories</option>
+                 {CATEGORIES.map((category) => (
+                   <option key={category.value} value={category.value}>
+                     {category.icon} {category.label}
+                   </option>
+                 ))}
+              </select>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{pointsStats.weeklyPoints}</div>
-              <div className="text-sm text-muted-foreground">This Week</div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Points</label>
+              <select
+                value={filterPoints}
+                onChange={(e) => setFilterPoints(e.target.value as 'all' | 'low' | 'medium' | 'high')}
+                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              >
+                <option value="all">All Points</option>
+                <option value="low">Low (1-3 pts)</option>
+                <option value="medium">Medium (4-7 pts)</option>
+                <option value="high">High (8+ pts)</option>
+              </select>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{pointsStats.totalPoints}</div>
-              <div className="text-sm text-muted-foreground">Total Earned</div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sort By</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'created' | 'priority' | 'dueDate' | 'points')}
+                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              >
+                <option value="created">Created Date</option>
+                <option value="priority">Priority</option>
+                <option value="dueDate">Due Date</option>
+                <option value="points">Points</option>
+              </select>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{pointsStats.completionPercentage}%</div>
-              <div className="text-sm text-muted-foreground">Completion</div>
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-muted-foreground mb-1">
-              <span>Progress</span>
-              <span>{pointsStats.totalPoints} / {pointsStats.totalPossiblePoints} points</span>
-            </div>
-            <Progress 
-              value={(pointsStats.totalPoints / pointsStats.totalPossiblePoints) * 100} 
-              className="h-2"
-            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Add New Task */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Add New Quest
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Main input */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="What needs to be done?"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={() => setShowDescription(!showDescription)}
-              variant="outline"
-              size="icon"
-              className={showDescription ? 'bg-muted' : ''}
-              title="Add description"
-            >
-              <FileText className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleAddTodo}
-              disabled={isLoading || !inputValue.trim()}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add
-            </Button>
-          </div>
-
-          {/* Essential options - Always visible */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {/* Points */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Difficulty Points (1-10)
-              </label>
-              <PointSelector
-                value={selectedPoints}
-                onChange={setSelectedPoints}
-                size="sm"
-                showLabel={false}
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Category
-              </label>
-              <div className="grid grid-cols-2 gap-1">
-                {CATEGORIES.map((category) => (
-                  <Button
-                    key={category.value}
-                    variant={
-                      selectedCategory === category.value
-                        ? 'default'
-                        : 'outline'
-                    }
-                    size="sm"
-                    onClick={() => setSelectedCategory(category.value)}
-                    className="text-xs"
-                  >
-                    <span className="mr-1">{category.icon}</span>
-                    {category.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Goal */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Link to Goal
-              </label>
-              <GoalSelector
-                value={selectedGoal}
-                onChange={setSelectedGoal}
-              />
-            </div>
-
-            {/* Due Date */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Due Date & Time
-              </label>
-              <EnhancedDatePicker
-                value={dueDateTimeEnhanced}
-                onChange={setDueDateTimeEnhanced}
-                placeholder="e.g., tomorrow 2pm"
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          {/* Priority and task summary */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium">Priority:</label>
-              <div className="flex gap-1">
-                {PRIORITIES.map((priority) => (
-                  <Button
-                    key={priority.value}
-                    variant={
-                      selectedPriority === priority.value
-                        ? 'default'
-                        : 'outline'
-                    }
-                    size="sm"
-                    onClick={() => setSelectedPriority(priority.value)}
-                  >
-                    <span className="mr-1">{priority.icon}</span>
-                    {priority.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <Button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              variant="outline"
-              size="sm"
-              className={showAdvanced ? 'bg-muted' : ''}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              {showAdvanced ? 'Hide' : 'More'} Options
-            </Button>
-          </div>
-
-          {/* Task Summary */}
-          {inputValue.trim() && (
-            <div className="rounded-lg bg-muted/50 p-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">New Task Preview:</span>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    {selectedPoints} {selectedPoints === 1 ? 'point' : 'points'}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {CATEGORIES.find(c => c.value === selectedCategory)?.icon} {CATEGORIES.find(c => c.value === selectedCategory)?.label}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {PRIORITIES.find(p => p.value === selectedPriority)?.icon} {PRIORITIES.find(p => p.value === selectedPriority)?.label}
-                  </Badge>
-                  {dueDateTimeEnhanced && (
-                    <Badge variant="outline" className="text-xs">
-                      <Calendar className="mr-1 h-3 w-3" />
-                      Due: {new Date(dueDateTimeEnhanced).toLocaleDateString()}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Description section */}
-          {showDescription && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Task Description (Optional)
-              </label>
-              <RichTextEditor
-                value={taskDescription}
-                onChange={(content) => setTaskDescription(content)}
-                placeholder="Add detailed description, notes, or instructions..."
-                minHeight={100}
-                maxLength={2000}
-              />
-            </div>
-          )}
-
-          {/* Additional advanced options */}
-          {showAdvanced && (
-            <div className="space-y-4">
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium mb-3">Additional Options</h4>
-                
-                {/* Fallback basic date picker */}
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <label className="text-sm">Basic date fallback:</label>
-                  <Input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="flex-1 max-w-xs text-xs"
-                    placeholder="Basic date fallback"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Templates */}
-          {templates.length > 0 && (
-            <div>
-              <label className="mb-2 block flex items-center gap-2 text-sm font-medium">
-                <Layout className="h-4 w-4" />
+      {/* Task Lists - Mobile optimized */}
+      <div className="space-y-4">
+        {/* Templates Section - Mobile optimized */}
+        {templates.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Star className="h-5 w-5" />
                 Quick Templates
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {templates.map((template) => (
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {templates.slice(0, 4).map((template) => (
                   <Button
                     key={template.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handleCreateFromTemplate(template.id)}
-                    className="text-xs"
+                    className="justify-start text-left h-auto py-2 px-3"
                   >
-                    {template.name}
+                                         <div className="flex items-center gap-2 w-full">
+                       <span className="text-lg">{CATEGORIES.find(c => c.value === template.category)?.icon}</span>
+                       <div className="min-w-0 flex-1">
+                         <div className="font-medium text-sm truncate">{template.text}</div>
+                         <div className="text-xs text-gray-500">
+                           {PRIORITIES.find(p => p.value === template.priority)?.label}
+                         </div>
+                       </div>
+                     </div>
                   </Button>
                 ))}
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Filters and Sorting */}
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Priority Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Priority:</span>
-              <div className="flex gap-1">
-                <Button
-                  variant={filterPriority === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterPriority('all')}
-                  className="text-xs"
-                >
-                  All
-                </Button>
-                {PRIORITIES.map((priority) => (
-                  <Button
-                    key={priority.value}
-                    variant={
-                      filterPriority === priority.value ? 'default' : 'outline'
-                    }
-                    size="sm"
-                    onClick={() => setFilterPriority(priority.value)}
-                    className="text-xs"
-                  >
-                    {priority.icon}
-                  </Button>
-                ))}
-              </div>
-            </div>
+        {/* Incomplete Tasks */}
+        {incompleteTodos.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <span className="text-lg">Active Tasks</span>
+                <Badge variant="secondary" className="text-xs">
+                  {incompleteTodos.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {incompleteTodos.map((todo) => (
+                <EnhancedTodoRow key={todo.id} todo={todo} />
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
-            {/* Category Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Category:</span>
-              <div className="flex gap-1">
-                <Button
-                  variant={filterCategory === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterCategory('all')}
-                  className="text-xs"
-                >
-                  All
-                </Button>
-                {CATEGORIES.map((category) => (
-                  <Button
-                    key={category.value}
-                    variant={
-                      filterCategory === category.value ? 'default' : 'outline'
-                    }
-                    size="sm"
-                    onClick={() => setFilterCategory(category.value)}
-                    className="text-xs"
-                  >
-                    {category.icon}
-                  </Button>
-                ))}
-              </div>
-            </div>
+        {/* Completed Tasks */}
+        {completedTodos.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <span className="text-lg">Completed Tasks</span>
+                <Badge variant="secondary" className="text-xs">
+                  {completedTodos.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {completedTodos.map((todo) => (
+                <EnhancedTodoRow key={todo.id} todo={todo} />
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
-            {/* Points Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Points:</span>
-              <div className="flex gap-1">
-                {[
-                  { value: 'all', label: 'All' },
-                  { value: 'low', label: '1-3' },
-                  { value: 'medium', label: '4-7' },
-                  { value: 'high', label: '8-10' },
-                ].map((filter) => (
-                  <Button
-                    key={filter.value}
-                    variant={filterPoints === filter.value ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterPoints(filter.value as 'all' | 'low' | 'medium' | 'high')}
-                    className="text-xs"
-                  >
-                    {filter.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sort By */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Sort:</span>
-              <div className="flex gap-1">
-                {[
-                  { value: 'created', label: 'Created' },
-                  { value: 'priority', label: 'Priority' },
-                  { value: 'dueDate', label: 'Due Date' },
-                  { value: 'points', label: 'Points' },
-                ].map((sort) => (
-                  <Button
-                    key={sort.value}
-                    variant={sortBy === sort.value ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() =>
-                      setSortBy(
-                        sort.value as 'created' | 'priority' | 'dueDate' | 'points'
-                      )
-                    }
-                    className="text-xs"
-                  >
-                    {sort.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {isLoading && <p className="text-muted-foreground">Loading...</p>}
-
-      {/* Active Tasks */}
-      {!isLoading && (
-        <>
-          {incompleteTodos.length > 0 ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Active Quests</h3>
-                <Badge variant="outline">{incompleteTodos.length}</Badge>
-              </div>
-              <div className="space-y-2">
-                {incompleteTodos.map((todo) => (
-                  <EnhancedTodoRow key={todo.id} todo={todo} />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="py-12 text-center text-muted-foreground">
-              <p className="mb-2 text-4xl">🎉</p>
-              <p className="text-lg font-medium">All quests completed!</p>
-              <p className="text-sm">Ready for new adventures?</p>
-            </div>
-          )}
-
-          {/* Completed Tasks */}
-          {completedTodos.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-muted-foreground">
-                  Completed Quests
-                </h3>
-                <Badge variant="outline">{completedTodos.length}</Badge>
-              </div>
-              <div className="space-y-2">
-                {completedTodos.map((todo) => (
-                  <EnhancedTodoRow key={todo.id} todo={todo} />
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        {/* Empty State */}
+        {todos.length === 0 && !isLoading && (
+          <Card className="text-center py-12">
+            <CardContent>
+              <CheckSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No tasks yet
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                Get started by adding your first task above
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import InstallSheet from './components/InstallSheet'
 import ForceInstallButton from './components/ForceInstallButton'
 import { ToastProvider } from '@/shared/ui/toast'
 import AuthDebugger from '@/modules/auth/components/AuthDebugger'
+// import UpdateBanner from './components/UpdateBanner' // Temporarily disabled to fix infinite loop
 
 export default function AppLayout() {
   return (
@@ -17,22 +18,29 @@ export default function AppLayout() {
         {/* Navigation Bar (includes top user bar and bottom nav) */}
         <NavigationBar />
 
-        {/* Main Content - adjusted for top and bottom bars */}
-        <main className="px-4 pb-20 pt-20">
-          <Outlet />
+        {/* Main Content - Mobile optimized with proper spacing */}
+        <main className="px-4 sm:px-6 pb-20 sm:pb-24 pt-16 sm:pt-20 max-w-7xl mx-auto">
+          <div className="min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)]">
+            <Outlet />
+          </div>
         </main>
 
-        {/* Global FAB */}
+        {/* Global FAB - Mobile optimized positioning */}
         <GlobalFab />
 
         {/* Install Prompt */}
         <InstallSheet />
 
-        {/* Force Install Button - Visible for debugging */}
-        <ForceInstallButton />
+        {/* Update Banner - Temporarily disabled */}
+        {/* <UpdateBanner /> */}
 
-        {/* Auth Debugger - Temporary for debugging auth issues */}
-        <AuthDebugger />
+        {/* Debug Components - Only in development */}
+        {import.meta.env.DEV && (
+          <>
+            <ForceInstallButton />
+            <AuthDebugger />
+          </>
+        )}
       </div>
     </ToastProvider>
   )

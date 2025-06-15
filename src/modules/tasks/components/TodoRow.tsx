@@ -16,7 +16,7 @@ import {
 } from '../utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/utils/cn'
 
 interface TodoRowProps {
   todo: Todo

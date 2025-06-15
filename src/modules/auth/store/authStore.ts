@@ -29,7 +29,7 @@ interface AuthStore extends AuthState {
   logout: () => Promise<void>
   clearError: () => void
   checkAuthStatus: () => Promise<void>
-  setUser: (user: User, token: string) => void
+  setUser: (user: User, token: string) => Promise<void>
   
   // MVP-10 Enhancements
   isCheckingAuth: boolean
@@ -103,6 +103,9 @@ const withRetry = async <T>(
   
   throw lastError!
 }
+
+// Global flag to track if auth state change has provided user info
+let authStateChangeProvidedUser = false
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -353,46 +356,56 @@ export const useAuthStore = create<AuthStore>()(
           // MVP-10: Use retry logic for auth service calls
           if (authService === 'supabase') {
             console.log('🔍 Checking Supabase auth status...')
-            try {
-              // Add timeout for Supabase operations
-              const timeoutPromise = new Promise<never>((_, reject) => {
-                setTimeout(() => reject(new Error('Supabase auth timeout')), 3000)
-              })
-              
-              user = await Promise.race([
-                withRetry(() => supabaseAuth.getCurrentUser()),
-                timeoutPromise
-              ])
-              token = user?.id || ''
-              console.log('✅ Supabase auth check successful:', user?.email)
-            } catch (error) {
-              console.error('❌ Supabase auth check failed:', error)
-              
-              // Try to fallback to local auth if Supabase consistently fails
-              console.log('🔄 Attempting fallback to local auth...')
+            
+            // If auth state change already provided user, skip the potentially hanging Supabase call
+            const state = get()
+            if (authStateChangeProvidedUser && state.user) {
+              console.log('✅ Using user from auth state change, skipping Supabase call')
+              user = state.user
+              token = state.token || user.id
+            } else {
               try {
-                const session = localAuthService.getCurrentUser()
-                if (session) {
-                  user = session.user
-                  token = session.token
-                  console.log('✅ Fallback to local auth successful:', user.username)
-                } else {
-                  console.log('ℹ️ No local session found either')
+                // Add timeout for Supabase operations (increased to 8 seconds)
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                  setTimeout(() => reject(new Error('Supabase auth timeout')), 8000)
+                })
+                
+                // Try to get session directly (faster, no profile fetch)
+                user = await Promise.race([
+                  supabaseAuth.getSession(),
+                  timeoutPromise
+                ])
+                token = user?.id || ''
+                console.log('✅ Supabase auth check successful:', user?.email)
+              } catch (error) {
+                console.error('❌ Supabase auth check failed:', error)
+                
+                // Try to fallback to local auth if Supabase consistently fails
+                console.log('🔄 Attempting fallback to local auth...')
+                try {
+                  const session = localAuthService.getCurrentUser()
+                  if (session) {
+                    user = session.user
+                    token = session.token
+                    console.log('✅ Fallback to local auth successful:', user.username)
+                  } else {
+                    console.log('ℹ️ No local session found either')
+                    user = null
+                    token = ''
+                  }
+                } catch (localError) {
+                  console.error('❌ Local auth fallback also failed:', localError)
                   user = null
                   token = ''
                 }
-              } catch (localError) {
-                console.error('❌ Local auth fallback also failed:', localError)
-                user = null
-                token = ''
-              }
-              
-              // Force logout from Supabase to clean up
-              try {
-                await supabaseAuth.logout()
-                console.log('🔄 Logged out from Supabase after failure')
-              } catch (logoutError) {
-                console.error('Failed to logout from Supabase:', logoutError)
+                
+                // Force logout from Supabase to clean up
+                try {
+                  await supabaseAuth.logout()
+                  console.log('🔄 Logged out from Supabase after failure')
+                } catch (logoutError) {
+                  console.error('Failed to logout from Supabase:', logoutError)
+                }
               }
             }
           } else {
@@ -433,6 +446,14 @@ export const useAuthStore = create<AuthStore>()(
           if (user?.id) {
             const sanitizedUserId = sanitizeUserId(user.id)
             initializeUserDatabases(sanitizedUserId)
+            
+            // Initialize tasks store after auth is confirmed
+            try {
+              const { initializeTasksStore } = await import('@/modules/tasks')
+              await initializeTasksStore()
+            } catch (error) {
+              console.error('Failed to initialize tasks store:', error)
+            }
           }
         } catch (error) {
           console.error('Check auth status error:', error)
@@ -460,7 +481,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      setUser: (user: User, token: string) => {
+      setUser: async (user: User, token: string) => {
         // MVP-10: Validate inputs
         if (!user || !token) {
           console.error('🚨 setUser called with invalid parameters')
@@ -479,6 +500,14 @@ export const useAuthStore = create<AuthStore>()(
         // Initialize user-specific databases
         const sanitizedUserId = sanitizeUserId(user.id)
         initializeUserDatabases(sanitizedUserId)
+        
+        // Initialize tasks store after user is set
+        try {
+          const { initializeTasksStore } = await import('@/modules/tasks')
+          await initializeTasksStore()
+        } catch (error) {
+          console.error('Failed to initialize tasks store in setUser:', error)
+        }
       },
 
       // MVP-10: Force logout from all auth services
@@ -557,7 +586,7 @@ export const useAuthStore = create<AuthStore>()(
 // MVP-10: Enhanced auth state listener with loop prevention
 let isAuthStateChangeInProgress = false
 
-supabaseAuth.onAuthStateChange((user) => {
+supabaseAuth.onAuthStateChange(async (user) => {
   // Prevent recursive calls
   if (isAuthStateChangeInProgress) {
     console.log('🔄 Auth state change already in progress, skipping')
@@ -571,10 +600,12 @@ supabaseAuth.onAuthStateChange((user) => {
     
     if (user && !store.isAuthenticated) {
       console.log('🔄 Auth state change: user logged in')
-      store.setUser(user, user.id)
+      authStateChangeProvidedUser = true
+      await store.setUser(user, user.id)
     } else if (!user && store.isAuthenticated) {
       console.log('🔄 Auth state change: user logged out')
-      store.logout()
+      authStateChangeProvidedUser = false
+      await store.logout()
     }
   } catch (error) {
     console.error('Auth state change error:', error)

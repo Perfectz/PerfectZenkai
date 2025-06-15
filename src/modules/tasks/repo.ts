@@ -335,8 +335,9 @@ export const tasksRepo = {
       console.warn('Supabase fetch failed, using local storage:', error)
     }
     
-    // Fallback to local storage
-    return await tasksRepo.getAllTodos()
+    // Fallback to local storage - use IndexedDB directly instead of calling self
+    const database = getDatabase()
+    return await database.todos.orderBy('createdAt').reverse().toArray()
   },
 
   async getTodoById(id: string): Promise<Todo | undefined> {

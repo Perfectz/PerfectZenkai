@@ -87,7 +87,23 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         .order('name')
 
       if (error) throw error
-      set({ exercises: data || [], isLoading: false })
+      
+      // Map snake_case fields to camelCase for the store
+      const mappedData = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        category: item.category,
+        description: item.description,
+        instructions: item.instructions,
+        muscleGroups: item.muscle_groups, // snake_case to camelCase
+        equipment: item.equipment,
+        isCustom: item.is_custom, // snake_case to camelCase
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+      }))
+      
+      set({ exercises: mappedData, isLoading: false })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
     }
@@ -332,21 +348,46 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
   addExercise: async (exerciseData) => {
     set({ isLoading: true, error: null })
     try {
+      // Map camelCase fields to snake_case for database
+      const dbData = {
+        name: exerciseData.name,
+        type: exerciseData.type,
+        category: exerciseData.category,
+        description: exerciseData.description,
+        instructions: exerciseData.instructions,
+        muscle_groups: exerciseData.muscleGroups, // camelCase to snake_case
+        equipment: exerciseData.equipment,
+        is_custom: exerciseData.isCustom, // camelCase to snake_case
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
       const { data, error } = await supabase
         .from('exercises')
-        .insert([{
-          ...exerciseData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
+        .insert([dbData])
         .select()
         .single()
 
       if (error) throw error
 
+      // Map snake_case fields back to camelCase for the store
+      const mappedData = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        category: data.category,
+        description: data.description,
+        instructions: data.instructions,
+        muscleGroups: data.muscle_groups, // snake_case to camelCase
+        equipment: data.equipment,
+        isCustom: data.is_custom, // snake_case to camelCase
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      }
+
       const { exercises } = get()
       set({ 
-        exercises: [...exercises, data],
+        exercises: [...exercises, mappedData],
         isLoading: false 
       })
     } catch (error) {
@@ -358,21 +399,47 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
   updateExercise: async (id, updates) => {
     set({ isLoading: true, error: null })
     try {
+      // Map camelCase fields to snake_case for database
+      const dbUpdates: any = {
+        updated_at: new Date().toISOString()
+      }
+      
+      if (updates.name !== undefined) dbUpdates.name = updates.name
+      if (updates.type !== undefined) dbUpdates.type = updates.type
+      if (updates.category !== undefined) dbUpdates.category = updates.category
+      if (updates.description !== undefined) dbUpdates.description = updates.description
+      if (updates.instructions !== undefined) dbUpdates.instructions = updates.instructions
+      if (updates.muscleGroups !== undefined) dbUpdates.muscle_groups = updates.muscleGroups
+      if (updates.equipment !== undefined) dbUpdates.equipment = updates.equipment
+      if (updates.isCustom !== undefined) dbUpdates.is_custom = updates.isCustom
+
       const { data, error } = await supabase
         .from('exercises')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
+        .update(dbUpdates)
         .eq('id', id)
         .select()
         .single()
 
       if (error) throw error
 
+      // Map snake_case fields back to camelCase for the store
+      const mappedData = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        category: data.category,
+        description: data.description,
+        instructions: data.instructions,
+        muscleGroups: data.muscle_groups, // snake_case to camelCase
+        equipment: data.equipment,
+        isCustom: data.is_custom, // snake_case to camelCase
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      }
+
       const { exercises } = get()
       set({
-        exercises: exercises.map(e => e.id === id ? data : e),
+        exercises: exercises.map(e => e.id === id ? mappedData : e),
         isLoading: false
       })
     } catch (error) {
@@ -558,9 +625,16 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
       const newExercises = EXERCISE_LIBRARY.filter(e => !existingNames.has(e.name))
       
       if (newExercises.length > 0) {
+        // Map camelCase fields to snake_case for database
         const exercisesToInsert = newExercises.map(exercise => ({
-          ...exercise,
-          isCustom: false,
+          name: exercise.name,
+          type: exercise.type,
+          category: exercise.category,
+          description: exercise.description,
+          instructions: exercise.instructions,
+          muscle_groups: exercise.muscleGroups, // camelCase to snake_case
+          equipment: exercise.equipment,
+          is_custom: false, // camelCase to snake_case
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }))
@@ -572,8 +646,23 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
         if (error) throw error
 
+        // Map snake_case fields back to camelCase for the store
+        const mappedData = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          category: item.category,
+          description: item.description,
+          instructions: item.instructions,
+          muscleGroups: item.muscle_groups, // snake_case to camelCase
+          equipment: item.equipment,
+          isCustom: item.is_custom, // snake_case to camelCase
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        }))
+
         set({ 
-          exercises: [...exercises, ...data],
+          exercises: [...exercises, ...mappedData],
           isLoading: false 
         })
       } else {

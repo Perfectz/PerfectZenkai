@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
 import { hybridWeightRepo, hybridWeightGoalRepo, initializeWeightDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
+import { debug, error as logError } from '@/shared/utils/logging'
 
 interface WeightState {
   weights: WeightEntry[]
@@ -13,8 +14,10 @@ interface WeightState {
 
   // Weight actions
   addWeight: (entry: Omit<WeightEntry, 'id'>) => Promise<void>
+  updateWeight: (id: string, updates: Partial<Omit<WeightEntry, 'id'>>) => Promise<void>
   deleteWeight: (id: string) => Promise<void>
   loadWeights: () => Promise<void>
+  refreshWeights: () => Promise<void>
   clearWeights: () => Promise<void>
 
   // Goal actions
@@ -42,13 +45,28 @@ export const useWeightStore = create<WeightState>((set) => ({
 
       const newEntry = await hybridWeightRepo.addWeight(entry, userId)
 
-      set((state) => ({
-        weights: [newEntry, ...state.weights].sort(
-          (a, b) =>
-            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
-        ),
-        isLoading: false,
-      }))
+      set((state) => {
+        // Check if we're updating an existing entry or adding a new one
+        const existingIndex = state.weights.findIndex(w => w.dateISO === newEntry.dateISO)
+        
+        let updatedWeights
+        if (existingIndex >= 0) {
+          // Update existing entry
+          updatedWeights = [...state.weights]
+          updatedWeights[existingIndex] = newEntry
+        } else {
+          // Add new entry
+          updatedWeights = [newEntry, ...state.weights]
+        }
+
+        return {
+          weights: updatedWeights.sort(
+            (a, b) =>
+              new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
+          ),
+          isLoading: false,
+        }
+      })
 
       // Mark that weight was logged today (for notification logic)
       const today = new Date().toISOString().split('T')[0]
@@ -56,15 +74,61 @@ export const useWeightStore = create<WeightState>((set) => ({
         localStorage.setItem(`weight-logged-${today}`, 'true')
       }
 
-      console.log('✅ Weight saved successfully:', { 
+      debug('Weight saved successfully:', { 
         local: true, 
         cloud: !!userId,
         entry: newEntry 
       })
     } catch (error) {
-      console.error('❌ Failed to save weight:', error)
+      logError('Failed to save weight:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to add weight',
+        isLoading: false,
+      })
+      throw error
+    }
+  },
+
+  updateWeight: async (id, updates) => {
+    try {
+      set({ isLoading: true, error: null })
+
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      const updatedEntry = await hybridWeightRepo.updateWeight(id, updates, userId)
+
+      set((state) => ({
+        weights: state.weights.map((w) => w.id === id ? updatedEntry : w).sort(
+          (a, b) =>
+            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
+        ),
+        isLoading: false,
+      }))
+
+      debug('Weight updated successfully:', { 
+        id, 
+        updates, 
+        cloud: !!userId,
+        entry: updatedEntry 
+      })
+    } catch (error) {
+      logError('Failed to update weight:', error)
+      
+      // Provide more specific error handling
+      let errorMessage = 'Failed to update weight'
+      if (error instanceof Error) {
+        if (error.message.includes('Weight entry not found')) {
+          errorMessage = 'Weight entry not found. It may have been deleted or is out of sync.'
+        } else if (error.message.includes('not found in cloud storage')) {
+          errorMessage = 'Entry updated locally but failed to sync to cloud.'
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      set({
+        error: errorMessage,
         isLoading: false,
       })
       throw error
@@ -153,6 +217,37 @@ export const useWeightStore = create<WeightState>((set) => ({
         isLoading: false,
       })
       throw error
+    }
+  },
+
+  refreshWeights: async () => {
+    try {
+      set({ isLoading: true, error: null })
+
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      // Force reload from source of truth (Supabase if available, otherwise local)
+      const weights = await hybridWeightRepo.getAllWeights(userId)
+
+      set({
+        weights: weights.sort(
+          (a, b) =>
+            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
+        ),
+        isLoading: false,
+      })
+
+      console.log('✅ Weights refreshed successfully:', { 
+        count: weights.length, 
+        cloud: !!userId 
+      })
+    } catch (error) {
+      console.error('❌ Failed to refresh weights:', error)
+      set({
+        error: error instanceof Error ? error.message : 'Failed to refresh weights',
+        isLoading: false,
+      })
     }
   },
 

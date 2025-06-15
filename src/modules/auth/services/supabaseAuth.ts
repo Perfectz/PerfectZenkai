@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { User, AuthError } from '../types/auth'
+import { debug, info, warn, error as logError } from '@/shared/utils/logging'
 
 export class SupabaseAuthService {
 
@@ -184,7 +185,7 @@ export class SupabaseAuthService {
         }
       }
 
-      console.log('✅ Auth successful, fetching profile for user:', authData.user.id)
+      debug('Auth successful, fetching profile for user:', authData.user.id)
 
              // Get user profile with fallback
        let profile: { username: string } | null = null
@@ -198,7 +199,7 @@ export class SupabaseAuthService {
          if (error) throw error
          profile = data
        } catch (error) {
-         console.log('⚠️ Profile fetch error (using fallback):', error)
+         warn('Profile fetch error (using fallback):', error)
        }
 
       const user: User = {
@@ -207,10 +208,10 @@ export class SupabaseAuthService {
         email: authData.user.email || email,
       }
 
-      console.log('🎉 Login successful:', user)
+      info('Login successful:', user)
       return { user, error: null }
     } catch (error) {
-      console.error('💥 Login error:', error)
+      logError('Login error:', error)
       return {
         user: null,
         error: this.handleNetworkError(error),
@@ -226,12 +227,12 @@ export class SupabaseAuthService {
     password: string
   ): Promise<{ user: User | null; error: AuthError | null }> {
     if (!this.isSupabaseAvailable()) {
-      console.error('❌ Supabase client not available')
+      logError('Supabase client not available')
       return { user: null, error: this.getUnavailableError() }
     }
 
     try {
-      console.log('🔍 Starting login with username:', username)
+      debug('Starting login with username:', username)
 
              // Try to find the profile with this username using multiple strategies
        let profile: { id: string; username: string; email?: string } | null = null
@@ -248,9 +249,9 @@ export class SupabaseAuthService {
          if (error) throw error
          profile = data
          email = profile?.email || null
-         console.log('📋 Found profile via user_lookup:', profile)
+         debug('Found profile via user_lookup:', profile)
        } catch (error: unknown) {
-         console.log('📋 user_lookup failed, trying profiles table:', error)
+         debug('user_lookup failed, trying profiles table:', error)
          
          // Strategy 2: Fallback to profiles table
          try {
@@ -262,7 +263,7 @@ export class SupabaseAuthService {
            
            if (error) throw error
            profile = data
-           console.log('📋 Found profile via profiles table:', profile)
+           debug('Found profile via profiles table:', profile)
            
            // For profiles table, we need to get email from auth metadata
            if (profile) {
@@ -270,24 +271,24 @@ export class SupabaseAuthService {
               email = `${username}@temp.local` // Temporary placeholder
            }
          } catch (profilesError) {
-           console.log('📋 profiles table also failed:', profilesError)
+           debug('profiles table also failed:', profilesError)
          }
        }
 
       if (!profile || !email) {
-        console.log('❌ Profile not found for username:', username)
+        warn('Profile not found for username:', username)
         return {
           user: null,
           error: { code: 'USER_NOT_FOUND', message: 'Username not found' },
         }
       }
 
-      console.log('✅ Profile found, attempting login with email:', email)
+      debug('Profile found, attempting login with email:', email)
 
       // Now login with the found email
       return await this.login(email, password)
     } catch (error) {
-      console.error('💥 Username login error:', error)
+      logError('Username login error:', error)
       return {
         user: null,
         error: this.handleNetworkError(error),
@@ -304,33 +305,48 @@ export class SupabaseAuthService {
     }
 
     try {
-      const { data: { user: authUser }, error } = await supabase!.auth.getUser()
+      // Add timeout to the entire operation
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('getCurrentUser timeout')), 3000)
+      })
 
-      if (error || !authUser) {
-        console.log('No authenticated user found')
-        return null
+      const getCurrentUserOperation = async () => {
+        const { data: { user: authUser }, error } = await supabase!.auth.getUser()
+
+        if (error || !authUser) {
+          debug('No authenticated user found')
+          return null
+        }
+
+        // Try to get profile data with fallback and timeout
+        let profile: { username: string } | null = null
+        try {
+          const profilePromise = supabase!
+            .from('profiles')
+            .select('username')
+            .eq('id', authUser.id)
+            .single()
+          
+          const profileTimeout = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 2000)
+          })
+
+          const { data } = await Promise.race([profilePromise, profileTimeout])
+          profile = data
+        } catch (error) {
+          warn('Profile fetch failed, using auth metadata:', error)
+        }
+
+        return {
+          id: authUser.id,
+          name: profile?.username || authUser.user_metadata?.username || 'User',
+          email: authUser.email || '',
+        }
       }
 
-      // Try to get profile data with fallback
-      let profile: { username: string } | null = null
-      try {
-        const { data } = await supabase!
-          .from('profiles')
-          .select('username')
-          .eq('id', authUser.id)
-          .single()
-        profile = data
-      } catch (error) {
-        console.log('Profile fetch failed, using auth metadata:', error)
-      }
-
-      return {
-        id: authUser.id,
-        name: profile?.username || authUser.user_metadata?.username || 'User',
-        email: authUser.email || '',
-      }
+      return await Promise.race([getCurrentUserOperation(), timeoutPromise])
     } catch (error) {
-      console.error('Error getting current user:', error)
+      logError('Error getting current user:', error)
       return null
     }
   }
@@ -345,9 +361,9 @@ export class SupabaseAuthService {
 
     try {
       await supabase!.auth.signOut()
-      console.log('✅ Logout successful')
+      info('Logout successful')
     } catch (error) {
-      console.error('Logout error:', error)
+      logError('Logout error:', error)
       // Don't throw on logout errors, just log them
     }
   }
@@ -362,14 +378,41 @@ export class SupabaseAuthService {
 
     const { data: { subscription } } = supabase!.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id)
+        debug('Auth state changed:', event, session?.user?.id)
         
         if (session?.user) {
           try {
-            const user = await this.getCurrentUser()
+            // Create user directly from session data to avoid hanging getCurrentUser calls
+            const user: User = {
+              id: session.user.id,
+              name: session.user.user_metadata?.username || 'User',
+              email: session.user.email || '',
+            }
+            
+            // Try to get profile data with a very short timeout, but don't block on it
+            try {
+              const profilePromise = supabase!
+                .from('profiles')
+                .select('username')
+                .eq('id', session.user.id)
+                .single()
+              
+              const profileTimeout = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('Quick profile timeout')), 1000)
+              })
+
+              const { data: profile } = await Promise.race([profilePromise, profileTimeout])
+              if (profile?.username) {
+                user.name = profile.username
+              }
+            } catch (profileError) {
+              // Ignore profile fetch errors, use session data
+              debug('Quick profile fetch failed, using session data:', profileError)
+            }
+            
             callback(user)
           } catch (error) {
-            console.error('Error in auth state change:', error)
+            logError('Error in auth state change:', error)
             callback(null)
           }
         } else {
@@ -379,6 +422,33 @@ export class SupabaseAuthService {
     )
 
     return () => subscription.unsubscribe()
+  }
+
+  /**
+   * Get current session directly without profile fetch (faster)
+   */
+  async getSession(): Promise<User | null> {
+    if (!this.isSupabaseAvailable()) {
+      return null
+    }
+
+    try {
+      const { data: { session }, error } = await supabase!.auth.getSession()
+
+      if (error || !session?.user) {
+        debug('No active session found')
+        return null
+      }
+
+      return {
+        id: session.user.id,
+        name: session.user.user_metadata?.username || 'User',
+        email: session.user.email || '',
+      }
+    } catch (error) {
+      logError('Error getting session:', error)
+      return null
+    }
   }
 }
 

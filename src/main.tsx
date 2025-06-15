@@ -1,30 +1,20 @@
+/// <reference types="vite-plugin-pwa/client" />
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { initializeWeightStore } from './modules/weight'
-import { initializeTasksStore } from './modules/tasks'
 import { initializeNotesStore } from './modules/notes'
 import { BrowserRouter } from 'react-router-dom'
 
-// Initialize stores
+// Initialize stores after auth is ready
+// Note: Tasks store will initialize itself after auth check completes
 initializeWeightStore()
-initializeTasksStore()
 initializeNotesStore()
+// initializeTasksStore() - Removed to prevent loading before auth is ready
 
 // Register service worker in both development and production for PWA testing
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('SW registered: ', registration)
-      })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError)
-      })
-  })
-}
+/* Legacy manual service worker registration removed – vite-plugin-pwa now handles this automatically */
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

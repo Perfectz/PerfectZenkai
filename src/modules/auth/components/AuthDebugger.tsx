@@ -17,6 +17,7 @@ interface AuthDebugInfo {
 }
 
 export default function AuthDebugger() {
+  const [isVisible, setIsVisible] = useState(false)
   const [debugInfo, setDebugInfo] = useState<AuthDebugInfo>({
     isAuthenticated: false,
     user: null,
@@ -117,80 +118,92 @@ export default function AuthDebugger() {
 
   const timeSinceLastCheck = Date.now() - lastAuthCheck
 
+  // Only show in development mode
+  if (import.meta.env.PROD) {
+    return null
+  }
+
   return (
-    <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-lg text-xs max-w-md max-h-96 overflow-y-auto z-50">
-      <h3 className="font-bold mb-2 text-yellow-400">🔍 Auth Debug Panel</h3>
-      
-      {/* Status Indicators */}
-      <div className="mb-3 space-y-1">
-        <div className={`px-2 py-1 rounded text-xs ${isAuthenticated ? 'bg-green-600' : 'bg-red-600'}`}>
-          Auth: {isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}
-        </div>
-        <div className={`px-2 py-1 rounded text-xs ${isLoading ? 'bg-yellow-600' : 'bg-gray-600'}`}>
-          Loading: {isLoading ? '⏳ Yes' : '✅ No'}
-        </div>
-        <div className={`px-2 py-1 rounded text-xs ${isCheckingAuth ? 'bg-blue-600' : 'bg-gray-600'}`}>
-          Checking: {isCheckingAuth ? '🔄 Yes' : '✅ No'}
-        </div>
-      </div>
+    <>
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsVisible(!isVisible)}
+        className="fixed bottom-4 left-4 bg-yellow-600 hover:bg-yellow-500 text-white p-2 rounded-full z-50 text-xs font-bold shadow-lg"
+        title={isVisible ? 'Hide Auth Debug' : 'Show Auth Debug'}
+      >
+        🔍
+      </button>
 
-      {/* Timing Info */}
-      <div className="mb-3 text-xs">
-        <div>Last Check: {lastAuthCheck ? `${Math.round(timeSinceLastCheck / 1000)}s ago` : 'Never'}</div>
-        <div>Retry Count: {retryCount}/3</div>
-      </div>
-
-      {/* Debug Data */}
-      <details className="mb-3">
-        <summary className="cursor-pointer text-blue-400">📊 Full State</summary>
-        <pre className="whitespace-pre-wrap text-xs mt-2 bg-gray-900 p-2 rounded max-h-32 overflow-y-auto">
-          {JSON.stringify(debugInfo, null, 2)}
-        </pre>
-      </details>
-
-      {/* Action Buttons */}
-      <div className="space-y-2">
-        <div className="grid grid-cols-2 gap-2">
-          <button 
-            onClick={forceAuthCheck} 
-            className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-          >
-            🔍 Check Auth
-          </button>
-          <button 
-            onClick={fixAuthState} 
-            className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600"
-          >
-            🔧 Fix State
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <button 
-            onClick={clearStorage} 
-            className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
-          >
-            🧹 Clear Storage
-          </button>
-          <button 
-            onClick={forceLogoutAction} 
-            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-          >
-            🚨 Force Logout
-          </button>
-        </div>
-      </div>
-
-      {/* Quick Status */}
-      <div className="mt-3 pt-2 border-t border-gray-600 text-xs">
-        <div className="text-gray-400">
-          Updated: {new Date().toLocaleTimeString()}
-        </div>
-        {(isCheckingAuth || isLoading) && (
-          <div className="text-yellow-400 animate-pulse">
-            ⚠️ Auth operation in progress...
+      {/* Debug Panel */}
+      {isVisible && (
+        <div className="fixed bottom-16 left-4 bg-gray-800 text-white p-4 rounded-lg text-xs max-w-sm max-h-96 overflow-y-auto z-50 shadow-xl border border-gray-600">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-yellow-400">🔍 Auth Debug Panel</h3>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="text-gray-400 hover:text-white text-lg leading-none"
+              title="Close"
+            >
+              ×
+            </button>
           </div>
-        )}
-      </div>
-    </div>
+          
+          {/* Status Indicators */}
+          <div className="mb-3 space-y-1">
+            <div className={`px-2 py-1 rounded text-xs ${isAuthenticated ? 'bg-green-600' : 'bg-red-600'}`}>
+              Auth: {isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}
+            </div>
+            <div className={`px-2 py-1 rounded text-xs ${isLoading ? 'bg-yellow-600' : 'bg-gray-600'}`}>
+              Loading: {isLoading ? '⏳ Yes' : '✅ No'}
+            </div>
+            <div className={`px-2 py-1 rounded text-xs ${isCheckingAuth ? 'bg-blue-600' : 'bg-gray-600'}`}>
+              Checking: {isCheckingAuth ? '🔄 Yes' : '✅ No'}
+            </div>
+          </div>
+
+          {/* Timing Info */}
+          <div className="mb-3 text-xs">
+            <div>Last Check: {lastAuthCheck ? `${Math.round(timeSinceLastCheck / 1000)}s ago` : 'Never'}</div>
+            <div>Retry Count: {retryCount}/3</div>
+          </div>
+
+          {/* Debug Data */}
+          <details className="mb-3">
+            <summary className="cursor-pointer text-blue-400">📊 Full State</summary>
+            <pre className="whitespace-pre-wrap text-xs mt-2 bg-gray-900 p-2 rounded max-h-32 overflow-y-auto">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </details>
+
+          {/* Action Buttons */}
+          <div className="space-y-2">
+            <button
+              onClick={forceAuthCheck}
+              className="w-full bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-xs"
+            >
+              🔍 Force Auth Check
+            </button>
+            <button
+              onClick={forceLogoutAction}
+              className="w-full bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-xs"
+            >
+              🚨 Force Logout
+            </button>
+            <button
+              onClick={fixAuthState}
+              className="w-full bg-green-600 hover:bg-green-500 px-2 py-1 rounded text-xs"
+            >
+              🔧 Reset Auth State
+            </button>
+            <button
+              onClick={clearStorage}
+              className="w-full bg-orange-600 hover:bg-orange-500 px-2 py-1 rounded text-xs"
+            >
+              🧹 Clear Storage
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 } 

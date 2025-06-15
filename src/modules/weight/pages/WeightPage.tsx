@@ -4,6 +4,7 @@ import { WeightRow } from '../components/WeightRow'
 import { WeightEntryForm } from '../components/WeightEntryForm'
 import { WeightAnalytics } from '../components/WeightAnalytics'
 import { WeightGoalForm } from '../components/WeightGoalForm'
+import { WeightConversionTool } from '../components/WeightConversionTool'
 import { useNotifications } from '@/shared/hooks/useNotifications'
 import { ListSkeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
@@ -81,6 +82,13 @@ export default function WeightPage() {
       {showGoalForm && (
         <div className="mb-6">
           <WeightGoalForm onClose={() => setShowGoalForm(false)} />
+        </div>
+      )}
+
+      {/* Weight Conversion Tool - Show when there are entries */}
+      {weights.length > 0 && !isLoading && (
+        <div className="mb-6">
+          <WeightConversionTool />
         </div>
       )}
 
@@ -167,6 +175,8 @@ export default function WeightPage() {
         </div>
       )}
 
+
+
       {/* Weight entries list */}
       {!isLoading && weights.length > 0 && (
         <div className="space-y-3">
@@ -199,9 +209,12 @@ export default function WeightPage() {
           </div>
 
           {/* Weight entries */}
-          {weights.map((w) => (
-            <WeightRow key={w.id} entry={w} />
-          ))}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-gray-300 mb-2">Weight Entries ({weights.length})</h3>
+            {weights.map((w) => (
+              <WeightRow key={w.id} entry={w} />
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -47,6 +47,7 @@ export const supabaseWeightRepo = {
   async addWeight(entry: Omit<WeightEntry, 'id'>, userId: string): Promise<WeightEntry> {
     if (!supabase) throw new Error('Supabase not available')
 
+    // First try to insert
     const { data, error } = await supabase
       .from('weight_entries')
       .insert({
@@ -56,6 +57,27 @@ export const supabaseWeightRepo = {
       })
       .select()
       .single()
+
+    // If duplicate key error, update the existing entry instead
+    if (error && error.code === '23505') {
+      const { data: updateData, error: updateError } = await supabase
+        .from('weight_entries')
+        .update({
+          kg: entry.kg,
+        })
+        .eq('user_id', userId)
+        .eq('date_iso', entry.dateISO)
+        .select()
+        .single()
+
+      if (updateError) throw updateError
+
+      return {
+        id: updateData.id,
+        dateISO: updateData.date_iso,
+        kg: updateData.kg,
+      }
+    }
 
     if (error) throw error
 
@@ -104,7 +126,41 @@ export const supabaseWeightRepo = {
       .eq('id', id)
       .single()
 
-    if (error) return undefined
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return undefined // Entry not found
+      }
+      throw error
+    }
+
+    return {
+      id: data.id,
+      dateISO: data.date_iso,
+      kg: data.kg,
+    }
+  },
+
+  async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>): Promise<WeightEntry> {
+    if (!supabase) throw new Error('Supabase not available')
+
+    const updateData: any = {}
+    if (updates.dateISO !== undefined) updateData.date_iso = updates.dateISO
+    if (updates.kg !== undefined) updateData.kg = updates.kg
+
+    const { data, error } = await supabase
+      .from('weight_entries')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      // If entry not found, it might be a local-only entry
+      if (error.code === 'PGRST116') {
+        throw new Error('Weight entry not found in cloud storage')
+      }
+      throw error
+    }
 
     return {
       id: data.id,
@@ -129,13 +185,30 @@ export const supabaseWeightRepo = {
 export const weightRepo = {
   async addWeight(entry: Omit<WeightEntry, 'id'>): Promise<WeightEntry> {
     const database = getDatabase()
-    const newEntry: WeightEntry = {
-      id: uuidv4(),
-      ...entry,
-    }
+    
+    // Check if entry already exists for this date
+    const existingEntry = await database.weights
+      .where('dateISO')
+      .equals(entry.dateISO)
+      .first()
 
-    await database.weights.add(newEntry)
-    return newEntry
+    if (existingEntry) {
+      // Update existing entry
+      const updatedEntry: WeightEntry = {
+        ...existingEntry,
+        kg: entry.kg,
+      }
+      await database.weights.put(updatedEntry)
+      return updatedEntry
+    } else {
+      // Create new entry
+      const newEntry: WeightEntry = {
+        id: uuidv4(),
+        ...entry,
+      }
+      await database.weights.add(newEntry)
+      return newEntry
+    }
   },
 
   async deleteWeight(id: string): Promise<void> {
@@ -151,6 +224,26 @@ export const weightRepo = {
   async getWeightById(id: string): Promise<WeightEntry | undefined> {
     const database = getDatabase()
     return await database.weights.get(id)
+  },
+
+  async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>): Promise<WeightEntry> {
+    const database = getDatabase()
+    
+    // Get the existing entry
+    const existing = await database.weights.get(id)
+    if (!existing) {
+      throw new Error('Weight entry not found')
+    }
+
+    // Create updated entry
+    const updatedEntry: WeightEntry = {
+      ...existing,
+      ...updates,
+    }
+
+    // Update in database
+    await database.weights.put(updatedEntry)
+    return updatedEntry
   },
 
   async clearAll(): Promise<void> {
@@ -215,6 +308,82 @@ export const hybridWeightRepo = {
     }
     
     return await weightRepo.getWeightById(id)
+  },
+
+  async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>, userId?: string): Promise<WeightEntry> {
+    let cloudUpdateSucceeded = false
+    let cloudResult: WeightEntry | null = null
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
+        cloudResult = await supabaseWeightRepo.updateWeight(id, updates)
+        cloudUpdateSucceeded = true
+      } catch (error) {
+        console.warn('Supabase update failed:', error)
+        
+        // If the entry doesn't exist in Supabase, try to create it
+        if (error instanceof Error && error.message.includes('not found in cloud storage')) {
+          try {
+            // Get the full entry from local storage first
+            const localEntry = await weightRepo.getWeightById(id)
+            if (localEntry) {
+              // Create the entry in Supabase with the updates applied
+              const entryToCreate = { ...localEntry, ...updates }
+              delete (entryToCreate as any).id // Remove id for creation
+              cloudResult = await supabaseWeightRepo.addWeight(entryToCreate, userId)
+              cloudUpdateSucceeded = true
+              console.log('✅ Created missing entry in Supabase:', cloudResult)
+            }
+          } catch (createError) {
+            console.warn('Failed to create entry in Supabase:', createError)
+          }
+        }
+      }
+    }
+    
+    // Try to update local storage, but handle missing entries gracefully
+    let localResult: WeightEntry
+    try {
+      localResult = await weightRepo.updateWeight(id, updates)
+    } catch (localError) {
+      console.warn('Local update failed, entry may not exist locally:', localError)
+      
+      // If local entry doesn't exist, try to create it
+      if (localError instanceof Error && localError.message.includes('Weight entry not found')) {
+        try {
+          // If we have a cloud result, use that to create local entry
+          if (cloudResult) {
+            await weightRepo.addWeight({
+              dateISO: cloudResult.dateISO,
+              kg: cloudResult.kg
+            })
+            localResult = cloudResult
+            console.log('✅ Created missing local entry from cloud data:', localResult)
+          } else {
+            // Create a new entry with the updates (fallback)
+            const newEntry = {
+              dateISO: updates.dateISO || new Date().toISOString().split('T')[0],
+              kg: updates.kg || 0
+            }
+            localResult = await weightRepo.addWeight(newEntry)
+            console.log('✅ Created new local entry as fallback:', localResult)
+          }
+        } catch (createError) {
+          console.error('Failed to create local entry:', createError)
+          // If all else fails, return cloud result or throw
+          if (cloudResult) {
+            return cloudResult
+          }
+          throw localError
+        }
+      } else {
+        throw localError
+      }
+    }
+    
+    // Return cloud result if successful, otherwise local result
+    return cloudResult || localResult
   },
 
   async clearAll(userId?: string): Promise<void> {

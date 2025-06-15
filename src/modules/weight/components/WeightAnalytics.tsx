@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { Progress } from '@/shared/ui/progress'
+import { Button } from '@/shared/ui/button'
 import { TrendingUp, TrendingDown, Target, Minus, BarChart3 } from 'lucide-react'
 import { useWeightStore } from '../store'
 import { kgToLbs } from '../types'
+import { WeightPeriodView } from './WeightPeriodView'
 
 interface WeightAnalyticsProps {
   goalWeight?: number
@@ -12,6 +15,7 @@ interface WeightAnalyticsProps {
 
 export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyticsProps) {
   const { weights, activeGoal } = useWeightStore()
+  const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | null>(null)
   
   // Use stored goal if available, otherwise fall back to props
   const effectiveGoalWeight = activeGoal?.targetWeight || goalWeight
@@ -158,9 +162,14 @@ export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyti
             </div>
           </div>
 
-          {/* Trend indicators */}
+          {/* Trend indicators - Now clickable */}
           <div className="mt-4 grid grid-cols-2 gap-4">
-            <div className="cyber-card rounded-lg bg-gray-900/50 p-3">
+            <button
+              onClick={() => setSelectedPeriod(selectedPeriod === 7 ? null : 7)}
+              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] ${
+                selectedPeriod === 7 ? 'ring-2 ring-ki-green/50 bg-ki-green/10' : ''
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {getTrendIcon(analytics.weeklyChange)}
@@ -170,8 +179,16 @@ export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyti
                   {analytics.weeklyChange >= 0 ? '+' : ''}{kgToLbs(analytics.weeklyChange).toFixed(1)}lbs
                 </div>
               </div>
-            </div>
-            <div className="cyber-card rounded-lg bg-gray-900/50 p-3">
+              <div className="mt-1 text-xs text-gray-500 text-center">
+                Click to view entries
+              </div>
+            </button>
+            <button
+              onClick={() => setSelectedPeriod(selectedPeriod === 30 ? null : 30)}
+              className={`cyber-card rounded-lg bg-gray-900/50 p-3 transition-all duration-200 hover:bg-gray-800/50 hover:scale-[1.02] ${
+                selectedPeriod === 30 ? 'ring-2 ring-ki-green/50 bg-ki-green/10' : ''
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {getTrendIcon(analytics.monthlyChange)}
@@ -181,7 +198,10 @@ export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyti
                   {analytics.monthlyChange >= 0 ? '+' : ''}{kgToLbs(analytics.monthlyChange).toFixed(1)}lbs
                 </div>
               </div>
-            </div>
+              <div className="mt-1 text-xs text-gray-500 text-center">
+                Click to view entries
+              </div>
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -224,6 +244,14 @@ export function WeightAnalytics({ goalWeight, goalType = 'lose' }: WeightAnalyti
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Period View - Show when a period is selected */}
+      {selectedPeriod && (
+        <WeightPeriodView 
+          period={selectedPeriod} 
+          onClose={() => setSelectedPeriod(null)} 
+        />
       )}
     </div>
   )
