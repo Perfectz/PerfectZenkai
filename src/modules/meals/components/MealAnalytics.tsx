@@ -4,13 +4,17 @@ import { Progress } from '@/shared/ui/progress'
 import { UtensilsCrossed, TrendingUp, Target, BarChart3, Flame } from 'lucide-react'
 import { useMealStore } from '../store'
 import { MealType } from '../types'
+import { useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function MealAnalytics() {
   const { meals, analytics, isAnalyticsLoading } = useMealStore()
+  
+  // Mobile responsiveness
+  const { isMobile } = useResponsiveBreakpoint()
 
   if (isAnalyticsLoading) {
     return (
-      <Card className="cyber-card">
+      <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
             <div className="shimmer h-8 w-32 rounded bg-gray-700"></div>
@@ -55,18 +59,18 @@ export function MealAnalytics() {
   const calorieProgress = Math.min(100, (todayCalories / dailyCalorieGoal) * 100)
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isMobile ? 'mobile-layout' : ''}`}>
       {/* Main Analytics Card */}
-      <Card className="cyber-card">
-        <CardHeader>
-          <CardTitle className="cyber-subtitle flex items-center gap-2 text-plasma-cyan">
+      <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+        <CardHeader className="mobile-layout">
+          <CardTitle className="cyber-subtitle flex items-center gap-2 text-plasma-cyan mobile-heading">
             <BarChart3 className="cyber-icon h-5 w-5" />
             Nutrition Analytics
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 mobile-form-spacing">
           {/* Key Metrics */}
-          <div className="grid grid-cols-4 gap-4 text-center">
+          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-4 text-center mobile-grid`}>
             <div className="text-center">
               <div className="gradient-text-cyan metric-display text-2xl font-bold">
                 {analytics.totalMeals}

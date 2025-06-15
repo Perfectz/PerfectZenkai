@@ -7,6 +7,7 @@ import { UtensilsCrossed, Plus, Calendar, Clock } from 'lucide-react'
 import { useMealStore } from '../store'
 import { MealType, MealEntryInput } from '../types'
 import { Badge } from '@/shared/ui/badge'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function MealEntryForm() {
   const [mealType, setMealType] = useState<MealType>(() => {
@@ -23,6 +24,13 @@ export function MealEntryForm() {
   const [errors, setErrors] = useState<{ foodName?: string; calories?: string }>({})
 
   const { isLoading, addMeal } = useMealStore()
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+    scale: 0.95, 
+    haptic: true 
+  })
 
   const validateForm = () => {
     const newErrors: { foodName?: string; calories?: string } = {}
@@ -106,16 +114,16 @@ export function MealEntryForm() {
   }
 
   return (
-    <Card className="cyber-card">
-      <CardHeader>
-        <CardTitle className="cyber-subtitle flex items-center gap-2 text-plasma-cyan">
+    <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+      <CardHeader className="mobile-layout">
+        <CardTitle className="cyber-subtitle flex items-center gap-2 text-plasma-cyan mobile-heading">
           <UtensilsCrossed className="cyber-icon h-5 w-5" />
           Log Meal Entry
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 mobile-form-spacing">
         {/* Quick entry row - always visible */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mobile-button-group">
           <Input
             id="meal-quick"
             type="text"
@@ -126,11 +134,12 @@ export function MealEntryForm() {
             }
             onKeyPress={handleKeyPress}
             className={`
-              flex-1 font-mono
+              flex-1 font-mono touch-target mobile-body
               focus:border-plasma-cyan focus:ring-plasma-cyan/20 border-gray-600 bg-gray-900 text-white
               ${errors.foodName ? 'border-red-500' : ''}
             `}
             disabled={isLoading}
+            aria-label="Food name"
           />
           <Input
             type="number"
@@ -141,25 +150,30 @@ export function MealEntryForm() {
             }
             onKeyPress={handleKeyPress}
             className={`
-              w-20 font-mono
+              w-20 font-mono touch-target mobile-body
               focus:border-plasma-cyan focus:ring-plasma-cyan/20 border-gray-600 bg-gray-900 text-white
               ${errors.calories ? 'border-red-500' : ''}
             `}
             disabled={isLoading}
+            aria-label="Calories"
           />
           <Button
             onClick={() => setIsExpanded(!isExpanded)}
             variant="outline"
             size="icon"
-            className={`border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 ${isExpanded ? 'bg-gray-800' : ''}`}
+            className={`border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 touch-target ${isExpanded ? 'bg-gray-800' : ''}`}
             title="Meal options"
+            aria-label="Toggle meal options"
           >
             <Clock className="h-4 w-4" />
           </Button>
           <Button
+            ref={buttonFeedback.elementRef}
             onClick={handleSubmit}
             variant="cyber-ki"
             disabled={isLoading || !foodName.trim() || !calories.trim()}
+            className="touch-target mobile-button"
+            aria-label="Log meal entry"
           >
             <Plus className="mr-2 h-4 w-4" />
             {isLoading ? 'LOGGING...' : 'LOG'}

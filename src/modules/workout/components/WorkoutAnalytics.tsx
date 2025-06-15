@@ -10,17 +10,21 @@ import {
 } from 'lucide-react'
 import { useWorkoutStore } from '../store'
 import { getExerciseTypeColor } from '../types'
+import { useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function WorkoutAnalytics() {
   const { analytics } = useWorkoutStore()
+  
+  // Mobile responsiveness
+  const { isMobile } = useResponsiveBreakpoint()
 
   if (!analytics) {
     return (
-      <Card className="cyber-card">
-        <CardContent className="p-6 text-center text-gray-400">
+      <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+        <CardContent className="p-6 text-center text-gray-400 mobile-layout">
           <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No workout data yet</p>
-          <p className="text-sm">Start logging workouts to see analytics</p>
+          <p className="mobile-body">No workout data yet</p>
+          <p className="text-sm mobile-caption">Start logging workouts to see analytics</p>
         </CardContent>
       </Card>
     )
@@ -29,17 +33,17 @@ export function WorkoutAnalytics() {
   const weeklyProgressPercent = (analytics.weeklyProgress / analytics.weeklyGoal) * 100
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isMobile ? 'mobile-layout' : ''}`}>
       {/* Overview Stats */}
-      <Card className="cyber-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 gradient-text-ki">
+      <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+        <CardHeader className="mobile-layout">
+          <CardTitle className="flex items-center gap-2 gradient-text-ki mobile-heading">
             <Activity className="h-5 w-5" />
             Workout Overview
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <CardContent className="mobile-form-spacing">
+          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4 mobile-grid`}>
             <div className="text-center">
               <div className="gradient-text-ki metric-display text-2xl font-bold">
                 {analytics.totalWorkouts}

@@ -9,6 +9,7 @@ import {
   Calendar,
   Target
 } from 'lucide-react'
+import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 interface DailyCounterData {
   date: string
@@ -27,6 +28,13 @@ export function DailyCounter() {
   
   const [weeklyTotal, setWeeklyTotal] = useState(0)
   const [streak, setStreak] = useState(0)
+  
+  // Mobile interactions
+  const { isMobile } = useResponsiveBreakpoint()
+  const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+    scale: 0.95, 
+    haptic: true 
+  })
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -113,10 +121,10 @@ export function DailyCounter() {
   const incrementButtons = [5, 10, 25]
 
   return (
-    <Card className="cyber-card">
-      <CardHeader>
+    <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
+      <CardHeader className="mobile-layout">
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2 gradient-text-ki">
+          <div className="flex items-center gap-2 gradient-text-ki mobile-heading">
             <Zap className="h-5 w-5" />
             Daily Strike Counter
           </div>
@@ -124,33 +132,34 @@ export function DailyCounter() {
             variant="outline"
             size="sm"
             onClick={resetToday}
-            className="text-xs"
+            className="text-xs touch-target mobile-button"
+            aria-label="Reset daily counter"
           >
             <RotateCcw className="h-3 w-3 mr-1" />
             Reset
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 mobile-form-spacing">
         {/* Today's Totals */}
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-3 gap-4 text-center mobile-grid">
           <div>
-            <div className="gradient-text-ki metric-display text-2xl font-bold">
+            <div className="gradient-text-ki metric-display text-2xl font-bold mobile-large">
               {todayData.punches}
             </div>
-            <div className="font-mono text-xs text-gray-400">Punches</div>
+            <div className="font-mono text-xs text-gray-400 mobile-caption">Punches</div>
           </div>
           <div>
-            <div className="gradient-text-cyan metric-display text-2xl font-bold">
+            <div className="gradient-text-cyan metric-display text-2xl font-bold mobile-large">
               {todayData.kicks}
             </div>
-            <div className="font-mono text-xs text-gray-400">Kicks</div>
+            <div className="font-mono text-xs text-gray-400 mobile-caption">Kicks</div>
           </div>
           <div>
-            <div className="gradient-text-magenta metric-display text-2xl font-bold">
+            <div className="gradient-text-magenta metric-display text-2xl font-bold mobile-large">
               {todayData.total}
             </div>
-            <div className="font-mono text-xs text-gray-400">Total</div>
+            <div className="font-mono text-xs text-gray-400 mobile-caption">Total</div>
           </div>
         </div>
 
@@ -162,14 +171,16 @@ export function DailyCounter() {
               {todayData.punches}
             </Badge>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mobile-button-group">
             {incrementButtons.map((count) => (
               <Button
                 key={`punch-${count}`}
+                ref={buttonFeedback.elementRef}
                 variant="outline"
                 size="sm"
                 onClick={() => updateCount('punches', count)}
-                className="flex-1 cyber-button-ki"
+                className="flex-1 cyber-button-ki touch-target mobile-button"
+                aria-label={`Add ${count} punches`}
               >
                 +{count}
               </Button>
@@ -185,14 +196,15 @@ export function DailyCounter() {
               {todayData.kicks}
             </Badge>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mobile-button-group">
             {incrementButtons.map((count) => (
               <Button
                 key={`kick-${count}`}
                 variant="outline"
                 size="sm"
                 onClick={() => updateCount('kicks', count)}
-                className="flex-1 cyber-button-cyan"
+                className="flex-1 cyber-button-cyan touch-target mobile-button"
+                aria-label={`Add ${count} kicks`}
               >
                 +{count}
               </Button>
