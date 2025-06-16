@@ -1,4 +1,4 @@
-import { useTasksStore } from '@/modules/tasks'
+import { useTasksStore } from '@/modules/tasks/store'
 import { StatusChip } from '@/shared/ui/status-chip'
 import { CheckSquare, Circle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

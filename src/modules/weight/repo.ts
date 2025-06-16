@@ -11,12 +11,23 @@ class WeightDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `WeightDatabase_${userId}` : 'WeightDatabase'
     super(dbName)
+    
+    // Version 1: Original schema - weights only
     this.version(1).stores({
       weights: 'id, dateISO, kg',
     })
+    
+    // Version 2: Added goals table
     this.version(2).stores({
       weights: 'id, dateISO, kg',
       goals: 'id, targetWeight, goalType, targetDate, startingWeight, isActive, createdAt, updatedAt',
+    })
+    
+    // Add data integrity validation
+    this.open().then(() => {
+      console.log('✅ Weight database opened successfully')
+    }).catch(error => {
+      console.error('❌ Weight database failed to open:', error)
     })
   }
 }
@@ -327,9 +338,8 @@ export const hybridWeightRepo = {
             const localEntry = await weightRepo.getWeightById(id)
             if (localEntry) {
               // Create the entry in Supabase with the updates applied
-              const entryToCreate = { ...localEntry, ...updates }
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              delete (entryToCreate as any).id // Remove id for creation
+              const { id: _, ...entryToCreate } = { ...localEntry, ...updates }
+              // Now entryToCreate is properly typed without the id property
               cloudResult = await supabaseWeightRepo.addWeight(entryToCreate, userId)
               console.log('✅ Created missing entry in Supabase:', cloudResult)
             }

@@ -124,4 +124,63 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 4173,
   },
+  build: {
+    // Optimize chunk sizes and splitting
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React and core UI libraries
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          
+          // Date and utility libraries
+          'date-utils': ['date-fns'],
+          
+          // Database and storage
+          'storage': ['dexie', 'zustand'],
+          
+          // Authentication and cloud services
+          'auth': ['@supabase/supabase-js', 'jwt-decode'],
+          
+          // Icons and UI utilities
+          'ui-utils': ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority'],
+          
+          // Markdown and content
+          'content': ['react-markdown', 'react-syntax-highlighter', 'remark-gfm', 'rehype-raw'],
+          
+          // Additional utilities
+          'utils': ['uuid', 'react-swipeable'],
+        },
+      },
+    },
+    
+    // Increase chunk size warning limit to 750KB
+    chunkSizeWarningLimit: 750,
+    
+    // Optimize CSS
+    cssCodeSplit: true,
+    
+    // Source maps for better debugging
+    sourcemap: false, // Disable in production for smaller size
+    
+    // Minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console logs in production
+        drop_debugger: true,
+      },
+    },
+  },
+  
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'zustand',
+      'dexie',
+      'lucide-react',
+    ],
+  },
 })

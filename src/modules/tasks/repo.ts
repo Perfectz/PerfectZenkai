@@ -11,10 +11,31 @@ class TasksDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `TasksDatabase_${userId}` : 'TasksDatabase'
     super(dbName)
+    
+    // Version 1: Original schema
+    this.version(1).stores({
+      todos: 'id, text, done, priority, category, dueDate, createdAt, updatedAt',
+    })
+    
+    // Version 2: Added templates table
     this.version(2).stores({
-      todos:
-        'id, text, done, priority, category, dueDate, createdAt, updatedAt',
+      todos: 'id, text, done, priority, category, dueDate, createdAt, updatedAt',
       templates: 'id, name, createdAt',
+    })
+    
+    // Version 3: Future schema for MVP 21 (recurring tasks) - prepared structure
+    this.version(3).stores({
+      todos: 'id, text, done, priority, category, dueDate, createdAt, updatedAt, summary, description, points, dueDateTime, completedAt',
+      templates: 'id, name, createdAt',
+    }).upgrade(tx => {
+      // Safely migrate existing data to new schema
+      return tx.table('todos').toCollection().modify(todo => {
+        // Add new fields with default values if missing
+        if (!todo.summary) todo.summary = todo.text || 'Untitled'
+        if (!todo.description) todo.description = ''
+        if (!todo.points) todo.points = 5
+        if (!todo.descriptionFormat) todo.descriptionFormat = 'plaintext'
+      })
     })
   }
 }
@@ -511,9 +532,8 @@ export const hybridTasksRepo = {
             const localTodo = await tasksRepo.getTodoById(id)
             if (localTodo) {
               // Create the entry in Supabase with the updates applied
-              const todoToCreate = { ...localTodo, ...updates }
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              delete (todoToCreate as any).id // Remove id for creation
+              const { id: _, ...todoToCreate } = { ...localTodo, ...updates }
+              // Now todoToCreate is properly typed without the id property
               const cloudResult = await supabaseTasksRepo.addTodo(todoToCreate, userId)
               cloudSuccess = true
               console.log('✅ Created missing todo in Supabase:', { id: cloudResult.id, summary: cloudResult.summary })
