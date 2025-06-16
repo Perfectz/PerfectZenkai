@@ -74,8 +74,8 @@ export default defineConfig({
         background_color: '#111827',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/?source=pwa',
+        scope: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
+        start_url: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/?source=pwa' : '/?source=pwa',
         icons: [
           {
             src: 'icons/logo192.png',
