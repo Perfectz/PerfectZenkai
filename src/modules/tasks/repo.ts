@@ -50,15 +50,12 @@ export const supabaseTasksRepo = {
       .from('todos')
       .insert({
         user_id: userId,
-        summary: todo.summary,
-        description: todo.description || '',
-        description_format: todo.descriptionFormat || 'plaintext',
+        text: todo.summary, // Legacy field still required for compatibility
+        summary: todo.summary, // New field for enhanced schema
         done: todo.done,
         priority: todo.priority,
         category: todo.category,
-        points: todo.points || 5,
         due_date: todo.dueDate || null,
-        due_date_time: todo.dueDateTime || null,
         created_at: todo.createdAt,
       })
       .select()
@@ -92,17 +89,17 @@ export const supabaseTasksRepo = {
 
     return {
       id: todoData.id,
-      summary: todoData.summary,
-      description: todoData.description || '',
-      descriptionFormat: todoData.description_format,
+      summary: todoData.summary, // Fixed: Map 'summary' field correctly
+      description: '', // Default empty description for now
+      descriptionFormat: 'plaintext',
       done: todoData.done,
       priority: todoData.priority,
       category: todoData.category,
-      points: todoData.points,
+      points: 5, // Default points
       dueDate: todoData.due_date,
-      dueDateTime: todoData.due_date_time,
+      dueDateTime: undefined, // Not in current schema
       subtasks,
-      completedAt: todoData.completed_at,
+      completedAt: undefined, // Not in current schema
       createdAt: todoData.created_at,
       updatedAt: todoData.updated_at,
     }
@@ -112,16 +109,14 @@ export const supabaseTasksRepo = {
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
-    if (updates.summary !== undefined) updateData.summary = updates.summary
-    if (updates.description !== undefined) updateData.description = updates.description
-    if (updates.descriptionFormat !== undefined) updateData.description_format = updates.descriptionFormat
+    if (updates.summary !== undefined) {
+      updateData.text = updates.summary // Legacy field for compatibility
+      updateData.summary = updates.summary // New field for enhanced schema
+    }
     if (updates.done !== undefined) updateData.done = updates.done
     if (updates.priority !== undefined) updateData.priority = updates.priority
     if (updates.category !== undefined) updateData.category = updates.category
-    if (updates.points !== undefined) updateData.points = updates.points
     if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate
-    if (updates.dueDateTime !== undefined) updateData.due_date_time = updates.dueDateTime
-    if (updates.completedAt !== undefined) updateData.completed_at = updates.completedAt
     updateData.updated_at = new Date().toISOString()
 
     const { error } = await supabase
@@ -193,17 +188,17 @@ export const supabaseTasksRepo = {
 
     return (todos || []).map(todo => ({
       id: todo.id,
-      summary: todo.summary,
-      description: todo.description || '',
-      descriptionFormat: todo.description_format,
+      summary: todo.summary, // Fixed: Map 'summary' field correctly
+      description: '', // Default empty description for now
+      descriptionFormat: 'plaintext',
       done: todo.done,
       priority: todo.priority,
       category: todo.category,
-      points: todo.points,
+      points: 5, // Default points
       dueDate: todo.due_date,
-      dueDateTime: todo.due_date_time,
+      dueDateTime: undefined, // Not in current schema
       subtasks: subtasksByTodo[todo.id] || [],
-      completedAt: todo.completed_at,
+      completedAt: undefined, // Not in current schema
       createdAt: todo.created_at,
       updatedAt: todo.updated_at,
     }))
@@ -316,17 +311,17 @@ export const tasksRepo = {
 
         return (todos || []).map(todo => ({
           id: todo.id,
-          summary: todo.summary,
-          description: todo.description,
-          descriptionFormat: todo.description_format,
+          summary: todo.text, // Fixed: Map 'text' field to 'summary'
+          description: '', // Default empty description for now
+          descriptionFormat: 'plaintext',
           done: todo.done,
           priority: todo.priority,
           category: todo.category,
-          points: todo.points,
+          points: 5, // Default points
           dueDate: todo.due_date,
-          dueDateTime: todo.due_date_time,
-          subtasks: todo.subtasks || [],
-          completedAt: todo.completed_at,
+          dueDateTime: undefined, // Not in current schema
+          subtasks: [], // Will need to be fetched separately
+          completedAt: undefined, // Not in current schema
           createdAt: todo.created_at,
           updatedAt: todo.updated_at,
         }))
@@ -480,151 +475,311 @@ export const hybridTasksRepo = {
   async addTodo(todo: Omit<Todo, 'id'>, userId?: string): Promise<Todo> {
     try {
       if (supabase && userId) {
+        // Try Supabase first
         const result = await supabaseTasksRepo.addTodo(todo, userId)
         // Also save to local for offline access
         await tasksRepo.addTodo(todo)
+        console.log('✅ Todo saved to cloud and local:', { id: result.id, summary: result.summary })
         return result
       }
     } catch (error) {
       console.warn('Supabase save failed, using local storage:', error)
     }
     
-    return await tasksRepo.addTodo(todo)
+    // Fallback to local storage
+    const result = await tasksRepo.addTodo(todo)
+    console.log('✅ Todo saved locally only:', { id: result.id, summary: result.summary })
+    return result
   },
 
   async updateTodo(id: string, updates: Partial<Todo>, userId?: string): Promise<void> {
-    try {
-      if (supabase && userId) {
+    let cloudSuccess = false
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
         await supabaseTasksRepo.updateTodo(id, updates)
+        cloudSuccess = true
+        console.log('✅ Todo updated in cloud:', { id, updates })
+      } catch (error) {
+        console.warn('Supabase update failed:', error)
+        
+        // If the entry doesn't exist in Supabase, try to create it
+        if (error instanceof Error && (error.message.includes('not found') || error.message.includes('PGRST116'))) {
+          try {
+            // Get the full entry from local storage first
+            const localTodo = await tasksRepo.getTodoById(id)
+            if (localTodo) {
+              // Create the entry in Supabase with the updates applied
+              const todoToCreate = { ...localTodo, ...updates }
+              delete (todoToCreate as any).id // Remove id for creation
+              const cloudResult = await supabaseTasksRepo.addTodo(todoToCreate, userId)
+              cloudSuccess = true
+              console.log('✅ Created missing todo in Supabase:', { id: cloudResult.id, summary: cloudResult.summary })
+            }
+          } catch (createError) {
+            console.warn('Failed to create todo in Supabase:', createError)
+          }
+        }
       }
-    } catch (error) {
-      console.warn('Supabase update failed:', error)
     }
     
-    await tasksRepo.updateTodo(id, updates)
+    // Always update local storage
+    try {
+      await tasksRepo.updateTodo(id, updates)
+      console.log('✅ Todo updated locally:', { id, updates, cloudSync: cloudSuccess })
+    } catch (localError) {
+      console.error('❌ Failed to update todo locally:', localError)
+      throw localError
+    }
   },
 
   async deleteTodo(id: string, userId?: string): Promise<void> {
-    try {
-      if (supabase && userId) {
+    let cloudSuccess = false
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
         await supabaseTasksRepo.deleteTodo(id)
+        cloudSuccess = true
+        console.log('✅ Todo deleted from cloud:', { id })
+      } catch (error) {
+        console.warn('Supabase delete failed:', error)
       }
-    } catch (error) {
-      console.warn('Supabase delete failed:', error)
     }
     
-    await tasksRepo.deleteTodo(id)
+    // Always delete from local storage
+    try {
+      await tasksRepo.deleteTodo(id)
+      console.log('✅ Todo deleted locally:', { id, cloudSync: cloudSuccess })
+    } catch (localError) {
+      console.error('❌ Failed to delete todo locally:', localError)
+      throw localError
+    }
   },
 
   async getAllTodos(userId?: string): Promise<Todo[]> {
     try {
       if (supabase && userId) {
-        return await supabaseTasksRepo.getAllTodos(userId)
+        // Try to get from Supabase first
+        const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
+        console.log('✅ Todos loaded from cloud:', { count: cloudTodos.length })
+        return cloudTodos
       }
     } catch (error) {
       console.warn('Supabase fetch failed, using local storage:', error)
     }
     
-    return await tasksRepo.getAllTodos()
+    // Fallback to local storage
+    const localTodos = await tasksRepo.getAllTodos()
+    console.log('✅ Todos loaded from local storage:', { count: localTodos.length })
+    return localTodos
   },
 
   async getTodoById(id: string, userId?: string): Promise<Todo | undefined> {
     try {
       if (supabase && userId) {
-        const todos = await supabaseTasksRepo.getAllTodos(userId)
-        return todos.find(todo => todo.id === id)
+        // Try Supabase first - we'll need to implement this in supabaseTasksRepo
+        const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
+        const cloudTodo = cloudTodos.find(todo => todo.id === id)
+        if (cloudTodo) {
+          console.log('✅ Todo found in cloud:', { id })
+          return cloudTodo
+        }
       }
     } catch (error) {
       console.warn('Supabase fetch failed, using local storage:', error)
     }
     
-    return await tasksRepo.getTodoById(id)
+    // Fallback to local storage
+    const localTodo = await tasksRepo.getTodoById(id)
+    if (localTodo) {
+      console.log('✅ Todo found locally:', { id })
+    }
+    return localTodo
   },
 
+  async syncData(userId?: string): Promise<{ synced: number; errors: number }> {
+    if (!supabase || !userId) {
+      console.info('🔄 Skipping todo sync - no cloud storage available')
+      return { synced: 0, errors: 0 }
+    }
+
+    console.info('🔄 Starting todo data synchronization...')
+    let syncedCount = 0
+    let errorCount = 0
+
+    try {
+      // Get all cloud data
+      const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
+      console.info(`📥 Found ${cloudTodos.length} todos in cloud storage`)
+
+      // Get all local data
+      const localTodos = await tasksRepo.getAllTodos()
+      console.info(`💾 Found ${localTodos.length} todos in local storage`)
+
+      // Create a map of local todos by ID for quick lookup
+      const localTodosMap = new Map(localTodos.map(t => [t.id, t]))
+
+      // Sync cloud todos to local storage
+      for (const cloudTodo of cloudTodos) {
+        try {
+          const localTodo = localTodosMap.get(cloudTodo.id)
+          
+          if (!localTodo) {
+                         // Todo exists in cloud but not locally - add it
+             await tasksRepo.addTodo({
+               summary: cloudTodo.summary,
+               description: cloudTodo.description,
+               descriptionFormat: cloudTodo.descriptionFormat,
+               done: cloudTodo.done,
+               priority: cloudTodo.priority,
+               category: cloudTodo.category,
+               points: cloudTodo.points,
+               dueDate: cloudTodo.dueDate,
+               dueDateTime: cloudTodo.dueDateTime,
+               subtasks: cloudTodo.subtasks,
+               completedAt: cloudTodo.completedAt,
+               createdAt: cloudTodo.createdAt,
+             })
+            syncedCount++
+            console.debug(`✅ Synced todo to local: ${cloudTodo.summary}`)
+          } else {
+            // Todo exists in both - check if cloud version is newer
+            const cloudUpdated = new Date(cloudTodo.updatedAt)
+            const localUpdated = new Date(localTodo.updatedAt)
+            
+            if (cloudUpdated > localUpdated) {
+              // Cloud version is newer, update local
+              await tasksRepo.updateTodo(cloudTodo.id, {
+                summary: cloudTodo.summary,
+                description: cloudTodo.description,
+                descriptionFormat: cloudTodo.descriptionFormat,
+                done: cloudTodo.done,
+                priority: cloudTodo.priority,
+                category: cloudTodo.category,
+                points: cloudTodo.points,
+                dueDate: cloudTodo.dueDate,
+                dueDateTime: cloudTodo.dueDateTime,
+                subtasks: cloudTodo.subtasks,
+                completedAt: cloudTodo.completedAt,
+                updatedAt: cloudTodo.updatedAt,
+              })
+              syncedCount++
+              console.debug(`🔄 Updated local todo: ${cloudTodo.summary}`)
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Failed to sync todo ${cloudTodo.id}:`, error)
+          errorCount++
+        }
+      }
+
+      console.info(`✅ Todo sync complete: ${syncedCount} todos synced, ${errorCount} errors`)
+      return { synced: syncedCount, errors: errorCount }
+    } catch (error) {
+      console.error('❌ Todo synchronization failed:', error)
+      return { synced: syncedCount, errors: errorCount + 1 }
+    }
+  },
+
+  // Subtask methods with hybrid pattern
   async addSubtask(todoId: string, text: string, userId?: string): Promise<Subtask> {
     try {
       if (supabase && userId) {
+        // Try Supabase first
         const result = await supabaseTasksRepo.addSubtask(todoId, text)
-        // Also update local todo
-        const localTodo = await tasksRepo.getTodoById(todoId)
-        if (localTodo) {
-          const newSubtask: Subtask = {
-            id: uuidv4(),
-            text,
-            done: false,
-            createdAt: new Date().toISOString(),
-          }
-          localTodo.subtasks.push(newSubtask)
-          await tasksRepo.updateTodo(todoId, localTodo)
-        }
+        // Also save to local for offline access
+        await tasksRepo.addSubtask(todoId, text)
+        console.log('✅ Subtask saved to cloud and local:', { todoId, text })
         return result
       }
     } catch (error) {
-      console.warn('Supabase subtask add failed:', error)
+      console.warn('Supabase subtask save failed, using local storage:', error)
     }
     
-    // Fallback to local
-    const todo = await tasksRepo.getTodoById(todoId)
-    if (!todo) throw new Error('Todo not found')
+    // Fallback to local storage
+    await tasksRepo.addSubtask(todoId, text)
+    console.log('✅ Subtask saved locally only:', { todoId, text })
     
-    const newSubtask: Subtask = {
+    // Return a basic subtask object for local-only mode
+    return {
       id: uuidv4(),
       text,
       done: false,
       createdAt: new Date().toISOString(),
     }
-    
-    todo.subtasks.push(newSubtask)
-    await tasksRepo.updateTodo(todoId, todo)
-    return newSubtask
   },
 
   async updateSubtask(todoId: string, subtaskId: string, updates: Partial<Subtask>, userId?: string): Promise<void> {
-    try {
-      if (supabase && userId) {
+    let cloudSuccess = false
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
         await supabaseTasksRepo.updateSubtask(subtaskId, updates)
+        cloudSuccess = true
+        console.log('✅ Subtask updated in cloud:', { todoId, subtaskId, updates })
+      } catch (error) {
+        console.warn('Supabase subtask update failed:', error)
       }
-    } catch (error) {
-      console.warn('Supabase subtask update failed:', error)
     }
     
-    // Update local
-    const todo = await tasksRepo.getTodoById(todoId)
-    if (todo) {
-      const subtaskIndex = todo.subtasks.findIndex(s => s.id === subtaskId)
-      if (subtaskIndex !== -1) {
-        todo.subtasks[subtaskIndex] = { ...todo.subtasks[subtaskIndex], ...updates }
-        await tasksRepo.updateTodo(todoId, todo)
-      }
+    // Always update local storage
+    try {
+      await tasksRepo.updateSubtask(todoId, subtaskId, updates)
+      console.log('✅ Subtask updated locally:', { todoId, subtaskId, updates, cloudSync: cloudSuccess })
+    } catch (localError) {
+      console.error('❌ Failed to update subtask locally:', localError)
+      throw localError
     }
   },
 
   async deleteSubtask(todoId: string, subtaskId: string, userId?: string): Promise<void> {
-    try {
-      if (supabase && userId) {
+    let cloudSuccess = false
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
         await supabaseTasksRepo.deleteSubtask(subtaskId)
+        cloudSuccess = true
+        console.log('✅ Subtask deleted from cloud:', { todoId, subtaskId })
+      } catch (error) {
+        console.warn('Supabase subtask delete failed:', error)
       }
-    } catch (error) {
-      console.warn('Supabase subtask delete failed:', error)
     }
     
-    // Update local
-    const todo = await tasksRepo.getTodoById(todoId)
-    if (todo) {
-      todo.subtasks = todo.subtasks.filter(s => s.id !== subtaskId)
-      await tasksRepo.updateTodo(todoId, todo)
+    // Always delete from local storage
+    try {
+      await tasksRepo.deleteSubtask(todoId, subtaskId)
+      console.log('✅ Subtask deleted locally:', { todoId, subtaskId, cloudSync: cloudSuccess })
+    } catch (localError) {
+      console.error('❌ Failed to delete subtask locally:', localError)
+      throw localError
     }
   },
 
   async clearAll(userId?: string): Promise<void> {
-    try {
-      if (supabase && userId) {
+    let cloudSuccess = false
+
+    // Try Supabase first if available
+    if (supabase && userId) {
+      try {
         await supabaseTasksRepo.clearAll(userId)
+        cloudSuccess = true
+        console.log('✅ All todos cleared from cloud')
+      } catch (error) {
+        console.warn('Supabase clear failed:', error)
       }
-    } catch (error) {
-      console.warn('Supabase clear failed:', error)
     }
     
-    await tasksRepo.clearAll()
+    // Always clear local storage
+    try {
+      await tasksRepo.clearAll()
+      console.log('✅ All todos cleared locally:', { cloudSync: cloudSuccess })
+    } catch (localError) {
+      console.error('❌ Failed to clear todos locally:', localError)
+      throw localError
+    }
   },
 }
