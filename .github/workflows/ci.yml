@@ -36,7 +36,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Run unit tests
-        run: npm run test
+        run: npx vitest run --config vitest.config.ci.ts --reporter=basic
 
       - name: Build production bundle
         run: npm run build

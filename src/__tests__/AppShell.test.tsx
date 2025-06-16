@@ -5,12 +5,12 @@ import AppLayout from '../app/AppLayout'
 describe('AppLayout', () => {
   it('should render user header', () => {
     render(<AppLayout />)
-    expect(screen.getByText('Cyber Warrior')).toBeInTheDocument()
+    expect(screen.getByText('User')).toBeInTheDocument()
   })
 
   it('should render layout components', () => {
     render(<AppLayout />)
-    expect(screen.getByText('Training Mode')).toBeInTheDocument()
-    expect(screen.getByText('Exit')).toBeInTheDocument()
+    expect(screen.getByText('Online')).toBeInTheDocument()
+    expect(screen.getByText('Logout')).toBeInTheDocument()
   })
 })

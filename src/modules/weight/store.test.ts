@@ -171,7 +171,7 @@ describe('Weight Store', () => {
     })
   })
 
-  describe('hydrate', () => {
+  describe('loadWeights (hydration)', () => {
     it('should call loadWeights to hydrate store from repo', async () => {
       const mockWeights: WeightEntry[] = [
         { id: '1', dateISO: '2024-01-15', kg: 75.0 },
@@ -179,9 +179,9 @@ describe('Weight Store', () => {
 
       mockHybridWeightRepo.getAllWeights.mockResolvedValue(mockWeights)
 
-      const { hydrate } = useWeightStore.getState()
+      const { loadWeights } = useWeightStore.getState()
 
-      await hydrate()
+      await loadWeights()
 
       expect(mockHybridWeightRepo.getAllWeights).toHaveBeenCalledWith(undefined)
 
@@ -190,16 +190,19 @@ describe('Weight Store', () => {
     })
   })
 
-  describe('clearError', () => {
-    it('should clear error state', () => {
-      // Set error state
-      useWeightStore.setState({ error: 'Some error' })
+  describe('error handling', () => {
+    it('should handle error state from failed operations', async () => {
+      const error = new Error('Some error')
+      mockHybridWeightRepo.addWeight.mockRejectedValue(error)
 
-      const { clearError } = useWeightStore.getState()
-      clearError()
+      const { addWeight } = useWeightStore.getState()
+
+      await expect(
+        addWeight({ dateISO: '2024-01-15', kg: 75.5 })
+      ).rejects.toThrow('Some error')
 
       const state = useWeightStore.getState()
-      expect(state.error).toBeNull()
+      expect(state.error).toBe('Some error')
     })
   })
 })
