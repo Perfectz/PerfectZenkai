@@ -16,6 +16,7 @@ vi.mock('@/lib/supabase', () => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(),
+          maybeSingle: vi.fn(),
         })),
       })),
       insert: vi.fn(),
@@ -66,7 +67,11 @@ describe('SupabaseAuthService', () => {
       
       // Mock successful username check (no existing user)
       const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null })
-      const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+      const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null })
+      const mockEq = vi.fn().mockReturnValue({ 
+        single: mockSingle,
+        maybeSingle: mockMaybeSingle
+      })
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
       const mockFrom = vi.fn().mockReturnValue({ 
         select: mockSelect,
@@ -114,7 +119,11 @@ describe('SupabaseAuthService', () => {
       
       // Mock successful username check (no existing user)
       const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null })
-      const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+      const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null })
+      const mockEq = vi.fn().mockReturnValue({ 
+        single: mockSingle,
+        maybeSingle: mockMaybeSingle
+      })
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
       const mockFrom = vi.fn().mockReturnValue({ 
         select: mockSelect,
@@ -153,11 +162,18 @@ describe('SupabaseAuthService', () => {
       const { supabase } = await import('@/lib/supabase')
       
       // Mock existing username
+      const mockMaybeSingle = vi.fn().mockResolvedValue({
+        data: { username: testUser1.username },
+        error: null,
+      })
       const mockSingle = vi.fn().mockResolvedValue({
         data: { username: testUser1.username },
         error: null,
       })
-      const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+      const mockEq = vi.fn().mockReturnValue({ 
+        single: mockSingle,
+        maybeSingle: mockMaybeSingle
+      })
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
       const mockFrom = vi.fn().mockReturnValue({ 
         select: mockSelect,
@@ -185,6 +201,7 @@ describe('SupabaseAuthService', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn().mockResolvedValue({ data: null, error: null }),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
           })),
         })),
         insert: vi.fn(),
@@ -221,7 +238,14 @@ describe('SupabaseAuthService', () => {
         data: { username: testUser1.username },
         error: null,
       })
-      const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+      const mockMaybeSingle = vi.fn().mockResolvedValue({
+        data: { username: testUser1.username },
+        error: null,
+      })
+      const mockEq = vi.fn().mockReturnValue({ 
+        single: mockSingle,
+        maybeSingle: mockMaybeSingle
+      })
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
       const mockFrom = vi.fn().mockReturnValue({ 
         select: mockSelect,
@@ -264,7 +288,14 @@ describe('SupabaseAuthService', () => {
         data: { username: testUser2.username },
         error: null,
       })
-      const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+      const mockMaybeSingle = vi.fn().mockResolvedValue({
+        data: { username: testUser2.username },
+        error: null,
+      })
+      const mockEq = vi.fn().mockReturnValue({ 
+        single: mockSingle,
+        maybeSingle: mockMaybeSingle
+      })
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
       const mockFrom = vi.fn().mockReturnValue({ 
         select: mockSelect,
@@ -328,6 +359,14 @@ describe('SupabaseAuthService', () => {
               },
               error: null,
             }),
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                id: testUser1.id,
+                username: testUser1.username,
+                email: testUser1.email,
+              },
+              error: null,
+            }),
           })),
         })),
         insert: vi.fn(),
@@ -338,6 +377,10 @@ describe('SupabaseAuthService', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn().mockResolvedValue({
+              data: { username: testUser1.username },
+              error: null,
+            }),
+            maybeSingle: vi.fn().mockResolvedValue({
               data: { username: testUser1.username },
               error: null,
             }),
@@ -382,6 +425,10 @@ describe('SupabaseAuthService', () => {
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             single: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'No rows returned' },
+            }),
+            maybeSingle: vi.fn().mockResolvedValue({
               data: null,
               error: { message: 'No rows returned' },
             }),
