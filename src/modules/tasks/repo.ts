@@ -512,6 +512,7 @@ export const hybridTasksRepo = {
             if (localTodo) {
               // Create the entry in Supabase with the updates applied
               const todoToCreate = { ...localTodo, ...updates }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               delete (todoToCreate as any).id // Remove id for creation
               const cloudResult = await supabaseTasksRepo.addTodo(todoToCreate, userId)
               cloudSuccess = true

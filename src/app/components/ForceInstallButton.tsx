@@ -9,11 +9,6 @@ export default function ForceInstallButton() {
   const [isVisible, setIsVisible] = useState(false)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
-  // Only show in development mode
-  if (import.meta.env.PROD) {
-    return null
-  }
-
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
@@ -32,6 +27,11 @@ export default function ForceInstallButton() {
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
+
+  // Only show in development mode
+  if (import.meta.env.PROD) {
+    return null
+  }
 
   const handleInstall = async () => {
     if (installPrompt) {

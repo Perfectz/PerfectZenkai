@@ -400,7 +400,7 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
     set({ isLoading: true, error: null })
     try {
       // Map camelCase fields to snake_case for database
-      const dbUpdates: any = {
+      const dbUpdates: Record<string, unknown> = {
         updated_at: new Date().toISOString()
       }
       

@@ -6,6 +6,7 @@ import './index.css'
 import { initializeWeightStore } from './modules/weight'
 import { initializeNotesStore } from './modules/notes'
 import { BrowserRouter } from 'react-router-dom'
+import { killRootServiceWorker } from './shared/utils/killRootServiceWorker'
 
 // Initialize stores after auth is ready
 // Note: Tasks store will initialize itself after auth check completes
@@ -15,6 +16,12 @@ initializeNotesStore()
 
 // Register service worker in both development and production for PWA testing
 /* Legacy manual service worker registration removed – vite-plugin-pwa now handles this automatically */
+
+// Remove any legacy root-scoped service worker that could hijack the PWA scope
+if (import.meta.env.PROD) {
+  // Fire and forget – we don't block the render.
+  killRootServiceWorker()
+}
 
 const basename = import.meta.env.BASE_URL
 

@@ -75,8 +75,8 @@ export default defineConfig({
         background_color: '#111827',
         display: 'standalone',
         orientation: 'portrait',
-        scope: process.env.NODE_ENV === 'production' ? 'https://perfectz.github.io/PerfectZenkai/' : '/',
-        start_url: process.env.NODE_ENV === 'production' ? 'https://perfectz.github.io/PerfectZenkai/' : '/',
+        scope: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
+        start_url: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
         icons: [
           {
             src: 'icons/logo192.png',

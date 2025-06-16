@@ -44,7 +44,7 @@ export function useServiceWorkerUpdater() {
       },
     })
     setUpdateFn(() => updateSW)
-  }, []) // Remove the dependency that was causing infinite loops
+  }, [toast]) // Include toast in dependencies
 
   const updateApp = useCallback(() => {
     if (updateFn) {

@@ -143,7 +143,7 @@ export const supabaseWeightRepo = {
   async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>): Promise<WeightEntry> {
     if (!supabase) throw new Error('Supabase not available')
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (updates.dateISO !== undefined) updateData.date_iso = updates.dateISO
     if (updates.kg !== undefined) updateData.kg = updates.kg
 
@@ -328,6 +328,7 @@ export const hybridWeightRepo = {
             if (localEntry) {
               // Create the entry in Supabase with the updates applied
               const entryToCreate = { ...localEntry, ...updates }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               delete (entryToCreate as any).id // Remove id for creation
               cloudResult = await supabaseWeightRepo.addWeight(entryToCreate, userId)
               console.log('✅ Created missing entry in Supabase:', cloudResult)
