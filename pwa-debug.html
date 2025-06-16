@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Debug - Perfect Zenkai</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #111827; color: white; }
+        .check { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .debug-item { margin: 10px 0; padding: 10px; background: #1f2937; border-radius: 5px; }
+        .install-btn { 
+            background: #3b82f6; 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+        }
+        .install-btn:disabled { background: #6b7280; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>🔧 PWA Installation Debug</h1>
+    
+    <div class="debug-item">
+        <h3>Install Buttons</h3>
+        <button id="installBtn" class="install-btn" onclick="installPWA()">📲 Force Install PWA</button>
+        <button class="install-btn" onclick="checkPWAStatus()">🔍 Check PWA Status</button>
+        <button class="install-btn" onclick="checkManifest()">📋 Check Manifest</button>
+    </div>
+
+    <div class="debug-item">
+        <h3>PWA Requirements Checklist</h3>
+        <div id="pwaChecks"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>Service Worker Status</h3>
+        <div id="swStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>Manifest Status</h3>
+        <div id="manifestStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>Console Logs</h3>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const logs = document.getElementById('logs');
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(div);
+            console.log(message);
+        }
+
+        // Listen for beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.disabled = false;
+            log('✅ PWA install prompt available!', 'check');
+        });
+
+        // Listen for app installed
+        window.addEventListener('appinstalled', () => {
+            log('✅ PWA installed successfully!', 'check');
+            deferredPrompt = null;
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                log(`Install prompt result: ${outcome}`, outcome === 'accepted' ? 'check' : 'warning');
+                deferredPrompt = null;
+            } else {
+                log('❌ No install prompt available. Check PWA requirements.', 'error');
+                checkPWAStatus();
+            }
+        }
+
+        async function checkPWAStatus() {
+            const checks = document.getElementById('pwaChecks');
+            checks.innerHTML = '';
+
+            // Check if standalone mode
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            checks.innerHTML += `<div class="${isStandalone ? 'check' : 'warning'}">
+                ${isStandalone ? '✅' : '⚠️'} Standalone mode: ${isStandalone}
+            </div>`;
+
+            // Check service worker
+            const hasSW = 'serviceWorker' in navigator;
+            checks.innerHTML += `<div class="${hasSW ? 'check' : 'error'}">
+                ${hasSW ? '✅' : '❌'} Service Worker supported: ${hasSW}
+            </div>`;
+
+            if (hasSW) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    checks.innerHTML += `<div class="${registrations.length > 0 ? 'check' : 'warning'}">
+                        ${registrations.length > 0 ? '✅' : '⚠️'} Service Worker registered: ${registrations.length} found
+                    </div>`;
+                } catch (e) {
+                    checks.innerHTML += `<div class="error">❌ Service Worker error: ${e.message}</div>`;
+                }
+            }
+
+            // Check HTTPS
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            checks.innerHTML += `<div class="${isSecure ? 'check' : 'error'}">
+                ${isSecure ? '✅' : '❌'} Secure context: ${isSecure} (${location.protocol})
+            </div>`;
+
+            // Check manifest
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            checks.innerHTML += `<div class="${manifestLink ? 'check' : 'error'}">
+                ${manifestLink ? '✅' : '❌'} Manifest link: ${manifestLink ? manifestLink.href : 'Not found'}
+            </div>`;
+        }
+
+        async function checkManifest() {
+            const status = document.getElementById('manifestStatus');
+            try {
+                const response = await fetch('/manifest.webmanifest');
+                const manifest = await response.json();
+                
+                status.innerHTML = `
+                    <div class="check">✅ Manifest loaded successfully</div>
+                    <div>Name: ${manifest.name}</div>
+                    <div>Display: ${manifest.display}</div>
+                    <div>Start URL: ${manifest.start_url}</div>
+                    <div>Icons: ${manifest.icons ? manifest.icons.length : 0} found</div>
+                    <div>Theme color: ${manifest.theme_color}</div>
+                `;
+                
+                // Check icon requirements
+                if (manifest.icons) {
+                    const has192 = manifest.icons.some(icon => icon.sizes.includes('192x192'));
+                    const has512 = manifest.icons.some(icon => icon.sizes.includes('512x512'));
+                    status.innerHTML += `
+                        <div class="${has192 ? 'check' : 'error'}">
+                            ${has192 ? '✅' : '❌'} 192x192 icon: ${has192}
+                        </div>
+                        <div class="${has512 ? 'check' : 'error'}">
+                            ${has512 ? '✅' : '❌'} 512x512 icon: ${has512}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="error">❌ Manifest error: ${e.message}</div>`;
+            }
+        }
+
+        async function checkServiceWorker() {
+            const status = document.getElementById('swStatus');
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    if (registrations.length > 0) {
+                        const reg = registrations[0];
+                        status.innerHTML = `
+                            <div class="check">✅ Service Worker active</div>
+                            <div>Scope: ${reg.scope}</div>
+                            <div>State: ${reg.active ? reg.active.state : 'No active worker'}</div>
+                        `;
+                    } else {
+                        status.innerHTML = `<div class="warning">⚠️ No service worker registered</div>`;
+                        // Try to register
+                        try {
+                            await navigator.serviceWorker.register('/sw.js');
+                            status.innerHTML += `<div class="check">✅ Service worker registered successfully</div>`;
+                        } catch (e) {
+                            status.innerHTML += `<div class="error">❌ Service worker registration failed: ${e.message}</div>`;
+                        }
+                    }
+                } catch (e) {
+                    status.innerHTML = `<div class="error">❌ Service Worker error: ${e.message}</div>`;
+                }
+            } else {
+                status.innerHTML = `<div class="error">❌ Service Worker not supported</div>`;
+            }
+        }
+
+        // Run checks on load
+        window.addEventListener('load', () => {
+            log('🔧 PWA Debug page loaded');
+            checkPWAStatus();
+            checkManifest();
+            checkServiceWorker();
+            
+            // Wait a bit for install prompt
+            setTimeout(() => {
+                if (!deferredPrompt) {
+                    log('⚠️ No install prompt after 3 seconds. PWA may not meet all requirements.', 'warning');
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html> 
