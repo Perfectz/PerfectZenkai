@@ -19,6 +19,7 @@ interface WeightState {
   loadWeights: () => Promise<void>
   refreshWeights: () => Promise<void>
   clearWeights: () => Promise<void>
+  syncData: () => Promise<{ synced: number; errors: number }>
 
   // Goal actions
   setGoal: (goal: WeightGoalInput) => Promise<void>
@@ -170,6 +171,16 @@ export const useWeightStore = create<WeightState>((set) => ({
       // Initialize database for this user
       if (userId) {
         initializeWeightDatabase(userId)
+        
+        // Sync data to ensure local and cloud are in sync
+        try {
+          const syncResult = await hybridWeightRepo.syncData(userId)
+          if (syncResult.synced > 0) {
+            console.info(`🔄 Synced ${syncResult.synced} weight entries during load`)
+          }
+        } catch (syncError) {
+          console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
+        }
       }
 
       const weights = await hybridWeightRepo.getAllWeights(userId)
@@ -249,6 +260,26 @@ export const useWeightStore = create<WeightState>((set) => ({
         isLoading: false,
       })
     }
+  },
+
+  syncData: async () => {
+    const user = useAuthStore.getState().user
+    const userId = user?.id
+
+    const result = await hybridWeightRepo.syncData(userId)
+    
+    // If data was synced, reload the weights to reflect changes
+    if (result.synced > 0) {
+      const weights = await hybridWeightRepo.getAllWeights(userId)
+      set(() => ({
+        weights: weights.sort(
+          (a, b) =>
+            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
+        ),
+      }))
+    }
+    
+    return result
   },
 
   // Goal management actions

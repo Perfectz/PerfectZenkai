@@ -27,7 +27,7 @@ export function WeightSparkCard() {
     .slice(0, 30) // Limit to 30 entries
 
   const handleClick = () => {
-    navigate('/weight')
+    navigate('/health')
   }
 
   // Calculate trend for the period
@@ -71,6 +71,12 @@ export function WeightSparkCard() {
       ref={cardFeedback.elementRef}
       className={`cyber-card flex h-full cursor-pointer flex-col transition-all duration-200 mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
       role="button"
       tabIndex={0}
       aria-label="Weight trend card - view full weight history"

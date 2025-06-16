@@ -6,7 +6,7 @@ alwaysApply: false
 # MVP Template & Documentation Standards
 
 ## Rule Type
-**Auto-Attach:** `docs/mvp-*.md`
+**Auto-Attach:** `docs/mvp/mvp-*.md`
 
 ## Purpose
 Template and standards for creating MVP documents with TDD and Vertical Slice approach for Perfect Zenkai project.
@@ -321,7 +321,7 @@ npm run lighthouse -- /[route]
 ## File Organization
 
 ### MVP Document Location
-- All MVP documents in `docs/` folder
+- All MVP documents in `docs/mvp/` folder
 - Naming convention: `mvp-X-feature-name.md`
 - Sequential numbering for dependencies
 

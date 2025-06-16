@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
-import { hybridTasksRepo, tasksRepo } from './repo'
+import { hybridTasksRepo, tasksRepo, initializeTasksDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
 import { supabase } from '@/lib/supabase'
 
@@ -17,6 +17,8 @@ interface TasksState {
   deleteTodo: (id: string) => Promise<void>
   toggleTodo: (id: string) => Promise<void>
   loadTodos: () => Promise<void>
+  refreshTodos: () => Promise<void>
+  syncData: () => Promise<{ synced: number; errors: number }>
 
   // Subtask Actions
   addSubtask: (todoId: string, subtaskText: string) => Promise<void>
@@ -247,11 +249,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       if (!todo) throw new Error('Todo not found')
 
       const now = new Date().toISOString()
+      const updates = {
+        done: !todo.done,
+        updatedAt: now
+      }
+
       const updatedTodo = {
         ...todo,
-        done: !todo.done,
-        completedAt: !todo.done ? now : undefined, // Set completion time when marking as done
-        updatedAt: now
+        ...updates
       }
 
       // Optimistic update
@@ -259,23 +264,26 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         todos: state.todos.map(t => t.id === id ? updatedTodo : t)
       }))
 
-             // Update in database
-       if (!supabase) throw new Error('Supabase client not available')
-       const { error } = await supabase
-         .from('todos')
-         .update({
-           done: updatedTodo.done,
-           completed_at: updatedTodo.completedAt,
-           updated_at: updatedTodo.updatedAt
-         })
-         .eq('id', id)
+      try {
+        // Get current user for Supabase operations
+        const user = useAuthStore.getState().user
+        const userId = user?.id
 
-      if (error) {
+        // Use hybrid repository pattern instead of direct Supabase calls
+        await hybridTasksRepo.updateTodo(id, updates, userId)
+
+        console.log('✅ Todo toggled successfully:', { 
+          local: true, 
+          cloud: !!userId,
+          todoId: id, 
+          done: updates.done 
+        })
+      } catch (repositoryError) {
         // Rollback on error
         set(state => ({
           todos: state.todos.map(t => t.id === id ? todo : t)
         }))
-        throw error
+        throw repositoryError
       }
     } catch (error) {
       console.error('Failed to toggle todo:', error)
@@ -291,14 +299,28 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       const user = useAuthStore.getState().user
       const userId = user?.id
 
+      // Initialize database for this user
+      if (userId) {
+        initializeTasksDatabase(userId)
+        
+        // Sync data to ensure local and cloud are in sync
+        try {
+          const syncResult = await hybridTasksRepo.syncData(userId)
+          if (syncResult.synced > 0) {
+            console.info(`🔄 Synced ${syncResult.synced} todo entries during load`)
+          }
+        } catch (syncError) {
+          console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
+        }
+      }
+
       const todos = await hybridTasksRepo.getAllTodos(userId)
 
       set({ todos, isLoading: false })
 
       console.log('✅ Todos loaded successfully:', { 
         count: todos.length,
-        source: userId ? 'Supabase' : 'Local',
-        userId 
+        cloud: !!userId 
       })
     } catch (error) {
       console.error('❌ Failed to load todos:', error)
@@ -306,6 +328,49 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to load todos',
         isLoading: false,
       })
+    }
+  },
+
+  refreshTodos: async () => {
+    try {
+      await get().loadTodos()
+    } catch (error) {
+      console.error('❌ Failed to refresh todos:', error)
+      throw error
+    }
+  },
+
+  syncData: async () => {
+    try {
+      set({ isLoading: true, error: null })
+
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+             const result = await hybridTasksRepo.syncData(userId)
+
+       // If data was synced, reload the todos to reflect changes
+       if (result.synced > 0) {
+         await get().loadTodos()
+       }
+
+       set({ isLoading: false })
+
+       console.log('✅ Data synced successfully:', { 
+         local: true, 
+         cloud: !!userId,
+         result 
+       })
+
+       return result
+    } catch (error) {
+      console.error('❌ Failed to sync data:', error)
+      set({
+        error: error instanceof Error ? error.message : 'Failed to sync data',
+        isLoading: false,
+      })
+      throw error
     }
   },
 

@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mobile": "concurrently \"npm run dev\" \"ngrok http 5173\"",
+    "dev:tunnel": "ngrok http 5173",
     "dev:restart": "powershell -ExecutionPolicy Bypass -File scripts/restart-dev.ps1",
     "dev:restart:bash": "bash scripts/restart-dev.sh",
     "dev:https": "vite --host 0.0.0.0",
@@ -17,7 +19,12 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "test:e2e": "playwright test",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "build:preview": "npm run build && npm run preview",
+    "deploy:vercel": "npm run build && npx vercel --prod",
+    "deploy:netlify": "npm run build && npx netlify deploy --prod --dir=dist",
+    "deploy:gh-pages": "npm run build && npx gh-pages -d dist",
     "lighthouse": "node scripts/lighthouse.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -64,6 +71,7 @@
     "autoprefixer": "^10.4.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "concurrently": "^9.1.2",
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
@@ -80,10 +88,10 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
+    "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-pwa": "^0.17.4",
     "vitest": "^1.0.0",
-    "workbox-window": "^7.0.0",
-    "vite-plugin-mkcert": "^1.17.8"
+    "workbox-window": "^7.0.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

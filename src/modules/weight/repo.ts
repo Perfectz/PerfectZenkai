@@ -311,14 +311,12 @@ export const hybridWeightRepo = {
   },
 
   async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>, userId?: string): Promise<WeightEntry> {
-    let cloudUpdateSucceeded = false
     let cloudResult: WeightEntry | null = null
 
     // Try Supabase first if available
     if (supabase && userId) {
       try {
         cloudResult = await supabaseWeightRepo.updateWeight(id, updates)
-        cloudUpdateSucceeded = true
       } catch (error) {
         console.warn('Supabase update failed:', error)
         
@@ -332,7 +330,6 @@ export const hybridWeightRepo = {
               const entryToCreate = { ...localEntry, ...updates }
               delete (entryToCreate as any).id // Remove id for creation
               cloudResult = await supabaseWeightRepo.addWeight(entryToCreate, userId)
-              cloudUpdateSucceeded = true
               console.log('✅ Created missing entry in Supabase:', cloudResult)
             }
           } catch (createError) {
@@ -347,10 +344,10 @@ export const hybridWeightRepo = {
     try {
       localResult = await weightRepo.updateWeight(id, updates)
     } catch (localError) {
-      console.warn('Local update failed, entry may not exist locally:', localError)
-      
-      // If local entry doesn't exist, try to create it
+      // If local entry doesn't exist, try to create it (this is normal for cloud sync)
       if (localError instanceof Error && localError.message.includes('Weight entry not found')) {
+        console.info('🔄 Local entry not found, syncing from cloud data (normal behavior)')
+        
         try {
           // If we have a cloud result, use that to create local entry
           if (cloudResult) {
@@ -359,7 +356,7 @@ export const hybridWeightRepo = {
               kg: cloudResult.kg
             })
             localResult = cloudResult
-            console.log('✅ Created missing local entry from cloud data:', localResult)
+            console.info('✅ Successfully synced entry to local storage:', { id: cloudResult.id, dateISO: cloudResult.dateISO })
           } else {
             // Create a new entry with the updates (fallback)
             const newEntry = {
@@ -367,17 +364,20 @@ export const hybridWeightRepo = {
               kg: updates.kg || 0
             }
             localResult = await weightRepo.addWeight(newEntry)
-            console.log('✅ Created new local entry as fallback:', localResult)
+            console.info('✅ Created new local entry as fallback:', { id: localResult.id, dateISO: localResult.dateISO })
           }
         } catch (createError) {
-          console.error('Failed to create local entry:', createError)
+          console.error('❌ Failed to sync entry to local storage:', createError)
           // If all else fails, return cloud result or throw
           if (cloudResult) {
+            console.info('📤 Returning cloud result despite local sync failure')
             return cloudResult
           }
           throw localError
         }
       } else {
+        // This is an unexpected error, log it properly
+        console.error('❌ Unexpected local storage error:', localError)
         throw localError
       }
     }
@@ -396,6 +396,67 @@ export const hybridWeightRepo = {
     }
     
     await weightRepo.clearAll()
+  },
+
+  async syncData(userId?: string): Promise<{ synced: number; errors: number }> {
+    if (!supabase || !userId) {
+      console.info('🔄 Skipping data sync - no cloud storage available')
+      return { synced: 0, errors: 0 }
+    }
+
+    console.info('🔄 Starting weight data synchronization...')
+    let syncedCount = 0
+    let errorCount = 0
+
+    try {
+      // Get all cloud data
+      const cloudWeights = await supabaseWeightRepo.getAllWeights(userId)
+      console.info(`📥 Found ${cloudWeights.length} entries in cloud storage`)
+
+      // Get all local data
+      const localWeights = await weightRepo.getAllWeights()
+      console.info(`💾 Found ${localWeights.length} entries in local storage`)
+
+      // Create a map of local entries by ID for quick lookup
+      const localWeightsMap = new Map(localWeights.map(w => [w.id, w]))
+
+      // Sync cloud entries to local storage
+      for (const cloudWeight of cloudWeights) {
+        try {
+          const localWeight = localWeightsMap.get(cloudWeight.id)
+          
+          if (!localWeight) {
+            // Entry exists in cloud but not locally - add it
+            await weightRepo.addWeight({
+              dateISO: cloudWeight.dateISO,
+              kg: cloudWeight.kg
+            })
+            syncedCount++
+            console.debug(`✅ Synced entry to local: ${cloudWeight.dateISO}`)
+          } else {
+            // Entry exists in both - check if they match
+            if (localWeight.kg !== cloudWeight.kg || localWeight.dateISO !== cloudWeight.dateISO) {
+              // Cloud version is newer, update local
+              await weightRepo.updateWeight(cloudWeight.id, {
+                dateISO: cloudWeight.dateISO,
+                kg: cloudWeight.kg
+              })
+              syncedCount++
+              console.debug(`🔄 Updated local entry: ${cloudWeight.dateISO}`)
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Failed to sync entry ${cloudWeight.id}:`, error)
+          errorCount++
+        }
+      }
+
+      console.info(`✅ Data sync complete: ${syncedCount} entries synced, ${errorCount} errors`)
+      return { synced: syncedCount, errors: errorCount }
+    } catch (error) {
+      console.error('❌ Data synchronization failed:', error)
+      return { synced: syncedCount, errors: errorCount + 1 }
+    }
   },
 }
 

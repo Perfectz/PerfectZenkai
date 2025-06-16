@@ -1,16 +1,31 @@
 {
-  "name": "Perfect Zenkai",
-  "short_name": "Zenkai",
-  "description": "Weight tracking and task management PWA with offline-first capabilities",
-  "theme_color": "#111827",
+  "name": "Perfect Zenkai - Health & Productivity Tracker",
+  "short_name": "Perfect Zenkai",
+  "description": "Complete health and productivity tracking app with weight management, task organization, and offline-first capabilities. Track your fitness journey and boost productivity with cyber-themed interface.",
+  "theme_color": "#22ffb7",
   "background_color": "#111827",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "scope": "/",
   "start_url": "/?source=pwa",
-  "lang": "en",
-  "categories": ["health", "productivity", "lifestyle"],
-  "screenshots": [],
+  "lang": "en-US",
+  "categories": ["health", "productivity", "lifestyle", "fitness", "utilities"],
+  "screenshots": [
+    {
+      "src": "screenshots/dashboard-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard view on mobile"
+    },
+    {
+      "src": "screenshots/dashboard-desktop.png", 
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard view on desktop"
+    }
+  ],
   "icons": [
     {
       "src": "icons/logo192.png",
@@ -36,5 +51,10 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone"],
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
 } 

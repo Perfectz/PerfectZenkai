@@ -1,9 +1,9 @@
-import React from 'react'
+// import React from 'react' // Unused import
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { Calendar, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useWeightStore } from '../store'
-import { WeightEntry, kgToLbs } from '../types'
+import { kgToLbs } from '../types'
 import { WeightRow } from './WeightRow'
 
 interface WeightPeriodViewProps {

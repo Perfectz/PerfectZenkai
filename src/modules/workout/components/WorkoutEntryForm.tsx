@@ -8,7 +8,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { Dumbbell, Clock, Zap, Plus } from 'lucide-react'
 import { useWorkoutStore } from '../store'
 import { ExerciseType, IntensityLevel } from '../types'
-import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
+import { useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
 export function WorkoutEntryForm() {
   const { exercises, addWorkout, isLoading } = useWorkoutStore()
@@ -25,10 +25,10 @@ export function WorkoutEntryForm() {
   
   // Mobile interactions
   const { isMobile } = useResponsiveBreakpoint()
-  const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
-    scale: 0.95, 
-    haptic: true 
-  })
+  // const buttonFeedback = useTouchFeedback<HTMLButtonElement>({ 
+  //   scale: 0.95, 
+  //   haptic: true 
+  // }) // Unused variable
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

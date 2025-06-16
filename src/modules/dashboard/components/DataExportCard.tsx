@@ -62,7 +62,7 @@ export function DataExportCard() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-1 flex-col space-y-4">
         {/* Status indicator */}
         <div className="flex items-center justify-between">
           <div className="font-inter text-sm text-gray-300">

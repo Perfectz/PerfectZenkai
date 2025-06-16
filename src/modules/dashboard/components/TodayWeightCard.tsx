@@ -2,8 +2,10 @@ import { useWeightStore } from '@/modules/weight'
 import { kgToLbs } from '@/modules/weight/types'
 import { Scale, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
+import { useNavigate } from 'react-router-dom'
 
 export function TodayWeightCard() {
+  const navigate = useNavigate()
   const { weights, isLoading } = useWeightStore()
   
   // Mobile interactions
@@ -12,6 +14,10 @@ export function TodayWeightCard() {
     scale: 0.98, 
     haptic: true 
   })
+
+  const handleClick = () => {
+    navigate('/health')
+  }
 
   // Get today's weight entry
   const today = new Date().toISOString().split('T')[0]
@@ -38,7 +44,7 @@ export function TodayWeightCard() {
 
   if (isLoading) {
     return (
-      <div className="cyber-card cursor-pointer mobile-card mobile-responsive">
+      <div className="cyber-card flex h-full cursor-pointer flex-col mobile-card mobile-responsive">
         <div className="mb-4 flex items-center gap-3 mobile-layout">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
             <Scale className="text-ki-green cyber-icon h-5 w-5" />
@@ -48,7 +54,7 @@ export function TodayWeightCard() {
             <p className="font-mono text-xs text-gray-400 mobile-caption">Loading...</p>
           </div>
         </div>
-        <div className="flex h-16 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center">
           <div className="shimmer h-8 w-full rounded bg-gray-700"></div>
         </div>
       </div>
@@ -59,9 +65,16 @@ export function TodayWeightCard() {
     <div 
       ref={cardFeedback.elementRef}
       className={`cyber-card transition-cyber flex h-full cursor-pointer flex-col mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
       role="button"
       tabIndex={0}
-      aria-label="Today's weight card"
+      aria-label="Today's weight card - navigate to health hub"
     >
       <div className="mb-4 flex items-center gap-3 mobile-layout">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">

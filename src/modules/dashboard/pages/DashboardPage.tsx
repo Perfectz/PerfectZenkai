@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   
   // Mobile responsiveness
-  const { isMobile, isGalaxyS24Ultra } = useResponsiveBreakpoint()
+  const { isMobile } = useResponsiveBreakpoint()
 
   useEffect(() => {
     // Load data for both modules when dashboard loads
@@ -78,25 +78,25 @@ export default function DashboardPage() {
       {/* Enhanced responsive grid layout with uniform card heights - Mobile optimized */}
       <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 mobile-grid ${isMobile ? 'mobile-stack' : ''}`}>
         {/* Priority cards first - Mobile stacked */}
-        <div className={`h-80 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
+        <div className={`${isMobile ? 'min-h-80' : 'h-80'} mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <TodayWeightCard />
         </div>
 
-        <div className={`h-80 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
+        <div className={`${isMobile ? 'min-h-80' : 'h-80'} mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <TodoSummaryCard />
         </div>
 
         {/* Secondary cards - Mobile responsive */}
-        <div className={`h-80 sm:col-span-1 lg:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
+        <div className={`${isMobile ? 'min-h-80' : 'h-80'} sm:col-span-1 lg:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <WeightSparkCard />
         </div>
 
-        <div className={`h-80 sm:col-span-1 lg:col-span-1 xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
+        <div className={`${isMobile ? 'min-h-80' : 'h-80'} sm:col-span-1 lg:col-span-1 xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <StreakCard />
         </div>
 
         {/* Full width on mobile, spans remaining space on desktop */}
-        <div className={`h-80 sm:col-span-2 lg:col-span-1 xl:col-span-1 2xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
+        <div className={`${isMobile ? 'min-h-80' : 'h-80'} sm:col-span-2 lg:col-span-1 xl:col-span-1 2xl:col-span-1 mobile-card ${isMobile ? 'mobile-responsive' : ''}`}>
           <DataExportCard />
         </div>
       </div>

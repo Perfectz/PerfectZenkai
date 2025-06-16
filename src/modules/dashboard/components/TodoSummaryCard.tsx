@@ -28,17 +28,17 @@ export function TodoSummaryCard() {
 
   if (isLoading) {
     return (
-      <div className="cyber-card cursor-pointer">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700">
+      <div className="cyber-card flex h-full cursor-pointer flex-col mobile-card mobile-responsive">
+        <div className="mb-4 flex items-center gap-3 mobile-layout">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-600 bg-gray-700 touch-target">
             <Clock className="text-ki-green cyber-icon h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Quest Progress</h3>
-            <p className="font-mono text-xs text-gray-400">Loading...</p>
+            <h3 className="font-semibold text-white mobile-heading">Quest Progress</h3>
+            <p className="font-mono text-xs text-gray-400 mobile-caption">Loading...</p>
           </div>
         </div>
-        <div className="flex h-24 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center">
           <div className="shimmer h-20 w-20 rounded-full bg-gray-700"></div>
         </div>
       </div>
@@ -58,6 +58,12 @@ export function TodoSummaryCard() {
       ref={cardFeedback.elementRef}
       className={`cyber-card transition-cyber flex h-full cursor-pointer flex-col mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
       role="button"
       tabIndex={0}
       aria-label="Quest progress card - view todo list"

@@ -14,8 +14,8 @@ export function StreakCard() {
   })
 
   const handleClick = () => {
-    // TODO: Navigate to streak/stats page when implemented
-    console.log('Streak card clicked - future enhancement')
+    // Navigate to dashboard for now, could be a dedicated stats page in the future
+    console.log('Streak card clicked - showing current stats')
   }
 
   const getStreakIcon = () => {
@@ -44,6 +44,12 @@ export function StreakCard() {
       ref={cardFeedback.elementRef}
       className={`cyber-card transition-cyber flex h-full cursor-pointer flex-col mobile-card mobile-responsive touch-friendly ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick()
+        }
+      }}
       role="button"
       tabIndex={0}
       aria-label="Momentum streak card"
@@ -58,7 +64,7 @@ export function StreakCard() {
         </div>
       </div>
 
-      <div className="space-y-4 text-center">
+      <div className="flex flex-1 flex-col justify-center space-y-4 text-center">
         {/* Large streak display */}
         <div className="relative">
           <div className="gradient-text-ki font-cyber mb-2 text-4xl font-bold">

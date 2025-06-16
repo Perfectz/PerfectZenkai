@@ -80,7 +80,13 @@ describe('useTasksStore', () => {
       await addTodo(todoInput)
 
       // Should call repo with todo input and user id
-      expect(mockHybridTasksRepo.addTodo).toHaveBeenCalledWith(todoInput, undefined)
+      expect(mockHybridTasksRepo.addTodo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...todoInput,
+          createdAt: expect.any(String), // Dynamic timestamp
+        }),
+        undefined
+      )
 
       // Should update store with new todo
       const state = useTasksStore.getState()
@@ -204,7 +210,8 @@ describe('useTasksStore', () => {
   })
 
   describe('toggleTodo', () => {
-    it('should toggle todo completion status', async () => {
+    // ❌ RED PHASE: These tests will FAIL with current implementation
+    it('should use hybridTasksRepo instead of direct Supabase calls', async () => {
       useTasksStore.setState({
         todos: [mockTodo],
         isLoading: false,
@@ -216,14 +223,82 @@ describe('useTasksStore', () => {
       const { toggleTodo } = useTasksStore.getState()
       await toggleTodo('test-id-1')
 
-      expect(hybridTasksRepo.updateTodo).toHaveBeenCalledWith('test-id-1', {
-        done: true,
-      })
+      // Should use hybrid repo pattern, not direct Supabase
+      expect(hybridTasksRepo.updateTodo).toHaveBeenCalledWith(
+        'test-id-1',
+        expect.objectContaining({
+          done: true,
+          updatedAt: expect.any(String)
+        }),
+        undefined // userId
+      )
     })
 
-    it('should handle toggle for non-existent todo', async () => {
+    it('should NOT reference completed_at field (schema mismatch)', async () => {
+      useTasksStore.setState({
+        todos: [mockTodo],
+        isLoading: false,
+        error: null,
+      })
+
+      vi.mocked(hybridTasksRepo.updateTodo).mockResolvedValue()
+
       const { toggleTodo } = useTasksStore.getState()
-      await toggleTodo('non-existent-id')
+      await toggleTodo('test-id-1')
+
+      // Should NOT include completedAt field in updates
+      const updateCall = vi.mocked(hybridTasksRepo.updateTodo).mock.calls[0]
+      const updates = updateCall[1]
+      
+      expect(updates).not.toHaveProperty('completedAt')
+      expect(updates).toHaveProperty('done', true)
+      expect(updates).toHaveProperty('updatedAt')
+    })
+
+    it('should handle optimistic updates correctly', async () => {
+      const initialTodo = { ...mockTodo, done: false }
+      useTasksStore.setState({
+        todos: [initialTodo],
+        isLoading: false,
+        error: null,
+      })
+
+      vi.mocked(hybridTasksRepo.updateTodo).mockResolvedValue()
+
+      const { toggleTodo } = useTasksStore.getState()
+      await toggleTodo('test-id-1')
+
+      // State should be updated optimistically
+      const state = useTasksStore.getState()
+      expect(state.todos[0].done).toBe(true)
+    })
+
+    it('should rollback on repository error', async () => {
+      const initialTodo = { ...mockTodo, done: false }
+      useTasksStore.setState({
+        todos: [initialTodo],
+        isLoading: false,
+        error: null,
+      })
+
+      const repositoryError = new Error('Repository failed')
+      vi.mocked(hybridTasksRepo.updateTodo).mockRejectedValue(repositoryError)
+
+      const { toggleTodo } = useTasksStore.getState()
+      
+      await expect(toggleTodo('test-id-1')).rejects.toThrow('Repository failed')
+
+      // State should be rolled back to original
+      const state = useTasksStore.getState()
+      expect(state.todos[0].done).toBe(false) // Should be back to original
+    })
+
+    it('should handle toggle for non-existent todo gracefully', async () => {
+      useTasksStore.setState({ todos: [] })
+
+      const { toggleTodo } = useTasksStore.getState()
+      
+      await expect(toggleTodo('non-existent-id')).rejects.toThrow('Todo not found')
 
       // Should not call repo if todo doesn't exist
       expect(hybridTasksRepo.updateTodo).not.toHaveBeenCalled()

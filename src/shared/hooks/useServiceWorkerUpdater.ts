@@ -14,12 +14,12 @@ export function useServiceWorkerUpdater() {
   const [updateFn, setUpdateFn] = useState<(() => void) | null>(null)
   const hasRegistered = useRef(false)
 
-  const showOfflineToast = useCallback(() => {
-    toast({
-      title: 'App ready for offline use',
-      variant: 'success',
-    })
-  }, [toast])
+  // const showOfflineToast = useCallback(() => {
+  //   toast({
+  //     title: 'App ready for offline use',
+  //     variant: 'success',
+  //   })
+  // }, [toast]) // Unused function
 
   useEffect(() => {
     // Prevent multiple registrations

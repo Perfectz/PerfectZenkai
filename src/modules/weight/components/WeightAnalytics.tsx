@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { Progress } from '@/shared/ui/progress'
-import { Button } from '@/shared/ui/button'
+// import { Button } from '@/shared/ui/button' // Unused import
 import { TrendingUp, TrendingDown, Target, Minus, BarChart3 } from 'lucide-react'
 import { useWeightStore } from '../store'
 import { kgToLbs } from '../types'
