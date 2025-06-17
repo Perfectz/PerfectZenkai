@@ -10,7 +10,7 @@ class NotesDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `NotesDatabase_${userId}` : 'NotesDatabase'
     super(dbName)
-    this.version(1).stores({
+    this.version(33).stores({
       notes: 'id, title, content, createdAt, updatedAt',
     })
   }

@@ -11,10 +11,7 @@ class WeightDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `WeightDatabase_${userId}` : 'WeightDatabase'
     super(dbName)
-    this.version(1).stores({
-      weights: 'id, dateISO, kg',
-    })
-    this.version(2).stores({
+    this.version(32).stores({
       weights: 'id, dateISO, kg',
       goals: 'id, targetWeight, goalType, targetDate, startingWeight, isActive, createdAt, updatedAt',
     })

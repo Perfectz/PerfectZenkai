@@ -11,7 +11,7 @@ class TasksDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `TasksDatabase_${userId}` : 'TasksDatabase'
     super(dbName)
-    this.version(2).stores({
+    this.version(31).stores({
       todos:
         'id, text, done, priority, category, dueDate, createdAt, updatedAt',
       templates: 'id, name, createdAt',
