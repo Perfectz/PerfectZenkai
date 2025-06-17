@@ -7,6 +7,14 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
+  build: {
+    // Security: Remove source maps in production
+    sourcemap: process.env.NODE_ENV !== 'production',
+    // Minify for security
+    minify: 'esbuild',
+    // Ensure clean build
+    emptyOutDir: true,
+  },
   plugins: [
     react(),
     mkcert(),

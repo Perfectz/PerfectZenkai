@@ -13,8 +13,11 @@ export interface AiChatConfig {
 export function getAiChatConfig(): AiChatConfig {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY
   
+  // SECURITY: Disable AI chat for GitHub Pages deployment
+  // API keys cannot be secured in static hosting
   if (!apiKey) {
-    throw new Error('VITE_OPENAI_API_KEY environment variable is required')
+    console.warn('AI Chat disabled: API key not configured for security reasons')
+    throw new Error('AI Chat is temporarily disabled for security. Please use other app features.')
   }
 
   return {
