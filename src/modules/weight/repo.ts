@@ -1,6 +1,7 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
+import { getSupabaseClientSync } from '@/lib/supabase-client'
 import { supabase } from '@/lib/supabase'
 
 class WeightDatabase extends Dexie {
@@ -11,23 +12,9 @@ class WeightDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `WeightDatabase_${userId}` : 'WeightDatabase'
     super(dbName)
-    
-    // Version 1: Original schema - weights only
-    this.version(1).stores({
-      weights: 'id, dateISO, kg',
-    })
-    
-    // Version 2: Added goals table
-    this.version(2).stores({
+    this.version(32).stores({
       weights: 'id, dateISO, kg',
       goals: 'id, targetWeight, goalType, targetDate, startingWeight, isActive, createdAt, updatedAt',
-    })
-    
-    // Add data integrity validation
-    this.open().then(() => {
-      console.log('✅ Weight database opened successfully')
-    }).catch(error => {
-      console.error('❌ Weight database failed to open:', error)
     })
   }
 }
@@ -56,6 +43,7 @@ const getDatabase = (): WeightDatabase => {
 // Supabase repository for cloud storage
 export const supabaseWeightRepo = {
   async addWeight(entry: Omit<WeightEntry, 'id'>, userId: string): Promise<WeightEntry> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     // First try to insert
@@ -85,8 +73,8 @@ export const supabaseWeightRepo = {
 
       return {
         id: updateData.id,
-        dateISO: updateData.date_iso,
-        kg: updateData.kg,
+        dateISO: updateData.date_iso ?? '',
+        kg: updateData.kg ?? 0,
       }
     }
 
@@ -94,12 +82,13 @@ export const supabaseWeightRepo = {
 
     return {
       id: data.id,
-      dateISO: data.date_iso,
-      kg: data.kg,
+      dateISO: data.date_iso ?? '',
+      kg: data.kg ?? 0,
     }
   },
 
   async deleteWeight(id: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -111,6 +100,7 @@ export const supabaseWeightRepo = {
   },
 
   async getAllWeights(userId: string): Promise<WeightEntry[]> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -121,14 +111,15 @@ export const supabaseWeightRepo = {
 
     if (error) throw error
 
-    return (data || []).map(item => ({
+    return (data || []).map((item: any) => ({
       id: item.id,
-      dateISO: item.date_iso,
-      kg: item.kg,
+      dateISO: item.date_iso ?? '',
+      kg: item.kg ?? 0,
     }))
   },
 
   async getWeightById(id: string): Promise<WeightEntry | undefined> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -146,12 +137,13 @@ export const supabaseWeightRepo = {
 
     return {
       id: data.id,
-      dateISO: data.date_iso,
-      kg: data.kg,
+      dateISO: data.date_iso ?? '',
+      kg: data.kg ?? 0,
     }
   },
 
   async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>): Promise<WeightEntry> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
@@ -175,12 +167,13 @@ export const supabaseWeightRepo = {
 
     return {
       id: data.id,
-      dateISO: data.date_iso,
-      kg: data.kg,
+      dateISO: data.date_iso ?? '',
+      kg: data.kg ?? 0,
     }
   },
 
   async clearAll(userId: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -338,8 +331,9 @@ export const hybridWeightRepo = {
             const localEntry = await weightRepo.getWeightById(id)
             if (localEntry) {
               // Create the entry in Supabase with the updates applied
-              const { id: _, ...entryToCreate } = { ...localEntry, ...updates }
-              // Now entryToCreate is properly typed without the id property
+              const entryToCreate = { ...localEntry, ...updates }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              delete (entryToCreate as any).id // Remove id for creation
               cloudResult = await supabaseWeightRepo.addWeight(entryToCreate, userId)
               console.log('✅ Created missing entry in Supabase:', cloudResult)
             }
@@ -474,16 +468,23 @@ export const hybridWeightRepo = {
 // Supabase repository for weight goals
 export const supabaseWeightGoalRepo = {
   async addGoal(goal: WeightGoalInput, userId: string): Promise<WeightGoal> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
+
+    // First, deactivate any existing active goals
+    await supabase
+      .from('weight_goals')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true)
 
     const { data, error } = await supabase
       .from('weight_goals')
       .insert({
         user_id: userId,
-        target_weight: goal.targetWeight,
         goal_type: goal.goalType,
-        target_date: goal.targetDate || null,
-        starting_weight: goal.startingWeight || null,
+        target_weight: goal.targetWeight,
+        target_date: goal.targetDate,
         is_active: true,
       })
       .select()
@@ -493,25 +494,23 @@ export const supabaseWeightGoalRepo = {
 
     return {
       id: data.id,
-      userId: data.user_id,
-      targetWeight: data.target_weight,
-      goalType: data.goal_type,
-      targetDate: data.target_date,
-      startingWeight: data.starting_weight,
-      isActive: data.is_active,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      goalType: data.goal_type as any,
+      targetWeight: data.target_weight ?? 0,
+      targetDate: data.target_date ?? '',
+      isActive: data.is_active ?? false,
+      createdAt: data.created_at ?? new Date().toISOString(),
+      updatedAt: data.updated_at ?? new Date().toISOString(),
     }
   },
 
   async updateGoal(id: string, goal: Partial<WeightGoalInput>): Promise<WeightGoal> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
-    if (goal.targetWeight !== undefined) updateData.target_weight = goal.targetWeight
     if (goal.goalType !== undefined) updateData.goal_type = goal.goalType
+    if (goal.targetWeight !== undefined) updateData.target_weight = goal.targetWeight
     if (goal.targetDate !== undefined) updateData.target_date = goal.targetDate
-    if (goal.startingWeight !== undefined) updateData.starting_weight = goal.startingWeight
 
     const { data, error } = await supabase
       .from('weight_goals')
@@ -524,18 +523,17 @@ export const supabaseWeightGoalRepo = {
 
     return {
       id: data.id,
-      userId: data.user_id,
-      targetWeight: data.target_weight,
-      goalType: data.goal_type,
-      targetDate: data.target_date,
-      startingWeight: data.starting_weight,
-      isActive: data.is_active,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      goalType: data.goal_type as any,
+      targetWeight: data.target_weight ?? 0,
+      targetDate: data.target_date ?? '',
+      isActive: data.is_active ?? false,
+      createdAt: data.created_at ?? new Date().toISOString(),
+      updatedAt: data.updated_at ?? new Date().toISOString(),
     }
   },
 
   async getActiveGoal(userId: string): Promise<WeightGoal | null> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -543,27 +541,28 @@ export const supabaseWeightGoalRepo = {
       .select('*')
       .eq('user_id', userId)
       .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+      .single()
 
-    if (error) throw error
-    if (!data) return null
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null // No active goal found
+      }
+      throw error
+    }
 
     return {
       id: data.id,
-      userId: data.user_id,
-      targetWeight: data.target_weight,
-      goalType: data.goal_type,
-      targetDate: data.target_date,
-      startingWeight: data.starting_weight,
-      isActive: data.is_active,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      goalType: data.goal_type as any,
+      targetWeight: data.target_weight ?? 0,
+      targetDate: data.target_date ?? '',
+      isActive: data.is_active ?? false,
+      createdAt: data.created_at ?? new Date().toISOString(),
+      updatedAt: data.updated_at ?? new Date().toISOString(),
     }
   },
 
   async deactivateGoal(id: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -575,6 +574,7 @@ export const supabaseWeightGoalRepo = {
   },
 
   async getAllGoals(userId: string): Promise<WeightGoal[]> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -585,16 +585,14 @@ export const supabaseWeightGoalRepo = {
 
     if (error) throw error
 
-    return (data || []).map(item => ({
+    return (data || []).map((item: any) => ({
       id: item.id,
-      userId: item.user_id,
-      targetWeight: item.target_weight,
       goalType: item.goal_type,
-      targetDate: item.target_date,
-      startingWeight: item.starting_weight,
-      isActive: item.is_active,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
+      targetWeight: item.target_weight ?? 0,
+      targetDate: item.target_date ?? '',
+      isActive: item.is_active ?? false,
+      createdAt: item.created_at ?? new Date().toISOString(),
+      updatedAt: item.updated_at ?? new Date().toISOString(),
     }))
   },
 }
@@ -663,6 +661,7 @@ export const weightGoalRepo = {
 export const hybridWeightGoalRepo = {
   async addGoal(goal: WeightGoalInput, userId?: string): Promise<WeightGoal> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try Supabase first
         const result = await supabaseWeightGoalRepo.addGoal(goal, userId)
