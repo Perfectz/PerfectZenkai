@@ -46,13 +46,14 @@ export default function TodoPage() {
   } = useTasksStore()
 
   useEffect(() => {
-    if (todos.length === 0) {
+    // Only load if we truly have no data (prevents React Strict Mode duplicate loads)
+    if (todos.length === 0 && !isLoading) {
       loadTodos()
     }
     if (templates.length === 0) {
       loadTemplates()
     }
-  }, [todos.length, templates.length, loadTodos, loadTemplates])
+  }, [loadTodos, loadTemplates]) // Remove length dependencies to prevent re-triggering
 
   // Filter todos based on selected filters
   const filteredTodos = todos.filter((todo) => {

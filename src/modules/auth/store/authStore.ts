@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
 import { localAuthService } from '../services/localAuth'
-import { supabase } from '@/lib/supabase'
+// Removed unused supabase import
 import {
   initializeUserDatabases,
   clearUserDatabases,
@@ -42,19 +42,8 @@ interface AuthStore extends AuthState {
 
 // Helper function to determine which auth service to use
 const getAuthService = () => {
-  // Check if Supabase is properly configured with environment variables
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-  
-  // Only use Supabase if we have both URL and key, and supabase client exists
-  const hasSupabaseConfig = supabaseUrl && supabaseAnonKey && supabase !== null
-  
-  if (!hasSupabaseConfig) {
-    console.log('🔧 Supabase not configured or missing env vars, using local auth')
-    return 'local'
-  }
-  
-  console.log('🔧 Supabase configured, using Supabase auth')
+  // Always try Azure Key Vault Supabase first, fall back to local if it fails
+  console.log('🔧 Using Azure Key Vault Supabase auth (with local fallback)')
   return 'supabase'
 }
 

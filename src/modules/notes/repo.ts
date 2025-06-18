@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { Note } from './types'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClientSync } from '@/lib/supabase-client'
 
 class NotesDatabase extends Dexie {
   notes!: Table<Note>
@@ -10,7 +10,7 @@ class NotesDatabase extends Dexie {
     // Create user-specific database name
     const dbName = userId ? `NotesDatabase_${userId}` : 'NotesDatabase'
     super(dbName)
-    this.version(1).stores({
+    this.version(33).stores({
       notes: 'id, title, content, createdAt, updatedAt',
     })
   }
@@ -40,6 +40,7 @@ const getDatabase = (): NotesDatabase => {
 // Supabase repository for cloud storage
 export const supabaseNotesRepo = {
   async addNote(note: Omit<Note, 'id'>, userId: string): Promise<Note> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -56,14 +57,15 @@ export const supabaseNotesRepo = {
 
     return {
       id: data.id,
-      title: data.title,
-      content: data.content,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      title: data.title ?? '',
+      content: data.content ?? '',
+      createdAt: data.created_at ?? new Date().toISOString(),
+      updatedAt: data.updated_at ?? new Date().toISOString(),
     }
   },
 
   async updateNote(id: string, updates: Partial<Omit<Note, 'id'>>): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -78,6 +80,7 @@ export const supabaseNotesRepo = {
   },
 
   async deleteNote(id: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -89,6 +92,7 @@ export const supabaseNotesRepo = {
   },
 
   async getAllNotes(userId: string): Promise<Note[]> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -99,16 +103,17 @@ export const supabaseNotesRepo = {
 
     if (error) throw error
 
-    return (data || []).map(item => ({
+    return (data || []).map((item: any) => ({
       id: item.id,
-      title: item.title,
-      content: item.content,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
+      title: item.title ?? '',
+      content: item.content ?? '',
+      createdAt: item.created_at ?? new Date().toISOString(),
+      updatedAt: item.updated_at ?? new Date().toISOString(),
     }))
   },
 
   async getNoteById(id: string): Promise<Note | undefined> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -121,14 +126,15 @@ export const supabaseNotesRepo = {
 
     return {
       id: data.id,
-      title: data.title,
-      content: data.content,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      title: data.title ?? '',
+      content: data.content ?? '',
+      createdAt: data.created_at ?? new Date().toISOString(),
+      updatedAt: data.updated_at ?? new Date().toISOString(),
     }
   },
 
   async clearAll(userId: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -189,6 +195,7 @@ export const notesRepo = {
 export const hybridNotesRepo = {
   async addNote(note: Omit<Note, 'id'>, userId?: string): Promise<Note> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         const result = await supabaseNotesRepo.addNote(note, userId)
         // Also save to local for offline access
@@ -204,6 +211,7 @@ export const hybridNotesRepo = {
 
   async updateNote(id: string, updates: Partial<Omit<Note, 'id'>>, userId?: string): Promise<void> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         await supabaseNotesRepo.updateNote(id, updates)
       }
@@ -216,6 +224,7 @@ export const hybridNotesRepo = {
 
   async deleteNote(id: string, userId?: string): Promise<void> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         await supabaseNotesRepo.deleteNote(id)
       }
@@ -228,6 +237,7 @@ export const hybridNotesRepo = {
 
   async getAllNotes(userId?: string): Promise<Note[]> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         return await supabaseNotesRepo.getAllNotes(userId)
       }
@@ -240,6 +250,7 @@ export const hybridNotesRepo = {
 
   async getNoteById(id: string, userId?: string): Promise<Note | undefined> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         return await supabaseNotesRepo.getNoteById(id)
       }
@@ -252,6 +263,7 @@ export const hybridNotesRepo = {
 
   async clearAll(userId?: string): Promise<void> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         await supabaseNotesRepo.clearAll(userId)
       }

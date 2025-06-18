@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear IndexedDB - Perfect Zenkai</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗂️ Clear IndexedDB Databases</h1>
+        <p>This tool will clear all IndexedDB databases to fix version conflicts.</p>
+        
+        <div>
+            <button onclick="clearDatabases()">Clear All Databases</button>
+            <button onclick="goToApp()" class="success" style="display: none;" id="goToAppBtn">Go to App</button>
+        </div>
+        
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script>
+        const logElement = document.getElementById('log');
+        const goToAppBtn = document.getElementById('goToAppBtn');
+
+        function log(message) {
+            console.log(message);
+            logElement.style.display = 'block';
+            logElement.textContent += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        async function clearDatabases() {
+            try {
+                log('🗂️ Starting IndexedDB cleanup...');
+                
+                // Get all database names
+                const databases = await indexedDB.databases();
+                log(`Found ${databases.length} databases: ${databases.map(db => db.name).join(', ')}`);
+
+                if (databases.length === 0) {
+                    log('✅ No databases found to clear.');
+                    goToAppBtn.style.display = 'inline-block';
+                    return;
+                }
+
+                // Delete each database
+                for (const dbInfo of databases) {
+                    if (dbInfo.name) {
+                        log(`Deleting database: ${dbInfo.name}`);
+                        const deleteRequest = indexedDB.deleteDatabase(dbInfo.name);
+                        
+                        await new Promise((resolve, reject) => {
+                            deleteRequest.onsuccess = () => {
+                                log(`✅ Deleted: ${dbInfo.name}`);
+                                resolve(true);
+                            };
+                            deleteRequest.onerror = () => {
+                                log(`❌ Failed to delete: ${dbInfo.name}`);
+                                reject(deleteRequest.error);
+                            };
+                        });
+                    }
+                }
+
+                log('✅ All IndexedDB databases cleared successfully!');
+                log('🔄 You can now go to the app - it will reinitialize with correct versions.');
+                goToAppBtn.style.display = 'inline-block';
+
+            } catch (error) {
+                log(`❌ Error clearing databases: ${error.message}`);
+            }
+        }
+
+        function goToApp() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html> 

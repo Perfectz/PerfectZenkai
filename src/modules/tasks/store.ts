@@ -2,12 +2,13 @@ import { create } from 'zustand'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { hybridTasksRepo, tasksRepo, initializeTasksDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 interface TasksState {
   todos: Todo[]
   templates: TaskTemplate[]
   isLoading: boolean
+  isSyncing: boolean
   error: string | null
 
   // Todo Actions
@@ -61,6 +62,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   todos: [],
   templates: [],
   isLoading: false,
+  isSyncing: false,
   error: null,
 
   // Todo Actions
@@ -224,6 +226,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       }
 
              // Update in database
+       const supabase = await getSupabaseClient()
        if (!supabase) throw new Error('Supabase client not available')
        const { error } = await supabase
          .from('todos')
@@ -303,14 +306,20 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       if (userId) {
         initializeTasksDatabase(userId)
         
-        // Sync data to ensure local and cloud are in sync
-        try {
-          const syncResult = await hybridTasksRepo.syncData(userId)
-          if (syncResult.synced > 0) {
-            console.info(`🔄 Synced ${syncResult.synced} todo entries during load`)
+        // Only sync if not already syncing
+        const { isSyncing } = get()
+        if (!isSyncing) {
+          try {
+            set({ isSyncing: true })
+            const syncResult = await hybridTasksRepo.syncData(userId)
+            if (syncResult.synced > 0) {
+              console.info(`🔄 Synced ${syncResult.synced} todo entries during load`)
+            }
+          } catch (syncError) {
+            console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
+          } finally {
+            set({ isSyncing: false })
           }
-        } catch (syncError) {
-          console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
         }
       }
 
@@ -327,6 +336,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       set({
         error: error instanceof Error ? error.message : 'Failed to load todos',
         isLoading: false,
+        isSyncing: false,
       })
     }
   },
