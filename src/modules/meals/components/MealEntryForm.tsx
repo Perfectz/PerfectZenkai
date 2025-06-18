@@ -3,11 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { UtensilsCrossed, Plus, Calendar, Clock } from 'lucide-react'
+import { UtensilsCrossed, Plus, Calendar, Clock, Camera } from 'lucide-react'
 import { useMealStore } from '../store'
-import { MealType, MealEntryInput } from '../types'
+import { MealType, MealEntryInput, FoodAnalysisResult } from '../types'
 import { Badge } from '@/shared/ui/badge'
 import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
+import { PhotoUpload } from './PhotoUpload'
+import { FoodAnalysisAgent } from '../services/FoodAnalysisAgent'
+import { keyVaultService } from '@/services/keyVaultService'
 
 export function MealEntryForm() {
   const [mealType, setMealType] = useState<MealType>(() => {
@@ -21,6 +24,10 @@ export function MealEntryForm() {
   const [foodName, setFoodName] = useState('')
   const [calories, setCalories] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<FoodAnalysisResult | null>(null)
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [errors, setErrors] = useState<{ foodName?: string; calories?: string }>({})
 
   const { isLoading, addMeal } = useMealStore()
@@ -113,6 +120,59 @@ export function MealEntryForm() {
     }
   }
 
+  const handlePhotoAnalysis = async (imageData: string) => {
+    setIsAnalyzing(true)
+    setAnalysisError(null)
+    setAnalysisResult(null)
+    
+    try {
+      // Get OpenAI API key from environment
+      const apiKey = await keyVaultService.getSecret('OPENAI_API_KEY')
+      if (!apiKey) {
+        throw new Error('OpenAI API key not configured. Please check your environment setup.')
+      }
+
+      const agent = new FoodAnalysisAgent({
+        apiKey,
+        model: 'gpt-4o-mini'
+      })
+
+      const result = await agent.analyzePhoto(imageData)
+      setAnalysisResult(result)
+
+      // Auto-populate form with first detected food
+      if (result.foods.length > 0) {
+        const primaryFood = result.foods[0]
+        setFoodName(primaryFood.name)
+        
+        // Calculate calories more intelligently
+        const estimatedCalories = result.totalCalories || 
+          (result.foods.reduce((sum, food) => sum + (food.confidence * 200), 0)) // Fallback estimation
+        setCalories(Math.round(estimatedCalories).toString())
+      }
+
+      // Keep photo upload section open for review
+      // setShowPhotoUpload(false) - Let user review results first
+    } catch (error) {
+      console.error('Photo analysis failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setAnalysisError(`Analysis failed: ${errorMessage}`)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleAcceptAnalysis = () => {
+    setShowPhotoUpload(false)
+    setAnalysisError(null)
+  }
+
+  const handleRetryAnalysis = () => {
+    setAnalysisResult(null)
+    setAnalysisError(null)
+    // Keep photo upload open for retry
+  }
+
   return (
     <Card className={`cyber-card mobile-card mobile-responsive ${isMobile ? 'galaxy-s24-ultra-optimized' : ''}`}>
       <CardHeader className="mobile-layout">
@@ -158,6 +218,17 @@ export function MealEntryForm() {
             aria-label="Calories"
           />
           <Button
+            onClick={() => setShowPhotoUpload(!showPhotoUpload)}
+            variant="outline"
+            size="icon"
+            className={`border-gray-600 bg-transparent text-gray-300 hover:bg-gray-800 touch-target ${showPhotoUpload ? 'bg-gray-800' : ''}`}
+            title="Analyze meal photo"
+            aria-label="Take or upload meal photo"
+            disabled={isAnalyzing}
+          >
+            <Camera className="h-4 w-4" />
+          </Button>
+          <Button
             onClick={() => setIsExpanded(!isExpanded)}
             variant="outline"
             size="icon"
@@ -189,6 +260,107 @@ export function MealEntryForm() {
             {errors.calories && (
               <p className="font-mono text-sm text-red-400">{errors.calories}</p>
             )}
+          </div>
+        )}
+
+        {/* Photo Upload Section */}
+        {showPhotoUpload && (
+          <div className="border-t border-gray-700 pt-4">
+            <Label className="cyber-label text-gray-300 mb-2 block">
+              📸 Analyze Meal Photo
+            </Label>
+            <PhotoUpload 
+              onPhotoCapture={handlePhotoAnalysis}
+              disabled={isAnalyzing}
+              maxSizeMB={1}
+            />
+            {isAnalyzing && (
+              <div className="text-center mt-4">
+                <p className="text-plasma-cyan animate-pulse">Analyzing your meal...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Analysis Error */}
+        {analysisError && (
+          <div className="border border-red-500/20 rounded-lg p-4 bg-red-900/10">
+            <h4 className="text-red-400 font-mono text-sm mb-2">
+              ❌ Analysis Error
+            </h4>
+            <p className="text-red-300 text-sm mb-3">{analysisError}</p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRetryAnalysis}
+                size="sm"
+                variant="outline"
+                className="border-red-500 text-red-400 hover:bg-red-900/20"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={() => setShowPhotoUpload(false)}
+                size="sm"
+                variant="outline"
+                className="border-gray-600 text-gray-400"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Analysis Results */}
+        {analysisResult && (
+          <div className="border border-plasma-cyan/20 rounded-lg p-4 bg-gray-900/50">
+            <h4 className="text-plasma-cyan font-mono text-sm mb-2">
+              🤖 AI Analysis Results (Confidence: {(analysisResult.confidence * 100).toFixed(0)}%)
+            </h4>
+            <div className="space-y-2">
+              {analysisResult.foods.map((food, index) => (
+                <div key={index} className="flex justify-between items-center text-sm" data-testid="detected-food-item">
+                  <span className="text-gray-300">
+                    {food.name} ({food.portion})
+                  </span>
+                  <Badge variant="outline" className="text-xs">
+                    {(food.confidence * 100).toFixed(0)}%
+                  </Badge>
+                </div>
+              ))}
+              <div className="border-t border-gray-700 pt-2 mt-2">
+                <p className="text-sm text-gray-400">
+                  Total Calories: <span className="text-plasma-cyan">{analysisResult.totalCalories}</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Analysis time: {(analysisResult.analysisTime / 1000).toFixed(1)}s
+                </p>
+              </div>
+              <div className="flex gap-2 mt-3 pt-2 border-t border-gray-700">
+                <Button
+                  onClick={handleAcceptAnalysis}
+                  size="sm"
+                  className="bg-plasma-cyan text-black hover:bg-plasma-cyan/80"
+                >
+                  ✅ Accept & Use
+                </Button>
+                <Button
+                  onClick={handleRetryAnalysis}
+                  size="sm"
+                  variant="outline"
+                  className="border-gray-600 text-gray-400"
+                >
+                  🔄 Analyze Again
+                </Button>
+                <Button
+                  onClick={() => setShowPhotoUpload(false)}
+                  size="sm"
+                  variant="outline"
+                  className="border-gray-600 text-gray-400"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 

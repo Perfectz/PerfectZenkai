@@ -67,6 +67,46 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
   isLoading: false,
   error: null,
 
+  loadGoals: async () => {
+    try {
+      set({ isLoading: true, error: null })
+      
+      const supabase = await getSupabaseClient()
+      if (!supabase) {
+        // Fallback to mock data if Supabase not available
+        set({ goals: mockGoals, isLoading: false })
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('goals')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      const goals: SimpleGoal[] = (data || []).map(item => ({
+        id: item.id as string,
+        title: item.title as string,
+        category: item.category as GoalCategory,
+        description: item.description as string | undefined,
+        targetDate: item.target_date as string | undefined,
+        color: item.color as string,
+        isActive: item.is_active as boolean,
+        createdAt: item.created_at as string,
+        updatedAt: item.updated_at as string,
+      }))
+
+      set({ goals, isLoading: false })
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load goals',
+        isLoading: false,
+        goals: mockGoals // Keep mock data as fallback
+      })
+    }
+  },
+
   addGoal: async (goalData) => {
     try {
       set({ isLoading: true, error: null })
@@ -76,7 +116,6 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
         throw new Error('Supabase client not available')
       }
 
-      const now = new Date().toISOString()
       const newGoalData = {
         title: goalData.title,
         category: goalData.category,
@@ -84,6 +123,7 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
         target_date: goalData.targetDate,
         color: goalData.color || getRandomGoalColor(),
         is_active: goalData.isActive !== false,
+        user_id: '', // TODO: Get from auth context
       }
 
       const { data, error } = await supabase
@@ -222,45 +262,6 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to toggle goal status'
-      })
-    }
-  },
-
-  loadGoals: async () => {
-    try {
-      set({ isLoading: true, error: null })
-      
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        // Fallback to mock data if Supabase not available
-        set({ goals: mockGoals, isLoading: false })
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      const goals: SimpleGoal[] = (data || []).map((row: any) => ({
-        id: row.id,
-        title: row.title,
-        category: row.category,
-        description: row.description,
-        targetDate: row.target_date,
-        color: row.color,
-        isActive: row.is_active,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      }))
-
-      set({ goals, isLoading: false })
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to load goals',
-        isLoading: false 
       })
     }
   },

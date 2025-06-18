@@ -5,6 +5,8 @@ import { useWeightStore } from '@/modules/weight/store'
 import { useAuthStore } from '@/modules/auth'
 import type { Todo } from '@/modules/tasks/types'
 import type { WeightEntry, WeightGoalInput } from '@/modules/weight/types'
+import { FoodAnalysisAgent } from '@/modules/meals/services/FoodAnalysisAgent'
+import { keyVaultService } from '@/services/keyVaultService'
 
 // Function call result type
 export interface FunctionCallResult {
@@ -284,6 +286,27 @@ export const AVAILABLE_FUNCTIONS = {
     parameters: {
       type: 'object',
       properties: {}
+    }
+  },
+
+  // === FOOD ANALYSIS ===
+  analyzeMealPhoto: {
+    name: 'analyzeMealPhoto',
+    description: 'Analyze a meal photo to identify foods and estimate calories using AI vision',
+    parameters: {
+      type: 'object',
+      properties: {
+        imageData: {
+          type: 'string',
+          description: 'Base64 encoded image data (data:image/jpeg;base64,...)'
+        },
+        mealType: {
+          type: 'string',
+          enum: ['breakfast', 'lunch', 'dinner', 'snack'],
+          description: 'Type of meal being analyzed'
+        }
+      },
+      required: ['imageData']
     }
   }
 }
@@ -734,6 +757,52 @@ export const FUNCTION_IMPLEMENTATIONS = {
       return {
         success: false,
         message: '❌ Failed to get weight stats',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  },
+
+  // === FOOD ANALYSIS ===
+  async analyzeMealPhoto(params: any): Promise<FunctionCallResult> {
+    try {
+      // Get OpenAI API key
+      const apiKey = await keyVaultService.getSecret('OPENAI_API_KEY')
+      if (!apiKey) {
+        return {
+          success: false,
+          message: '❌ OpenAI API key not configured',
+          error: 'OpenAI API key is required for food analysis'
+        }
+      }
+
+      // Create agent and analyze photo
+      const agent = new FoodAnalysisAgent({
+        apiKey,
+        model: 'gpt-4o-mini'
+      })
+
+      const result = await agent.analyzePhoto(params.imageData)
+      
+      // Format response for chat
+      const foodList = result.foods.map(food => 
+        `• ${food.name} (${food.portion}) - ${(food.confidence * 100).toFixed(0)}% confidence`
+      ).join('\n')
+
+      return {
+        success: true,
+        message: `🍽️ Meal Analysis Complete!\n\n**Detected Foods:**\n${foodList}\n\n**Total Calories:** ${result.totalCalories}\n**Analysis Time:** ${(result.analysisTime / 1000).toFixed(1)}s\n**Overall Confidence:** ${(result.confidence * 100).toFixed(0)}%`,
+        data: {
+          foods: result.foods,
+          totalCalories: result.totalCalories,
+          analysisTime: result.analysisTime,
+          confidence: result.confidence,
+          mealType: params.mealType || 'unspecified'
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: '❌ Failed to analyze meal photo',
         error: error instanceof Error ? error.message : 'Unknown error'
       }
     }

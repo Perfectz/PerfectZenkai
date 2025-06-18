@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
 import { localAuthService } from '../services/localAuth'
-import { supabase } from '@/lib/supabase'
+// Removed unused supabase import
 import {
   initializeUserDatabases,
   clearUserDatabases,

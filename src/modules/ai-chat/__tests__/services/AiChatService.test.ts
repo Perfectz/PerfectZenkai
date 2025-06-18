@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { AiChatService } from '../../services/AiChatService'
-import type { ChatMessage, StreamingResponse } from '../../types/chat.types'
+import type { StreamingResponse } from '../../types/chat.types'
 import type { UserContext } from '../../types/langchain.types'
 
 // Mock Langchain modules

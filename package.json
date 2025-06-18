@@ -47,6 +47,7 @@
     "@langchain/openai": "^0.5.13",
     "@supabase/supabase-js": "^2.50.0",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "dexie": "^3.2.4",
     "eventemitter3": "^5.0.1",

@@ -137,4 +137,7 @@ export interface CommonFood {
     fiber: number
   }
   mealTypes: MealType[] // which meals this food is commonly eaten for
-} 
+}
+
+// Food Analysis Types
+export * from './food-analysis.types'; 

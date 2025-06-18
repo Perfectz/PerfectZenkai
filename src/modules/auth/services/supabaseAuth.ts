@@ -393,7 +393,7 @@ export class SupabaseAuthService {
   /**
    * Set up auth state change listener with error handling
    */
-  onAuthStateChange(callback: (user: User | null) => void) {
+  onAuthStateChange(_callback: (user: User | null) => void) {
     // Temporarily disabled due to compilation issues
     console.warn('onAuthStateChange temporarily disabled')
     return () => {}

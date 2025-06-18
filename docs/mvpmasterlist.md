@@ -135,6 +135,46 @@ Append a "Mobile Testing" section to README.md explaining:
 
 ---
 
+## **AGENTIC AI SYSTEM MVPs** 🤖
+
+### MVP-26 — Food Analysis Agent ✅ **COMPLETED**
+**Agent:** Analyze meal photos using GPT-4o-mini vision AI, identify foods, estimate calories, auto-populate meal entry forms
+**Status:** Production-ready with photo upload, AI analysis, nutrition validation, and agentic chat integration
+
+### MVP-27 — Weight Management Agent 📋 **PLANNED**
+**Agent:** Smart weight analytics, goal recommendations, predictive modeling, and conversational weight coaching
+**Features:** Trend analysis, goal intelligence, progress forecasting, natural language weight management
+
+### MVP-28 — Task Productivity Agent 📋 **PLANNED**
+**Agent:** Intelligent task prioritization, scheduling optimization, productivity insights, and workflow coaching
+**Features:** Smart prioritization, productivity analytics, scheduling intelligence, conversational task management
+
+### MVP-29 — Workout & Fitness Agent 📋 **PLANNED**
+**Agent:** Personalized workout planning, exercise progression, form guidance, and adaptive fitness coaching
+**Features:** Workout generation, progress tracking, coaching intelligence, conversational fitness support
+
+### MVP-30 — Journal & Mental Wellness Agent 📋 **PLANNED**
+**Agent:** Emotional analysis, mood tracking, wellness coaching, and mental health pattern recognition
+**Features:** Sentiment analysis, wellness coaching, pattern recognition, conversational emotional support
+
+### MVP-31 — Goals & Achievement Agent 📋 **PLANNED**
+**Agent:** SMART goal optimization, progress intelligence, motivation coaching, and achievement prediction
+**Features:** Goal optimization, progress tracking, motivation coaching, conversational goal management
+
+### MVP-32 — Notes & Knowledge Agent 📋 **PLANNED**
+**Agent:** Intelligent note organization, semantic search, knowledge extraction, and insight synthesis
+**Features:** Smart organization, semantic search, knowledge extraction, conversational knowledge queries
+
+### MVP-33 — Health Analytics Agent 📋 **PLANNED**
+**Agent:** Comprehensive health insights, cross-module correlation analysis, predictive health modeling
+**Features:** Holistic dashboard, correlation analysis, predictive modeling, conversational health analytics
+
+### MVP-34 — Standup Conversation Agent 📋 **PLANNED**
+**Agent:** Voice-powered morning standup and nightly review conversations with text-to-speech interaction
+**Features:** Speech recognition/synthesis, morning planning flow, nightly reflection flow, intelligent conversation management
+
+---
+
 ## MVP 1 — Test‑Suite Foundation
 
 ### 1.1 Vitest Harness
@@ -1666,6 +1706,151 @@ Create src/shared/animations/animations.test.tsx that:
 - Tests performance with many elements
 - Checks animation cleanup
 - Tests accessibility impact
+```
+
+---
+
+## MVP 26 — Food Analysis Agent with Vision AI
+
+### 26.1 Photo Upload Component
+
+**User Story:** _As a user I want to upload or capture photos of my meals in the meal entry form._
+
+**Acceptance Criteria:**
+
+- Camera capture button in MealEntryForm
+- File upload option for existing photos
+- Image compression to <1MB for API efficiency
+- Mobile-optimized photo capture experience
+
+**Test Cases:** Photo capture, compression, base64 encoding
+
+**Implementation Prompt:**
+
+```
+Enhance src/modules/meals/components/MealEntryForm.tsx with:
+1. Add photo upload/capture button using react-camera-pro
+2. Implement image compression with browser-image-compression
+3. Convert images to base64 for API transmission
+4. Add loading states and error handling
+5. Mobile-responsive camera interface
+```
+
+**Test‑Code Prompt:**
+
+```
+Create src/modules/meals/components/__tests__/PhotoUpload.test.tsx:
+- Test photo capture functionality
+- Test image compression
+- Test base64 conversion
+- Test mobile responsive behavior
+```
+
+### 26.2 Food Analysis Agent
+
+**User Story:** _As a user I want AI to analyze my meal photos and identify foods with calorie estimates._
+
+**Acceptance Criteria:**
+
+- GPT-4o-mini vision API integration
+- ≥85% food identification accuracy
+- ±20% calorie estimation accuracy
+- Analysis completes in <10 seconds
+- Structured JSON response with confidence scores
+
+**Test Cases:** Food identification, calorie estimation, API integration
+
+**Implementation Prompt:**
+
+```
+Create src/modules/meals/services/FoodAnalysisAgent.ts:
+1. GPT-4o-mini vision API integration
+2. Specialized nutrition analysis prompts
+3. Food identification and calorie estimation
+4. Confidence scoring for results
+5. Integration with existing keyVaultService for API keys
+6. Cost optimization with rate limiting
+```
+
+**Test‑Code Prompt:**
+
+```
+Create src/modules/meals/services/__tests__/FoodAnalysisAgent.test.ts:
+- Mock GPT-4o-mini API responses
+- Test food identification accuracy
+- Test calorie estimation logic
+- Test error handling and retries
+```
+
+### 26.3 Agentic Function Integration
+
+**User Story:** _As a user I want the food analysis to integrate with the existing AI chat system._
+
+**Acceptance Criteria:**
+
+- Add analyzeMealPhoto function to FunctionRegistry
+- Auto-populate MealEntryForm with analysis results
+- Integration with existing AI chat workflows
+- Function callable from chat interface
+
+**Test Cases:** Function registry integration, form auto-population
+
+**Implementation Prompt:**
+
+```
+Extend src/modules/ai-chat/services/FunctionRegistry.ts:
+1. Add FOOD_ANALYSIS_FUNCTIONS with analyzeMealPhoto
+2. Implement function that calls FoodAnalysisAgent
+3. Return structured food analysis results
+4. Integrate with existing function call system
+5. Add to AVAILABLE_FUNCTIONS and FUNCTION_IMPLEMENTATIONS
+```
+
+**Test‑Code Prompt:**
+
+```
+Create src/modules/ai-chat/services/__tests__/FoodAnalysisIntegration.test.ts:
+- Test analyzeMealPhoto function registration
+- Test function call execution
+- Test integration with AI chat system
+- Test form auto-population workflow
+```
+
+### 26.4 Enhanced Meal Entry Experience
+
+**User Story:** _As a user I want the meal entry form to be auto-populated with AI analysis results._
+
+**Acceptance Criteria:**
+
+- Analysis results display in form
+- User can edit/confirm AI suggestions
+- Multiple food items supported
+- Macro nutrition estimates included
+- Smooth UX with loading states
+
+**Test Cases:** Form integration, user editing, macro calculations
+
+**Implementation Prompt:**
+
+```
+Enhance src/modules/meals/components/MealEntryForm.tsx:
+1. Display food analysis results
+2. Allow user editing of AI suggestions
+3. Support multiple food items from single photo
+4. Calculate macro nutrition totals
+5. Add confirmation workflow
+6. Implement smooth loading states and animations
+```
+
+**Test‑Code Prompt:**
+
+```
+Create src/modules/meals/components/__tests__/MealEntryFormIntegration.test.tsx:
+- Test AI result display
+- Test user editing capabilities
+- Test multiple food item handling
+- Test macro calculation accuracy
+- Test complete meal entry workflow
 ```
 
 ---

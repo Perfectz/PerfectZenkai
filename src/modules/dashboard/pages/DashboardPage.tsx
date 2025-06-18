@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useWeightStore } from '@/modules/weight/store'
 import { useTasksStore } from '@/modules/tasks/store'
+import { useGoalsStore } from '@/modules/goals/store'
 import { WeightSparkCard } from '../components/WeightSparkCard'
 import { TodayWeightCard } from '../components/TodayWeightCard'
 import { TodoSummaryCard } from '../components/TodoSummaryCard'
@@ -13,6 +14,7 @@ import headerVideo from '../../../assets/videos/header.webm'
 export default function DashboardPage() {
   const { loadWeights, isLoading: weightLoading } = useWeightStore()
   const { loadTodos, isLoading: todoLoading } = useTasksStore()
+  const { loadGoals, isLoading: goalsLoading } = useGoalsStore()
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   
   // Mobile responsiveness
@@ -21,15 +23,25 @@ export default function DashboardPage() {
   useEffect(() => {
     // Load data for both modules when dashboard loads
     const loadData = async () => {
-      await Promise.all([loadWeights(), loadTodos()])
-      setIsInitialLoading(false)
+      try {
+        setIsInitialLoading(true)
+        await Promise.all([
+          loadTodos(),
+          loadWeights(),
+          loadGoals()
+        ])
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setIsInitialLoading(false)
+      }
     }
 
     loadData()
-  }, [loadWeights, loadTodos])
+  }, [loadTodos, loadWeights, loadGoals])
 
   // Show skeleton during initial load
-  if (isInitialLoading || (weightLoading && todoLoading)) {
+  if (isInitialLoading || (weightLoading && todoLoading && goalsLoading)) {
     return (
       <div className="container mx-auto px-4 pb-24 pt-4">
         <div className="mb-6">

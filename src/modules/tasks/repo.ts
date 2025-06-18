@@ -2,6 +2,7 @@ import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo, TaskTemplate, Subtask } from './types'
 import { getSupabaseClientSync } from '@/lib/supabase-client'
+import { deduplicateTodos, removeDuplicateContent } from './utils/deduplicationHelpers'
 
 class TasksDatabase extends Dexie {
   todos!: Table<Todo>
@@ -83,30 +84,31 @@ export const supabaseTasksRepo = {
       subtasks.push(...(subtaskData || []).map(item => ({
         id: item.id,
         text: item.text,
-        done: item.done,
-        createdAt: item.created_at,
+        done: item.done ?? false,
+        createdAt: item.created_at ?? new Date().toISOString(),
       })))
     }
 
     return {
       id: todoData.id,
-      summary: todoData.summary, // Fixed: Map 'summary' field correctly
+      summary: todoData.summary ?? todoData.text ?? '', // Handle null summary with fallback
       description: '', // Default empty description for now
       descriptionFormat: 'plaintext',
-      done: todoData.done,
-      priority: todoData.priority,
-      category: todoData.category,
+      done: todoData.done ?? false,
+      priority: (todoData.priority as any) ?? 'medium',
+      category: (todoData.category as any) ?? 'other',
       points: 5, // Default points
-      dueDate: todoData.due_date,
+      dueDate: todoData.due_date ?? undefined,
       dueDateTime: undefined, // Not in current schema
       subtasks,
       completedAt: undefined, // Not in current schema
-      createdAt: todoData.created_at,
-      updatedAt: todoData.updated_at,
+      createdAt: todoData.created_at ?? new Date().toISOString(),
+      updatedAt: todoData.updated_at ?? new Date().toISOString(),
     }
   },
 
   async updateTodo(id: string, updates: Partial<Todo>): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
@@ -129,6 +131,7 @@ export const supabaseTasksRepo = {
   },
 
   async deleteTodo(id: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     // Subtasks will be deleted automatically due to CASCADE
@@ -141,6 +144,7 @@ export const supabaseTasksRepo = {
   },
 
   async getAllTodos(userId: string): Promise<Todo[]> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     // Get todos
@@ -189,23 +193,24 @@ export const supabaseTasksRepo = {
 
     return (todos || []).map(todo => ({
       id: todo.id,
-      summary: todo.summary, // Fixed: Map 'summary' field correctly
+      summary: todo.summary ?? todo.text ?? '', // Handle null summary with fallback
       description: '', // Default empty description for now
       descriptionFormat: 'plaintext',
-      done: todo.done,
-      priority: todo.priority,
-      category: todo.category,
+      done: todo.done ?? false,
+      priority: (todo.priority as any) ?? 'medium',
+      category: (todo.category as any) ?? 'other',
       points: 5, // Default points
-      dueDate: todo.due_date,
+      dueDate: todo.due_date ?? undefined,
       dueDateTime: undefined, // Not in current schema
       subtasks: subtasksByTodo[todo.id] || [],
       completedAt: undefined, // Not in current schema
-      createdAt: todo.created_at,
-      updatedAt: todo.updated_at,
+      createdAt: todo.created_at ?? new Date().toISOString(),
+      updatedAt: todo.updated_at ?? new Date().toISOString(),
     }))
   },
 
   async addSubtask(todoId: string, text: string): Promise<Subtask> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -223,12 +228,13 @@ export const supabaseTasksRepo = {
     return {
       id: data.id,
       text: data.text,
-      done: data.done,
-      createdAt: data.created_at,
+      done: data.done ?? false,
+      createdAt: data.created_at ?? new Date().toISOString(),
     }
   },
 
   async updateSubtask(subtaskId: string, updates: Partial<Subtask>): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -243,6 +249,7 @@ export const supabaseTasksRepo = {
   },
 
   async deleteSubtask(subtaskId: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -254,6 +261,7 @@ export const supabaseTasksRepo = {
   },
 
   async clearAll(userId: string): Promise<void> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -313,19 +321,19 @@ export const tasksRepo = {
 
         return (todos || []).map(todo => ({
           id: todo.id,
-          summary: todo.text, // Fixed: Map 'text' field to 'summary'
+          summary: todo.text ?? todo.summary ?? '', // Handle null with fallback
           description: '', // Default empty description for now
           descriptionFormat: 'plaintext',
-          done: todo.done,
-          priority: todo.priority,
-          category: todo.category,
+          done: todo.done ?? false,
+          priority: (todo.priority as any) ?? 'medium',
+          category: (todo.category as any) ?? 'other',
           points: 5, // Default points
-          dueDate: todo.due_date,
+          dueDate: todo.due_date ?? undefined,
           dueDateTime: undefined, // Not in current schema
           subtasks: [], // Will need to be fetched separately
           completedAt: undefined, // Not in current schema
-          createdAt: todo.created_at,
-          updatedAt: todo.updated_at,
+          createdAt: todo.created_at ?? new Date().toISOString(),
+          updatedAt: todo.updated_at ?? new Date().toISOString(),
         }))
       }
     } catch (error) {
@@ -543,6 +551,7 @@ export const hybridTasksRepo = {
     let cloudSuccess = false
 
     // Try Supabase first if available
+    const supabase = getSupabaseClientSync()
     if (supabase && userId) {
       try {
         await supabaseTasksRepo.deleteTodo(id)
@@ -565,6 +574,7 @@ export const hybridTasksRepo = {
 
   async getAllTodos(userId?: string): Promise<Todo[]> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try to get from Supabase first
         const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
@@ -577,12 +587,17 @@ export const hybridTasksRepo = {
     
     // Fallback to local storage
     const localTodos = await tasksRepo.getAllTodos()
-    console.log('✅ Todos loaded from local storage:', { count: localTodos.length })
-    return localTodos
+    const deduplicatedTodos = removeDuplicateContent(deduplicateTodos(localTodos))
+    console.log('✅ Todos loaded from local storage:', { 
+      count: deduplicatedTodos.length,
+      duplicatesRemoved: localTodos.length - deduplicatedTodos.length
+    })
+    return deduplicatedTodos
   },
 
   async getTodoById(id: string, userId?: string): Promise<Todo | undefined> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try Supabase first - we'll need to implement this in supabaseTasksRepo
         const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
@@ -605,6 +620,7 @@ export const hybridTasksRepo = {
   },
 
   async syncData(userId?: string): Promise<{ synced: number; errors: number }> {
+    const supabase = getSupabaseClientSync()
     if (!supabase || !userId) {
       console.info('🔄 Skipping todo sync - no cloud storage available')
       return { synced: 0, errors: 0 }
@@ -632,21 +648,21 @@ export const hybridTasksRepo = {
           const localTodo = localTodosMap.get(cloudTodo.id)
           
           if (!localTodo) {
-                         // Todo exists in cloud but not locally - add it
-             await tasksRepo.addTodo({
-               summary: cloudTodo.summary,
-               description: cloudTodo.description,
-               descriptionFormat: cloudTodo.descriptionFormat,
-               done: cloudTodo.done,
-               priority: cloudTodo.priority,
-               category: cloudTodo.category,
-               points: cloudTodo.points,
-               dueDate: cloudTodo.dueDate,
-               dueDateTime: cloudTodo.dueDateTime,
-               subtasks: cloudTodo.subtasks,
-               completedAt: cloudTodo.completedAt,
-               createdAt: cloudTodo.createdAt,
-             })
+            // Todo exists in cloud but not locally - add it
+            await tasksRepo.addTodo({
+              summary: cloudTodo.summary,
+              description: cloudTodo.description,
+              descriptionFormat: cloudTodo.descriptionFormat,
+              done: cloudTodo.done,
+              priority: cloudTodo.priority,
+              category: cloudTodo.category,
+              points: cloudTodo.points,
+              dueDate: cloudTodo.dueDate,
+              dueDateTime: cloudTodo.dueDateTime,
+              subtasks: cloudTodo.subtasks,
+              completedAt: cloudTodo.completedAt,
+              createdAt: cloudTodo.createdAt,
+            })
             syncedCount++
             console.debug(`✅ Synced todo to local: ${cloudTodo.summary}`)
           } else {
@@ -691,6 +707,7 @@ export const hybridTasksRepo = {
   // Subtask methods with hybrid pattern
   async addSubtask(todoId: string, text: string, userId?: string): Promise<Subtask> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try Supabase first
         const result = await supabaseTasksRepo.addSubtask(todoId, text)
@@ -720,6 +737,7 @@ export const hybridTasksRepo = {
     let cloudSuccess = false
 
     // Try Supabase first if available
+    const supabase = getSupabaseClientSync()
     if (supabase && userId) {
       try {
         await supabaseTasksRepo.updateSubtask(subtaskId, updates)
@@ -744,6 +762,7 @@ export const hybridTasksRepo = {
     let cloudSuccess = false
 
     // Try Supabase first if available
+    const supabase = getSupabaseClientSync()
     if (supabase && userId) {
       try {
         await supabaseTasksRepo.deleteSubtask(subtaskId)
@@ -768,6 +787,7 @@ export const hybridTasksRepo = {
     let cloudSuccess = false
 
     // Try Supabase first if available
+    const supabase = getSupabaseClientSync()
     if (supabase && userId) {
       try {
         await supabaseTasksRepo.clearAll(userId)

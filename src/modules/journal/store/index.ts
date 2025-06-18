@@ -111,7 +111,15 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
       const rowData = transformEntryToRow(entry)
       const { data, error } = await supabase
         .from('journal_entries')
-        .insert([rowData])
+        .insert([{
+          user_id: '', // TODO: Get from auth context
+          entry_date: rowData.entry_date || new Date().toISOString().split('T')[0],
+          entry_type: rowData.entry_type || 'both',
+          morning_entry: rowData.morning_entry as any,
+          evening_entry: rowData.evening_entry as any,
+          created_at: rowData.created_at,
+          updated_at: rowData.updated_at,
+        }])
         .select()
         .single()
 
@@ -144,7 +152,13 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
       const rowData = transformEntryToRow(updates)
       const { data, error } = await supabase
         .from('journal_entries')
-        .update(rowData)
+        .update({
+          entry_date: rowData.entry_date,
+          entry_type: rowData.entry_type,
+          morning_entry: rowData.morning_entry as any,
+          evening_entry: rowData.evening_entry as any,
+          updated_at: rowData.updated_at,
+        })
         .eq('id', id)
         .select()
         .single()
