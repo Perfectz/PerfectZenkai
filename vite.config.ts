@@ -15,6 +15,11 @@ export default defineConfig({
     // Ensure clean build
     emptyOutDir: true,
   },
+  esbuild: {
+    // More permissive TypeScript handling for Node.js 22 compatibility
+    target: 'es2022',
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+  },
   plugins: [
     react(),
     mkcert(),

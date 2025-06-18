@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo, TaskTemplate, Subtask } from './types'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClientSync } from '@/lib/supabase-client'
 
 class TasksDatabase extends Dexie {
   todos!: Table<Todo>
@@ -43,6 +43,7 @@ const getDatabase = (): TasksDatabase => {
 // Supabase repository for cloud storage
 export const supabaseTasksRepo = {
   async addTodo(todo: Omit<Todo, 'id'>, userId: string): Promise<Todo> {
+    const supabase = getSupabaseClientSync()
     if (!supabase) throw new Error('Supabase not available')
 
     // Insert the main todo
@@ -300,6 +301,7 @@ export const tasksRepo = {
 
   async getAllTodos(userId?: string): Promise<Todo[]> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         const { data: todos, error } = await supabase
           .from('todos')
@@ -474,6 +476,7 @@ export const tasksRepo = {
 export const hybridTasksRepo = {
   async addTodo(todo: Omit<Todo, 'id'>, userId?: string): Promise<Todo> {
     try {
+      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try Supabase first
         const result = await supabaseTasksRepo.addTodo(todo, userId)
@@ -496,6 +499,7 @@ export const hybridTasksRepo = {
     let cloudSuccess = false
 
     // Try Supabase first if available
+    const supabase = getSupabaseClientSync()
     if (supabase && userId) {
       try {
         await supabaseTasksRepo.updateTodo(id, updates)

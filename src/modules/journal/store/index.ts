@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 import { 
   JournalEntry, 
   MorningEntry, 
@@ -63,14 +63,20 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   loadEntries: async () => {
     set({ isLoading: true, error: null })
     try {
-      const { data, error } = await supabase!
+      const supabase = await getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client not available')
+      }
+
+      // RLS is now enabled, so user_id filtering is handled automatically by the database
+      const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
         .order('entry_date', { ascending: false })
 
       if (error) throw error
       
-      const entries = (data || []).map(transformRowToEntry)
+      const entries = (data || []).map((row: any) => transformRowToEntry(row))
       set({ entries, isLoading: false })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
@@ -97,8 +103,13 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   addEntry: async (entry) => {
     set({ isLoading: true, error: null })
     try {
+      const supabase = await getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client not available')
+      }
+
       const rowData = transformEntryToRow(entry)
-      const { data, error } = await supabase!
+      const { data, error } = await supabase
         .from('journal_entries')
         .insert([rowData])
         .select()
@@ -106,7 +117,7 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
       if (error) throw error
       
-      const newEntry = transformRowToEntry(data)
+      const newEntry = transformRowToEntry(data as any)
       const { entries } = get()
       const updatedEntries = [newEntry, ...entries].sort((a, b) => 
         new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
@@ -125,8 +136,13 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   updateEntry: async (id, updates) => {
     set({ isLoading: true, error: null })
     try {
+      const supabase = await getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client not available')
+      }
+
       const rowData = transformEntryToRow(updates)
-      const { data, error } = await supabase!
+      const { data, error } = await supabase
         .from('journal_entries')
         .update(rowData)
         .eq('id', id)
@@ -135,7 +151,7 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
       if (error) throw error
       
-      const updatedEntry = transformRowToEntry(data)
+      const updatedEntry = transformRowToEntry(data as any)
       const { entries } = get()
       const updatedEntries = entries.map(entry => 
         entry.id === id ? updatedEntry : entry
@@ -154,7 +170,12 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   deleteEntry: async (id) => {
     set({ isLoading: true, error: null })
     try {
-      const { error } = await supabase!
+      const supabase = await getSupabaseClient()
+      if (!supabase) {
+        throw new Error('Supabase client not available')
+      }
+
+      const { error } = await supabase
         .from('journal_entries')
         .delete()
         .eq('id', id)

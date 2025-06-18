@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:debug": "vite --debug",
     "dev:mobile": "concurrently \"npm run dev\" \"ngrok http 5173\"",
     "dev:tunnel": "ngrok http 5173",
     "dev:restart": "powershell -ExecutionPolicy Bypass -File scripts/restart-dev.ps1",
@@ -19,7 +20,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "e2e": "playwright test",
+    "test:cleanup": "powershell -ExecutionPolicy Bypass -File scripts/kill-port.ps1 -Port 5173",
+    "e2e": "npm-run-all test:cleanup --parallel dev \"e2e:run --\"",
+    "e2e:run": "wait-on https://localhost:5173 && playwright test",
+    "e2e:single": "npm-run-all test:cleanup --parallel dev \"e2e:run:single\"",
+    "e2e:run:single": "wait-on https://localhost:5173 && playwright test e2e/AuthViaKeyVault.e2e.ts",
     "e2e:ui": "playwright test --ui",
     "build:preview": "npm run build && npm run preview",
     "deploy:vercel": "npm run build && npx vercel --prod",
@@ -36,6 +41,7 @@
     "postinstall": "playwright install"
   },
   "dependencies": {
+    "@azure/mcp": "^0.2.2",
     "@google-cloud/local-auth": "^3.0.1",
     "@langchain/core": "^0.3.58",
     "@langchain/openai": "^0.5.13",
@@ -90,6 +96,8 @@
     "husky": "^8.0.3",
     "jsdom": "^23.0.0",
     "lint-staged": "^15.1.0",
+    "msw": "^2.3.4",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.32",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
@@ -103,6 +111,7 @@
     "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-pwa": "^1.0.0",
     "vitest": "^3.2.3",
+    "wait-on": "^7.2.0",
     "workbox-window": "^7.0.0"
   },
   "lint-staged": {
@@ -113,5 +122,9 @@
     "*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=9.0.0"
   }
 }

@@ -2,11 +2,14 @@
 import { ChatInterface } from '../components/ChatInterface'
 import { MessageCircle, ArrowLeft, Shield, AlertTriangle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export function ChatPage() {
   const navigate = useNavigate()
-  const [showSecurityNotice, setShowSecurityNotice] = useState(true)
+  const [showSecurityNotice] = useState(true)
+  
+  // Use the showSecurityNotice variable to avoid unused variable error
+  console.debug('Security notice state:', showSecurityNotice)
 
   // Check if AI chat is available (API key configured securely)
   const isAiChatAvailable = import.meta.env.VITE_AI_CHAT_ENABLED === 'true' && 

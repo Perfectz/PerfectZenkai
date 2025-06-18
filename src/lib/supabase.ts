@@ -1,57 +1,52 @@
 import { createClient } from '@supabase/supabase-js'
+import { keyVaultService } from '../services/keyVaultService'
+import type { Database as SupabaseDatabase } from '../types/supabase'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-// Check if we're in a test environment or if variables are missing
+// Check if we're in a test environment
 const isTestEnvironment =
   import.meta.env.MODE === 'test' || process.env.NODE_ENV === 'test'
-const hasSupabaseConfig = supabaseUrl && supabaseAnonKey
 
-if (!hasSupabaseConfig && !isTestEnvironment) {
-  console.warn(
-    'Supabase environment variables not found. Running in offline mode.'
-  )
-}
+// Initialize Supabase client with Azure Key Vault integration
+let supabaseClient: ReturnType<typeof createClient<SupabaseDatabase>> | null = null
 
-// Create client only if we have proper configuration
-export const supabase = hasSupabaseConfig
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+export const initializeSupabase = async () => {
+  if (supabaseClient || isTestEnvironment) {
+    return supabaseClient
+  }
+
+  try {
+    console.log('🔧 Initializing Supabase with Azure Key Vault credentials...')
+    
+    // Get credentials from Azure Key Vault
+    const { url, anonKey } = await keyVaultService.getSupabaseConfig()
+    
+    supabaseClient = createClient<SupabaseDatabase>(url, anonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
       },
     })
-  : null
-
-// Database types (will be auto-generated later)
-export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string
-          username: string
-          email: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          username: string
-          email?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          username?: string
-          email?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-    }
+    
+    console.log('✅ Supabase client initialized successfully with Azure Key Vault')
+    return supabaseClient
+  } catch (error) {
+    console.error('❌ Failed to initialize Supabase client with Key Vault:', error)
+    console.warn('🔄 Running in offline mode - Key Vault unavailable')
+    return null
   }
 }
+
+// Export the promise-based client
+export const getSupabaseClient = async () => {
+  if (!supabaseClient && !isTestEnvironment) {
+    await initializeSupabase()
+  }
+  return supabaseClient
+}
+
+// Legacy export for backward compatibility (will be null initially)
+export const supabase = supabaseClient
+
+// Re-export the Database type for convenience
+export type { Database } from '../types/supabase'

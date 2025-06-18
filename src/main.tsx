@@ -7,6 +7,12 @@ import { initializeWeightStore } from './modules/weight'
 import { initializeNotesStore } from './modules/notes'
 import { BrowserRouter } from 'react-router-dom'
 import { killRootServiceWorker } from './shared/utils/killRootServiceWorker'
+import { getSupabaseClient } from './lib/supabase-client'
+
+// Initialize Supabase client early
+getSupabaseClient().catch(error => {
+  console.warn('Supabase initialization failed, running in offline mode:', error)
+})
 
 // Initialize stores after auth is ready
 // Note: Tasks store will initialize itself after auth check completes
