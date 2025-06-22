@@ -177,7 +177,7 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
         return
       }
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (updates.title !== undefined) updateData.title = updates.title
       if (updates.category !== undefined) updateData.category = updates.category
       if (updates.description !== undefined) updateData.description = updates.description

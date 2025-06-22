@@ -4,6 +4,26 @@ import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
 import { getSupabaseClientSync } from '@/lib/supabase-client'
 import { supabase } from '@/lib/supabase'
 
+// Supabase database row interfaces
+interface SupabaseWeightEntry {
+  id: string
+  date_iso: string
+  kg: number
+  user_id: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface SupabaseWeightGoal {
+  id: string
+  goal_type: 'lose' | 'gain' | 'maintain'
+  target_weight: number
+  target_date: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 class WeightDatabase extends Dexie {
   weights!: Table<WeightEntry>
   goals!: Table<WeightGoal>
@@ -75,6 +95,7 @@ export const supabaseWeightRepo = {
         id: updateData.id,
         dateISO: updateData.date_iso ?? '',
         kg: updateData.kg ?? 0,
+        weight: updateData.kg ?? 0, // Alias for kg to support both property names
       }
     }
 
@@ -84,6 +105,7 @@ export const supabaseWeightRepo = {
       id: data.id,
       dateISO: data.date_iso ?? '',
       kg: data.kg ?? 0,
+      weight: data.kg ?? 0, // Alias for kg to support both property names
     }
   },
 
@@ -111,10 +133,11 @@ export const supabaseWeightRepo = {
 
     if (error) throw error
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item: SupabaseWeightEntry) => ({
       id: item.id,
       dateISO: item.date_iso ?? '',
       kg: item.kg ?? 0,
+      weight: item.kg ?? 0, // Alias for kg to support both property names
     }))
   },
 
@@ -139,6 +162,7 @@ export const supabaseWeightRepo = {
       id: data.id,
       dateISO: data.date_iso ?? '',
       kg: data.kg ?? 0,
+      weight: data.kg ?? 0, // Alias for kg to support both property names
     }
   },
 
@@ -169,6 +193,7 @@ export const supabaseWeightRepo = {
       id: data.id,
       dateISO: data.date_iso ?? '',
       kg: data.kg ?? 0,
+      weight: data.kg ?? 0, // Alias for kg to support both property names
     }
   },
 
@@ -463,6 +488,8 @@ export const hybridWeightRepo = {
       return { synced: syncedCount, errors: errorCount + 1 }
     }
   },
+
+
 }
 
 // Supabase repository for weight goals
@@ -494,7 +521,7 @@ export const supabaseWeightGoalRepo = {
 
     return {
       id: data.id,
-      goalType: data.goal_type as any,
+      goalType: data.goal_type,
       targetWeight: data.target_weight ?? 0,
       targetDate: data.target_date ?? '',
       isActive: data.is_active ?? false,
@@ -523,7 +550,7 @@ export const supabaseWeightGoalRepo = {
 
     return {
       id: data.id,
-      goalType: data.goal_type as any,
+      goalType: data.goal_type,
       targetWeight: data.target_weight ?? 0,
       targetDate: data.target_date ?? '',
       isActive: data.is_active ?? false,
@@ -552,7 +579,7 @@ export const supabaseWeightGoalRepo = {
 
     return {
       id: data.id,
-      goalType: data.goal_type as any,
+      goalType: data.goal_type,
       targetWeight: data.target_weight ?? 0,
       targetDate: data.target_date ?? '',
       isActive: data.is_active ?? false,
@@ -585,7 +612,7 @@ export const supabaseWeightGoalRepo = {
 
     if (error) throw error
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item: SupabaseWeightGoal) => ({
       id: item.id,
       goalType: item.goal_type,
       targetWeight: item.target_weight ?? 0,

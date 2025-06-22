@@ -13,11 +13,18 @@ describe('Goals Store - Visibility Fix', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset store state
-    useGoalsStore.setState({
+    const mockStoreState: Record<string, unknown> = {
       goals: [],
-      isLoading: false, 
+      isLoading: false,
       error: null
-    })
+    }
+    useGoalsStore.setState(mockStoreState)
+
+    // Mock user state with proper typing (commented out to avoid unused variable)
+    // const mockUserState: Record<string, unknown> = {
+    //   user: { id: 'test-user' },
+    //   isAuthenticated: true
+    // }
   })
 
   describe('loadGoals', () => {
@@ -45,7 +52,7 @@ describe('Goals Store - Visibility Fix', () => {
           })
         })
       }
-      mockGetSupabaseClient.mockResolvedValue(mockSupabase as any)
+      mockGetSupabaseClient.mockResolvedValue(mockSupabase as unknown)
       
       // Act
       await useGoalsStore.getState().loadGoals()
@@ -80,7 +87,7 @@ describe('Goals Store - Visibility Fix', () => {
           })
         })
       }
-      mockGetSupabaseClient.mockResolvedValue(mockSupabase as any)
+      mockGetSupabaseClient.mockResolvedValue(mockSupabase as unknown)
       
       // Act
       await useGoalsStore.getState().loadGoals()

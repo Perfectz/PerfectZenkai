@@ -102,5 +102,5 @@ export interface WeightInsight {
   description: string
   importance: 'low' | 'medium' | 'high'
   generatedAt: string
-  data: any
+  data: Record<string, unknown>
 }

@@ -53,7 +53,7 @@ export default function TodoPage() {
     if (templates.length === 0) {
       loadTemplates()
     }
-  }, [loadTodos, loadTemplates]) // Remove length dependencies to prevent re-triggering
+  }, [loadTodos, loadTemplates, isLoading, todos.length, templates.length])
 
   // Filter todos based on selected filters
   const filteredTodos = todos.filter((todo) => {

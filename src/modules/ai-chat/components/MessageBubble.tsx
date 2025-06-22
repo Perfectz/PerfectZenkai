@@ -1,7 +1,9 @@
 
-import { Bot, User, RotateCcw } from 'lucide-react'
+import React, { useState } from 'react'
+import { Bot, User, RotateCcw, Volume2, VolumeX, Loader } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import type { ChatMessage } from '../types/chat.types'
+import { ttsService } from '../services/TextToSpeechService'
 
 interface MessageBubbleProps {
   message: ChatMessage & { 
@@ -25,6 +27,37 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [ttsError, setTtsError] = useState<string | null>(null)
+
+  const handleSpeak = async () => {
+    if (isSpeaking) {
+      // Stop current speech
+      ttsService.stop()
+      setIsSpeaking(false)
+      return
+    }
+
+    if (!message.content.trim()) {
+      setTtsError('No content to speak')
+      return
+    }
+
+    setIsSpeaking(true)
+    setTtsError(null)
+
+    try {
+      const result = await ttsService.speak(message.content)
+      
+      if (!result.success) {
+        setTtsError(result.error || 'Speech generation failed')
+      }
+    } catch (error) {
+      setTtsError(error instanceof Error ? error.message : 'Speech error')
+    } finally {
+      setIsSpeaking(false)
+    }
+  }
 
   return (
     <div
@@ -47,19 +80,40 @@ export function MessageBubble({
       )}
 
       <div className="flex-1 space-y-1">
-        {/* Message content */}
-        <div 
-          data-testid="message-content"
-          className="break-words"
-        >
-          {enableMarkdown ? (
-            <div 
-              dangerouslySetInnerHTML={{ 
-                __html: formatMarkdown(message.content) 
-              }} 
-            />
-          ) : (
-            <p className="text-sm leading-relaxed">{message.content}</p>
+        {/* Message content with TTS button for assistant */}
+        <div className="flex items-start gap-2">
+          <div 
+            data-testid="message-content"
+            className="break-words flex-1"
+          >
+            {enableMarkdown ? (
+              <div 
+                dangerouslySetInnerHTML={{ 
+                  __html: formatMarkdown(message.content) 
+                }} 
+              />
+            ) : (
+              <p className="text-sm leading-relaxed">{message.content}</p>
+            )}
+          </div>
+
+          {/* TTS Button for Assistant Messages */}
+          {isAssistant && !message.isStreaming && message.content.trim() && (
+            <button
+              onClick={handleSpeak}
+              disabled={isSpeaking}
+              className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-500 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              aria-label={isSpeaking ? "Stop speech" : "Read message aloud"}
+              title={isSpeaking ? "Stop speech" : "Read message aloud"}
+            >
+              {isSpeaking ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : ttsService.isPlaying() ? (
+                <VolumeX className="w-4 h-4" />
+              ) : (
+                <Volume2 className="w-4 h-4" />
+              )}
+            </button>
           )}
         </div>
 
@@ -95,6 +149,15 @@ export function MessageBubble({
                 Retry
               </button>
             )}
+          </div>
+        )}
+
+        {/* TTS Error state */}
+        {ttsError && (
+          <div data-testid="tts-error" className="mt-2">
+            <p className="text-xs text-orange-600 dark:text-orange-400">
+              Speech error: {ttsError}
+            </p>
           </div>
         )}
 

@@ -4,8 +4,7 @@ import {
   BarChart3,
   CheckSquare,
   Target,
-  BookOpen,
-
+  Calendar,
   MessageCircle,
   LogOut,
   User,
@@ -89,8 +88,8 @@ export default function NavigationBar() {
           <NavItem to="/health" icon={BarChart3} label="Health" />
           <NavItem to="/todo" icon={CheckSquare} label="Todo" />
           <NavItem to="/goals" icon={Target} label="Goals" />
+          <NavItem to="/daily-standup" icon={Calendar} label="Standup" />
           <NavItem to="/chat" icon={MessageCircle} label="AI Chat" />
-          <NavItem to="/notes" icon={BookOpen} label="Notes" />
         </div>
       </div>
     </>

@@ -3,19 +3,186 @@
 import { useTasksStore } from '@/modules/tasks/store'
 import { useWeightStore } from '@/modules/weight/store'
 import { useAuthStore } from '@/modules/auth'
-import type { Todo } from '@/modules/tasks/types'
+import type { Todo, Priority } from '@/modules/tasks/types'
 import type { WeightEntry, WeightGoalInput } from '@/modules/weight/types'
 import { FoodAnalysisAgent } from '@/modules/meals/services/FoodAnalysisAgent'
 import { keyVaultService } from '@/services/keyVaultService'
 import { getSupabaseClientSync } from '@/lib/supabase-client'
 import { WeightManagementAgent } from '@/modules/weight/services/WeightManagementAgent'
+// Removed duplicate and problematic imports
 
-// Function call result type
+// === FUNCTION PARAMETER INTERFACES ===
+export interface AddTodoParams {
+  summary: string
+  description?: string
+  priority?: Priority
+  category?: 'work' | 'personal' | 'health' | 'learning' | 'other'
+  points?: number
+  dueDate?: string
+}
+
+export interface UpdateTodoParams {
+  id: string
+  summary?: string
+  description?: string
+  priority?: Priority
+  category?: 'work' | 'personal' | 'health' | 'learning' | 'other'
+  points?: number
+  done?: boolean
+}
+
+export interface DeleteTodoParams {
+  id: string
+}
+
+export interface ToggleTodoParams {
+  id: string
+}
+
+export interface GetTodosParams {
+  category?: 'work' | 'personal' | 'health' | 'learning' | 'other'
+  completed?: boolean
+}
+
+export interface AddWeightParams {
+  weight: number
+  date?: string
+}
+
+export interface UpdateWeightParams {
+  id: string
+  weight?: number
+  date?: string
+}
+
+export interface DeleteWeightParams {
+  id: string
+}
+
+export interface GetWeightsParams {
+  timeframe?: 'week' | 'month' | 'quarter' | 'year' | 'all'
+  limit?: number
+}
+
+export interface SetWeightGoalParams {
+  targetWeight: number
+  targetDate?: string | null
+  goalType: 'lose' | 'gain' | 'maintain'
+  startingWeight?: number
+}
+
+export interface AnalyzeMealPhotoParams {
+  imageData: string
+  mimeType?: string
+  notes?: string
+  mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+}
+
+export interface FillStandupFormParams {
+  date?: string
+  yesterdayAccomplishments?: string[]
+  yesterdayBlockers?: string[]
+  yesterdayLessons?: string
+  todayPriorities?: Array<{ text: string; category: string }>
+  todayPlans?: string[]
+  blockers?: string[]
+  energyLevel?: number
+  mood?: string | number
+  availableHours?: number
+  motivationLevel?: number
+  energy?: number
+}
+
+export interface GetStandupDataParams {
+  date?: string
+  includeReflection?: boolean
+}
+
+export interface SaveMealEntryParams {
+  name: string
+  calories?: number
+  protein?: number
+  carbs?: number
+  fat?: number
+  notes?: string
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  mealDate?: string
+  photoUrl?: string
+  foods: Array<{ name: string; calories: number; protein?: number; carbs?: number; fat?: number }>
+  totalCalories: number
+  confidenceScore?: number
+  analysisTimeMs?: number
+}
+
+export interface GetMealHistoryParams {
+  timeframe?: 'week' | 'month' | 'quarter' | 'year'
+  mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  startDate?: string
+  endDate?: string
+  limit?: number
+}
+
+export interface GenerateInsightParams {
+  type?: 'tasks' | 'weight' | 'meals' | 'journal'
+  timeframe?: string
+  insightType?: string
+  dataRange?: string
+  focus?: string
+}
+
+export interface GetInsightsParams {
+  type?: 'tasks' | 'weight' | 'meals' | 'journal'
+  limit?: number
+  insightType?: string
+  unreadOnly?: boolean
+}
+
+export interface AnalyzeWeightProgressParams {
+  timeframe?: 'week' | 'month' | 'quarter' | 'year' | 'all'
+  includeGoals?: boolean
+}
+
+export interface RecommendWeightGoalParams {
+  targetType?: 'loss' | 'gain' | 'maintain'
+  timeframe?: string
+}
+
+export interface PredictWeightProgressParams {
+  daysAhead?: number
+  includeConfidence?: boolean
+}
+
+export interface GetWeightCoachingParams {
+  focusArea?: 'motivation' | 'plateau' | 'goal-setting' | 'tracking' | 'general'
+}
+
+// Using WeightEntryType from imports instead of duplicate interface
+
 export interface FunctionCallResult {
   success: boolean
   message: string
-  data?: any
+  data?: unknown
   error?: string
+}
+
+// Add proper interfaces to replace any types
+interface StandupPriority {
+  text: string
+  category: string
+}
+
+interface MealEntryData {
+  user_id: string
+  meal_date: string
+  meal_type: string
+  photo_url: string | null
+  foods: Array<{ name: string; calories: number; protein?: number; carbs?: number; fat?: number }>
+  total_calories: number
+  confidence_score: number
+  analysis_time_ms: number
+  notes: string | null
+  created_at?: string
+  id?: string
 }
 
 // Available functions that AI can call
@@ -623,7 +790,7 @@ const kgToLbs = (kg: number): number => kg * 2.20462
 // Function implementations
 export const FUNCTION_IMPLEMENTATIONS = {
   // === TODO MANAGEMENT ===
-  async addTodo(params: any): Promise<FunctionCallResult> {
+  async addTodo(params: AddTodoParams): Promise<FunctionCallResult> {
     try {
       const { addTodo } = useTasksStore.getState()
       
@@ -656,7 +823,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async updateTodo(params: any): Promise<FunctionCallResult> {
+  async updateTodo(params: UpdateTodoParams): Promise<FunctionCallResult> {
     try {
       const { updateTodo, todos } = useTasksStore.getState()
       
@@ -693,7 +860,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async deleteTodo(params: any): Promise<FunctionCallResult> {
+  async deleteTodo(params: DeleteTodoParams): Promise<FunctionCallResult> {
     try {
       const { deleteTodo, todos } = useTasksStore.getState()
       
@@ -722,7 +889,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async toggleTodo(params: any): Promise<FunctionCallResult> {
+  async toggleTodo(params: ToggleTodoParams): Promise<FunctionCallResult> {
     try {
       const { toggleTodo, todos } = useTasksStore.getState()
       
@@ -752,7 +919,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getTodos(params: any): Promise<FunctionCallResult> {
+  async getTodos(params: GetTodosParams): Promise<FunctionCallResult> {
     try {
       const { todos, getTodosByCategory } = useTasksStore.getState()
       
@@ -798,7 +965,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === WEIGHT MANAGEMENT ===
-  async addWeight(params: any): Promise<FunctionCallResult> {
+  async addWeight(params: AddWeightParams): Promise<FunctionCallResult> {
     try {
       const { addWeight } = useWeightStore.getState()
       
@@ -807,7 +974,8 @@ export const FUNCTION_IMPLEMENTATIONS = {
 
       const entry: Omit<WeightEntry, 'id'> = {
         dateISO: date,
-        kg: weightKg
+        kg: weightKg,
+        weight: weightKg // Alias for kg to support both property names
       }
 
       await addWeight(entry)
@@ -826,7 +994,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async updateWeight(params: any): Promise<FunctionCallResult> {
+  async updateWeight(params: UpdateWeightParams): Promise<FunctionCallResult> {
     try {
       const { updateWeight, weights } = useWeightStore.getState()
       
@@ -840,7 +1008,11 @@ export const FUNCTION_IMPLEMENTATIONS = {
       }
 
       const updates: Partial<Omit<WeightEntry, 'id'>> = {}
-      if (params.weight !== undefined) updates.kg = lbsToKg(params.weight)
+      if (params.weight !== undefined) {
+        const weightKg = lbsToKg(params.weight)
+        updates.kg = weightKg
+        updates.weight = weightKg // Alias for kg to support both property names
+      }
       if (params.date !== undefined) updates.dateISO = params.date
 
       await updateWeight(params.id, updates)
@@ -859,7 +1031,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async deleteWeight(params: any): Promise<FunctionCallResult> {
+  async deleteWeight(params: DeleteWeightParams): Promise<FunctionCallResult> {
     try {
       const { deleteWeight, weights } = useWeightStore.getState()
       
@@ -888,7 +1060,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getWeights(params: any): Promise<FunctionCallResult> {
+  async getWeights(params: GetWeightsParams): Promise<FunctionCallResult> {
     try {
       const { weights } = useWeightStore.getState()
       
@@ -928,14 +1100,14 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async setWeightGoal(params: any): Promise<FunctionCallResult> {
+  async setWeightGoal(params: SetWeightGoalParams): Promise<FunctionCallResult> {
     try {
       const { setGoal } = useWeightStore.getState()
       
       const goal: WeightGoalInput = {
         targetWeight: lbsToKg(params.targetWeight),
         goalType: params.goalType,
-        targetDate: params.targetDate || null,
+        targetDate: params.targetDate || undefined,
         startingWeight: params.startingWeight ? lbsToKg(params.startingWeight) : undefined
       }
 
@@ -1068,7 +1240,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === FOOD ANALYSIS ===
-  async analyzeMealPhoto(params: any): Promise<FunctionCallResult> {
+  async analyzeMealPhoto(params: AnalyzeMealPhotoParams): Promise<FunctionCallResult> {
     try {
       // Get OpenAI API key
       const apiKey = await keyVaultService.getSecret('OPENAI_API_KEY')
@@ -1114,7 +1286,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === DAILY STANDUP MANAGEMENT ===
-  async fillStandupForm(params: any): Promise<FunctionCallResult> {
+  async fillStandupForm(params: FillStandupFormParams): Promise<FunctionCallResult> {
     try {
       // For now, we'll store in localStorage (later can be enhanced with proper database)
       const date = params.date || new Date().toISOString().split('T')[0]
@@ -1142,7 +1314,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
       }))
 
       const prioritiesText = standupData.todayPriorities.length > 0 
-        ? standupData.todayPriorities.map((p: any) => `• ${p.text} (${p.category})`).join('\n')
+        ? standupData.todayPriorities.map((p: StandupPriority) => `• ${p.text} (${p.category})`).join('\n')
         : 'None specified'
 
       return {
@@ -1159,7 +1331,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getStandupData(params: any): Promise<FunctionCallResult> {
+  async getStandupData(params: GetStandupDataParams): Promise<FunctionCallResult> {
     try {
       if (params.date) {
         // Get specific date
@@ -1178,7 +1350,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
         
         return {
           success: true,
-          message: `📋 **Standup Data for ${params.date}**\n\n**Energy:** ${standupData.energyLevel}/10 | **Mood:** ${standupData.mood || 'Not specified'}\n**Available Hours:** ${standupData.availableHours}h\n\n**Yesterday's Accomplishments:**\n${standupData.yesterdayAccomplishments.map((a: string) => `• ${a}`).join('\n') || 'None listed'}\n\n**Today's Priorities:**\n${standupData.todayPriorities.map((p: any) => `• ${p.text} (${p.category})`).join('\n') || 'None listed'}`,
+          message: `📋 **Standup Data for ${params.date}**\n\n**Energy:** ${standupData.energyLevel}/10 | **Mood:** ${standupData.mood || 'Not specified'}\n**Available Hours:** ${standupData.availableHours}h\n\n**Yesterday's Accomplishments:**\n${standupData.yesterdayAccomplishments.map((a: string) => `• ${a}`).join('\n') || 'None listed'}\n\n**Today's Priorities:**\n${standupData.todayPriorities.map((p: StandupPriority) => `• ${p.text} (${p.category})`).join('\n') || 'None listed'}`,
           data: standupData
         }
       } else {
@@ -1211,7 +1383,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === MEAL TRACKING IMPLEMENTATIONS ===
-  async saveMealEntry(params: any): Promise<FunctionCallResult> {
+  async saveMealEntry(params: SaveMealEntryParams): Promise<FunctionCallResult> {
     try {
       const { user } = useAuthStore.getState()
       if (!user) {
@@ -1241,7 +1413,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
         notes: params.notes || null
       }
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => { select: () => { single: () => Promise<{ data: unknown; error: unknown }> } } } })
         .from('meal_entries')
         .insert(mealEntry)
         .select()
@@ -1265,7 +1437,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getMealHistory(params: any): Promise<FunctionCallResult> {
+  async getMealHistory(params: GetMealHistoryParams): Promise<FunctionCallResult> {
     try {
       const { user } = useAuthStore.getState()
       if (!user) {
@@ -1281,7 +1453,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
         throw new Error('Failed to initialize Supabase client')
       }
 
-      let query = (supabase as any)
+      let query = (supabase as unknown as { from: (table: string) => { select: (columns: string) => { eq: (column: string, value: string) => { order: (column: string, options: { ascending: boolean }) => unknown } } } })
         .from('meal_entries')
         .select('*')
         .eq('user_id', user.id)
@@ -1317,12 +1489,12 @@ export const FUNCTION_IMPLEMENTATIONS = {
         }
       }
 
-      const totalCalories = data.reduce((sum: number, entry: any) => sum + (entry.total_calories || 0), 0)
+      const totalCalories = data.reduce((sum: number, entry: MealEntryData) => sum + (entry.total_calories || 0), 0)
       const avgCaloriesPerMeal = Math.round(totalCalories / data.length)
 
       return {
         success: true,
-        message: `🍽️ **Meal History** (${data.length} entries)\n\n**Total Calories:** ${totalCalories}\n**Average per Meal:** ${avgCaloriesPerMeal}\n**Date Range:** ${data[data.length - 1]?.meal_date} to ${data[0]?.meal_date}\n\n${data.slice(0, 5).map((entry: any) => `**${entry.meal_date}** - ${entry.meal_type}: ${entry.total_calories} cal (${Array.isArray(entry.foods) ? entry.foods.length : 0} foods)`).join('\n')}`,
+        message: `🍽️ **Meal History** (${data.length} entries)\n\n**Total Calories:** ${totalCalories}\n**Average per Meal:** ${avgCaloriesPerMeal}\n**Date Range:** ${data[data.length - 1]?.meal_date} to ${data[0]?.meal_date}\n\n${data.slice(0, 5).map((entry: MealEntryData) => `**${entry.meal_date}** - ${entry.meal_type}: ${entry.total_calories} cal (${Array.isArray(entry.foods) ? entry.foods.length : 0} foods)`).join('\n')}`,
         data: { entries: data, total: data.length, totalCalories, avgCaloriesPerMeal }
       }
     } catch (error) {
@@ -1335,7 +1507,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === AI INSIGHTS IMPLEMENTATIONS ===
-  async generateInsight(params: any): Promise<FunctionCallResult> {
+  async generateInsight(params: GenerateInsightParams): Promise<FunctionCallResult> {
     try {
       const { user } = useAuthStore.getState()
       if (!user) {
@@ -1418,7 +1590,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getInsights(params: any): Promise<FunctionCallResult> {
+  async getInsights(params: GetInsightsParams): Promise<FunctionCallResult> {
     try {
       const { user } = useAuthStore.getState()
       if (!user) {
@@ -1483,13 +1655,13 @@ export const FUNCTION_IMPLEMENTATIONS = {
   },
 
   // === WEIGHT MANAGEMENT AGENT IMPLEMENTATIONS ===
-  async analyzeWeightProgress(params: any): Promise<FunctionCallResult> {
+  async analyzeWeightProgress(params: AnalyzeWeightProgressParams): Promise<FunctionCallResult> {
     try {
       const agent = new WeightManagementAgent()
       const { weights, activeGoal } = useWeightStore.getState()
       
       // Filter data based on timeframe
-      const filteredWeights = filterWeightsByTimeframe(weights, params.timeframe)
+      const filteredWeights = filterWeightsByTimeframe(weights, params.timeframe || 'month')
       
       // Analyze trends
       const analysis = await agent.analyzeWeightTrends('current-user', filteredWeights)
@@ -1518,7 +1690,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async recommendWeightGoal(params: any): Promise<FunctionCallResult> {
+  async recommendWeightGoal(params: RecommendWeightGoalParams): Promise<FunctionCallResult> {
     try {
       const agent = new WeightManagementAgent()
       const { weights, activeGoal } = useWeightStore.getState()
@@ -1560,7 +1732,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async predictWeightProgress(params: any): Promise<FunctionCallResult> {
+  async predictWeightProgress(params: PredictWeightProgressParams): Promise<FunctionCallResult> {
     try {
       const agent = new WeightManagementAgent()
       const { weights, activeGoal } = useWeightStore.getState()
@@ -1600,7 +1772,7 @@ export const FUNCTION_IMPLEMENTATIONS = {
     }
   },
 
-  async getWeightCoaching(params: any): Promise<FunctionCallResult> {
+  async getWeightCoaching(params: GetWeightCoachingParams): Promise<FunctionCallResult> {
     try {
       const agent = new WeightManagementAgent()
       const { weights, activeGoal } = useWeightStore.getState()
@@ -1631,9 +1803,9 @@ export const FUNCTION_IMPLEMENTATIONS = {
 
 // Helper function for weight timeframe filtering
 function filterWeightsByTimeframe(
-  weights: any[], 
+  weights: WeightEntry[], 
   timeframe: 'week' | 'month' | 'quarter' | 'year' | 'all'
-): any[] {
+): WeightEntry[] {
   if (timeframe === 'all') return weights
 
   const now = new Date()

@@ -1,4 +1,4 @@
-import React from 'react'
+// React import removed - not needed with new JSX transform
 import { describe, test, expect } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 

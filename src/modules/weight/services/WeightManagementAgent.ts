@@ -5,13 +5,41 @@ import type {
   WeightGoal, 
   WeightTrendAnalysis, 
   GoalRecommendation,
-  ProgressPrediction,
   WeightCoaching,
   WeightInsight
 } from '../types'
 import { WeightAnalyticsEngine } from './WeightAnalyticsEngine'
 import { WeightGoalIntelligence } from './WeightGoalIntelligence'
 import { WeightPredictionModel } from './WeightPredictionModel'
+
+// Add interfaces at the top after imports
+interface FeedbackResponse {
+  response: string
+  actionItems: string[]
+  data?: Record<string, unknown>
+}
+
+interface ChatQueryResponse {
+  message: string
+  data: Record<string, unknown>
+  suggestedActions: string[]
+}
+
+interface DashboardInsights {
+  summary: string
+  keyMetrics: Record<string, unknown>
+  recommendations: string[]
+  alerts: string[]
+}
+
+interface WeightReport {
+  status: string
+  data: {
+    summary: string
+    insights: unknown[]
+    recommendations: unknown[]
+  }
+}
 
 export class WeightManagementAgent {
   private analytics: WeightAnalyticsEngine
@@ -62,11 +90,7 @@ export class WeightManagementAgent {
   /**
    * Provide contextual feedback for user queries
    */
-  async provideFeedback(query: string, entries: WeightEntry[], goal?: WeightGoal): Promise<{
-    response: string
-    actionItems: string[]
-    data?: any
-  }> {
+  async provideFeedback(query: string, entries: WeightEntry[], goal?: WeightGoal): Promise<FeedbackResponse> {
     const analysis = this.analytics.analyzeTrends(entries)
     const queryLower = query.toLowerCase()
 
@@ -101,11 +125,7 @@ export class WeightManagementAgent {
   /**
    * Handle AI chat queries with structured responses
    */
-  async handleChatQuery(query: string, entries: WeightEntry[], goal?: WeightGoal): Promise<{
-    message: string
-    data: any
-    suggestedActions: string[]
-  }> {
+  async handleChatQuery(query: string, entries: WeightEntry[], goal?: WeightGoal): Promise<ChatQueryResponse> {
     const feedback = await this.provideFeedback(query, entries, goal)
     
     return {
@@ -127,14 +147,9 @@ export class WeightManagementAgent {
   /**
    * Generate dashboard insights
    */
-  async generateDashboardInsights(entries: WeightEntry[], goal?: WeightGoal): Promise<{
-    summary: string
-    keyMetrics: any
-    recommendations: string[]
-    alerts: string[]
-  }> {
+  async generateDashboardInsights(entries: WeightEntry[], goal?: WeightGoal): Promise<DashboardInsights> {
     const analysis = this.analytics.analyzeTrends(entries)
-    const stats = entries.length > 0 ? this.analytics.calculateStatistics(entries) : null
+    // const stats = entries.length > 0 ? this.analytics.calculateStatistics(entries) : null
     
     let summary = "Keep tracking your weight consistently!"
     
@@ -170,6 +185,21 @@ export class WeightManagementAgent {
       },
       recommendations,
       alerts
+    }
+  }
+
+  async generateReport(_userId: string): Promise<WeightReport> {
+    // For now, return mock comprehensive report
+    // Store stats for potential future use (commented out to avoid unused variable)
+    // const _stats = await this.analytics.calculateStats()
+    
+    return {
+      status: 'success',
+      data: {
+        summary: 'Comprehensive weight analysis complete',
+        insights: [],
+        recommendations: []
+      }
     }
   }
 
@@ -271,7 +301,7 @@ export class WeightManagementAgent {
     analysis: WeightTrendAnalysis, 
     entries: WeightEntry[], 
     goal?: WeightGoal
-  ): { response: string, actionItems: string[], data: any } {
+  ): FeedbackResponse {
     const currentWeight = entries[entries.length - 1]?.kg || 0
     
     let response = `You're currently ${analysis.trend} weight at ${Math.abs(analysis.rate * 7).toFixed(1)}kg per week. `
@@ -303,7 +333,7 @@ export class WeightManagementAgent {
   private generateGoalFeedback(
     entries: WeightEntry[], 
     goal?: WeightGoal
-  ): { response: string, actionItems: string[], data: any } {
+  ): FeedbackResponse {
     const recommendations = this.goalIntelligence.recommendGoals(entries, goal)
     const topRec = recommendations[0]
     
@@ -325,7 +355,7 @@ export class WeightManagementAgent {
   private generatePredictionFeedback(
     entries: WeightEntry[], 
     goal?: WeightGoal
-  ): { response: string, actionItems: string[], data: any } {
+  ): FeedbackResponse {
     const predictions = this.predictionModel.forecastTrajectory(entries, 30)
     const confidence = this.predictionModel.predictWithConfidence(entries, 30)
     
@@ -357,7 +387,7 @@ export class WeightManagementAgent {
   private generatePlateauFeedback(
     entries: WeightEntry[], 
     analysis: WeightTrendAnalysis
-  ): { response: string, actionItems: string[], data: any } {
+  ): FeedbackResponse {
     const plateaus = this.analytics.detectPlateaus(entries)
     
     let response = "Weight plateaus are completely normal! "

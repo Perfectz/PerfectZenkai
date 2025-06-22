@@ -4,8 +4,14 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
+interface PackageJson {
+  engines?: { node?: string };
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}
+
 describe('Node.js 22 Compatibility Tests', () => {
-  let packageJson: any;
+  let packageJson: PackageJson;
   let nodeVersion: string;
   
   beforeAll(() => {
@@ -39,21 +45,21 @@ describe('Node.js 22 Compatibility Tests', () => {
     test('should have compatible React version', () => {
       expect(packageJson.dependencies?.react).toBeTruthy();
       // React 18+ is Node.js 22 compatible
-      const reactVersion = packageJson.dependencies.react;
+      const reactVersion = packageJson.dependencies?.react;
       expect(reactVersion).toMatch(/^(18\.|19\.|^18)/);
     });
 
     test('should have compatible Vite version', () => {
       expect(packageJson.devDependencies?.vite).toBeTruthy();
       // Vite 5+ is Node.js 22 compatible
-      const viteVersion = packageJson.devDependencies.vite;
+      const viteVersion = packageJson.devDependencies?.vite;
       expect(viteVersion).toMatch(/^([5-9]\.|^[5-9])/);
     });
 
     test('should have compatible TypeScript version', () => {
       expect(packageJson.devDependencies?.typescript).toBeTruthy();
       // TypeScript 5+ is Node.js 22 compatible
-      const tsVersion = packageJson.devDependencies.typescript;
+      const tsVersion = packageJson.devDependencies?.typescript;
       expect(tsVersion).toMatch(/^([5-9]\.|^[5-9])/);
     });
   });
@@ -125,7 +131,7 @@ describe('Azure Functions Node.js 22 Runtime Tests', () => {
         const apiPackageJsonPath = path.join(apiPath, 'package.json');
         expect(fs.existsSync(apiPackageJsonPath)).toBe(true);
         
-        const apiPackageJson = JSON.parse(fs.readFileSync(apiPackageJsonPath, 'utf8'));
+        const apiPackageJson: PackageJson = JSON.parse(fs.readFileSync(apiPackageJsonPath, 'utf8'));
         expect(apiPackageJson.engines?.node).toMatch(/>=22\.|^22\./);
         
         // Check function directories exist
@@ -156,6 +162,19 @@ describe('Azure Functions Node.js 22 Runtime Tests', () => {
     test('should access Key Vault secrets', async () => {
       // This will test Azure Key Vault integration
       expect(true).toBe(true); // Placeholder - will implement actual test
+    });
+  });
+
+  describe('Node.js Version Compatibility', () => {
+    test('should support Node.js 22+ features', () => {
+      // Test Node.js version compatibility
+      const nodeProcess: NodeJS.Process = process;
+      expect(nodeProcess.version).toBeDefined();
+      expect(nodeProcess.versions.node).toBeDefined();
+      
+      // Test that we're running Node.js 22+
+      const majorVersion = parseInt(nodeProcess.versions.node.split('.')[0]);
+      expect(majorVersion).toBeGreaterThanOrEqual(22);
     });
   });
 }); 

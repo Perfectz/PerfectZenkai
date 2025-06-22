@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
-import { Todo, TaskTemplate, Subtask } from './types'
+import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { getSupabaseClientSync } from '@/lib/supabase-client'
 import { deduplicateTodos, removeDuplicateContent } from './utils/deduplicationHelpers'
 
@@ -95,8 +95,8 @@ export const supabaseTasksRepo = {
       description: '', // Default empty description for now
       descriptionFormat: 'plaintext',
       done: todoData.done ?? false,
-      priority: (todoData.priority as any) ?? 'medium',
-      category: (todoData.category as any) ?? 'other',
+      priority: (todoData.priority as Priority) ?? 'medium',
+      category: (todoData.category as Category) ?? 'other',
       points: 5, // Default points
       dueDate: todoData.due_date ?? undefined,
       dueDateTime: undefined, // Not in current schema
@@ -197,8 +197,8 @@ export const supabaseTasksRepo = {
       description: '', // Default empty description for now
       descriptionFormat: 'plaintext',
       done: todo.done ?? false,
-      priority: (todo.priority as any) ?? 'medium',
-      category: (todo.category as any) ?? 'other',
+      priority: (todo.priority as Priority) ?? 'medium',
+      category: (todo.category as Category) ?? 'other',
       points: 5, // Default points
       dueDate: todo.due_date ?? undefined,
       dueDateTime: undefined, // Not in current schema
@@ -325,8 +325,8 @@ export const tasksRepo = {
           description: '', // Default empty description for now
           descriptionFormat: 'plaintext',
           done: todo.done ?? false,
-          priority: (todo.priority as any) ?? 'medium',
-          category: (todo.category as any) ?? 'other',
+                  priority: (todo.priority as Priority) ?? 'medium',
+        category: (todo.category as Category) ?? 'other',
           points: 5, // Default points
           dueDate: todo.due_date ?? undefined,
           dueDateTime: undefined, // Not in current schema

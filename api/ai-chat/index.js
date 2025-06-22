@@ -16,10 +16,10 @@ let dailyCostTracker = {
 module.exports = async function (context, req) {
     const startTime = Date.now();
     
-    // CORS headers for Static Web App
+    // CORS headers for multiple deployment targets
     context.res = {
         headers: {
-            'Access-Control-Allow-Origin': 'https://agreeable-ground-0387c9b0f.6.azurestaticapps.net',
+            'Access-Control-Allow-Origin': '*', // Allow all origins for broader deployment support
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             'Access-Control-Max-Age': '86400' // Cache preflight for 24 hours
@@ -95,14 +95,20 @@ module.exports = async function (context, req) {
             return;
         }
 
-        // UPDATED: Use GPT-4.1-mini (latest OpenAI model)
+        // UPDATED: Use GPT-4.1-mini with function calling support
         const openAIRequest = {
             model: 'gpt-4.1-mini',
             messages: req.body.messages,
-            temperature: 0.7,
-            max_tokens: 150, // COST CONTROL: Reduced tokens due to higher GPT-4 cost
+            temperature: req.body.temperature || 0.7,
+            max_tokens: req.body.max_tokens || 150, // COST CONTROL: Reduced tokens due to higher GPT-4 cost
             timeout: 20000 // Slightly longer timeout for GPT-4
         };
+
+        // Add function calling support if functions are provided
+        if (req.body.functions && Array.isArray(req.body.functions)) {
+            openAIRequest.functions = req.body.functions;
+            openAIRequest.function_call = req.body.function_call || 'auto';
+        }
 
         context.log(`Making OpenAI API call with ${req.body.messages.length} messages`);
 

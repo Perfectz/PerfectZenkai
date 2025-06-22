@@ -15,7 +15,12 @@ export interface ChatMessageMetadata {
   error?: boolean
   errorType?: string
   functionCall?: string
-  functionResult?: any
+  functionResult?: {
+    success: boolean
+    data?: unknown
+    message?: string
+    error?: string
+  }
 }
 
 export interface ChatConversation {
@@ -61,7 +66,12 @@ export interface StreamingChatResponse {
   content?: string
   message: ChatMessage
   functionName?: string
-  result?: any
+  result?: {
+    success: boolean
+    data?: unknown
+    message?: string
+    error?: string
+  }
   error?: string
 }
 

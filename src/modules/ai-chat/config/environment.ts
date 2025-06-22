@@ -1,5 +1,5 @@
 export interface AiChatConfig {
-  apiKey: string
+  azureFunctionUrl: string
   model: string
   temperature: number
   maxTokens: number
@@ -11,31 +11,29 @@ export interface AiChatConfig {
 }
 
 export function getAiChatConfig(): AiChatConfig {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+  // Note: AI Chat now uses Azure Functions + Key Vault for security
+  // No client-side API keys needed!
   
-  // SECURITY: Disable AI chat for GitHub Pages deployment
-  // API keys cannot be secured in static hosting
-  if (!apiKey) {
-    console.warn('AI Chat disabled: API key not configured for security reasons')
-    throw new Error('AI Chat is temporarily disabled for security. Please use other app features.')
-  }
-
+  // SECURITY: Now uses Azure Functions + Key Vault - no client-side API keys needed!
+  const azureFunctionUrl = import.meta.env.VITE_AZURE_FUNCTION_URL || 
+    'https://perfectzenkai-api.azurewebsites.net/api/ai-chat'
+  
   return {
-    apiKey,
-    model: import.meta.env.VITE_AI_MODEL || 'gpt-4',
+    azureFunctionUrl,
+    model: import.meta.env.VITE_AI_MODEL || 'gpt-4.1-mini',
     temperature: parseFloat(import.meta.env.VITE_AI_TEMPERATURE || '0.7'),
-    maxTokens: parseInt(import.meta.env.VITE_AI_MAX_TOKENS || '2000'),
+    maxTokens: parseInt(import.meta.env.VITE_AI_MAX_TOKENS || '150'),
     streamingEnabled: import.meta.env.VITE_AI_STREAMING !== 'false',
     contextDepth: (import.meta.env.VITE_AI_CONTEXT_DEPTH as 'shallow' | 'medium' | 'deep') || 'medium',
     rateLimitRpm: parseInt(import.meta.env.VITE_AI_RATE_LIMIT_RPM || '20'),
-    timeoutMs: parseInt(import.meta.env.VITE_AI_TIMEOUT_MS || '5000'),
-    enabled: import.meta.env.VITE_AI_CHAT_ENABLED === 'true'
+    timeoutMs: parseInt(import.meta.env.VITE_AI_TIMEOUT_MS || '20000'),
+    enabled: true // Now secure with Azure Functions
   }
 }
 
 export function validateConfig(config: AiChatConfig): void {
-  if (!config.apiKey) {
-    throw new Error('API key is required')
+  if (!config.azureFunctionUrl) {
+    throw new Error('Azure Function URL is required')
   }
   
   if (config.temperature < 0 || config.temperature > 2) {
@@ -53,4 +51,22 @@ export function validateConfig(config: AiChatConfig): void {
   if (config.timeoutMs < 1000) {
     throw new Error('Timeout must be at least 1000ms')
   }
-} 
+}
+
+export const environment = {
+  // Azure Function URL for AI Chat
+  // In production (GitHub Pages), use the deployed Azure Function
+  // In development, use local Azure Function or fallback to GitHub Pages
+  azureFunctionUrl: import.meta.env.DEV 
+    ? 'https://perfectzenkai-api.azurewebsites.net/api/ai-chat'
+    : 'https://perfectzenkai-api.azurewebsites.net/api/ai-chat',
+  
+  // Development mode detection
+  isDevelopment: import.meta.env.DEV,
+  
+  // GitHub Pages deployment URL (fallback for development)
+  githubPagesUrl: 'https://pzgamin.github.io/PerfectZenkai',
+  
+  // Fallback to GitHub Pages Azure Function if local Azure Function fails
+  fallbackAzureFunctionUrl: 'https://perfectzenkai-api.azurewebsites.net/api/ai-chat'
+}; 

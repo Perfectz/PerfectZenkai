@@ -31,7 +31,7 @@ export async function validateTasksData(): Promise<ValidationResult> {
   let totalRecords = 0
   let validRecords = 0
   let duplicateRecords = 0
-  let orphanedRecords = 0
+  const orphanedRecords = 0
 
   try {
     // Get all todos
@@ -112,7 +112,7 @@ export async function validateWeightData(): Promise<ValidationResult> {
   let totalRecords = 0
   let validRecords = 0
   let duplicateRecords = 0
-  let orphanedRecords = 0
+  const orphanedRecords = 0
 
   try {
     // Get all weight entries

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Loader, Zap, XCircle } from 'lucide-react'
+import { Send, Loader, Zap, XCircle, Mic, MicOff, Settings } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
+import { TTSSettings } from './TTSSettings'
 import { AiChatService } from '../services/AiChatService'
 import type { ChatMessage, StreamingChatResponse } from '../types/chat.types'
 
@@ -18,6 +19,9 @@ export function ChatInterface() {
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState<ChatMessage | null>(null)
   const [functionExecuting, setFunctionExecuting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const [speechRecognition, setSpeechRecognition] = useState<unknown>(null)
+  const [showTTSSettings, setShowTTSSettings] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -39,6 +43,18 @@ export function ChatInterface() {
   useEffect(() => {
     scrollToBottom()
   }, [messages, currentStreamingMessage])
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = 'en-US'
+      setSpeechRecognition(recognition)
+    }
+  }, [])
 
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return
@@ -151,29 +167,88 @@ export function ChatInterface() {
     }
   }
 
+  const startVoiceInput = () => {
+    if (!speechRecognition) {
+      setError('Speech recognition not supported in this browser')
+      return
+    }
+
+    if (isRecording) {
+      stopVoiceInput()
+      return
+    }
+
+    setIsRecording(true)
+    setError(null)
+
+    speechRecognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setInputText(transcript)
+      setIsRecording(false)
+    }
+
+    speechRecognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error)
+      setError(`Voice input error: ${event.error}`)
+      setIsRecording(false)
+    }
+
+    speechRecognition.onend = () => {
+      setIsRecording(false)
+    }
+
+    try {
+      speechRecognition.start()
+    } catch (error) {
+      console.error('Failed to start speech recognition:', error)
+      setError('Failed to start voice input')
+      setIsRecording(false)
+    }
+  }
+
+  const stopVoiceInput = () => {
+    if (speechRecognition && isRecording) {
+      speechRecognition.stop()
+      setIsRecording(false)
+    }
+  }
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
-            <Zap className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">Perfect Zenkai AI</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {functionExecuting ? (
+                  <span className="flex items-center gap-1">
+                    <Loader className="w-3 h-3 animate-spin" />
+                    Executing {functionExecuting}...
+                  </span>
+                ) : isStreaming ? (
+                  'Thinking...'
+                ) : (
+                  'Your fitness & productivity assistant'
+                )}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">Perfect Zenkai AI</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {functionExecuting ? (
-                <span className="flex items-center gap-1">
-                  <Loader className="w-3 h-3 animate-spin" />
-                  Executing {functionExecuting}...
-                </span>
-              ) : isStreaming ? (
-                'Thinking...'
-              ) : (
-                'Your fitness & productivity assistant'
-              )}
-            </p>
-          </div>
+          
+          {/* TTS Settings Button */}
+          <Button
+            onClick={() => setShowTTSSettings(true)}
+            variant="ghost"
+            size="sm"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="Text-to-Speech Settings"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
@@ -188,7 +263,7 @@ export function ChatInterface() {
               Welcome to Perfect Zenkai AI
             </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-md">
-              I can help you manage tasks, track weight, analyze progress, and achieve your fitness goals.
+              I can help you manage tasks, track weight, analyze meals, fill standup forms, and achieve your fitness goals.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
               <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
@@ -198,10 +273,10 @@ export function ChatInterface() {
                 <strong>Or:</strong> "Log my weight as 150 lbs"
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
-                <strong>Or:</strong> "Show my current tasks"
+                <strong>Or:</strong> "Fill my standup form"
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
-                <strong>Or:</strong> "What's my weight progress?"
+                <strong>Or:</strong> "Analyze my meal photo"
               </div>
             </div>
           </div>
@@ -251,14 +326,28 @@ export function ChatInterface() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask me anything about your fitness journey..."
-            disabled={isLoading}
+            placeholder={isRecording ? "Listening..." : "Ask me anything about your fitness journey..."}
+            disabled={isLoading || isRecording}
             className="flex-1"
             aria-label="Message input"
           />
           <Button
+            onClick={startVoiceInput}
+            disabled={isLoading}
+            size="icon"
+            variant={isRecording ? "destructive" : "outline"}
+            className={isRecording ? "animate-pulse" : ""}
+            aria-label={isRecording ? "Stop voice input" : "Start voice input"}
+          >
+            {isRecording ? (
+              <MicOff className="w-4 h-4" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
+          </Button>
+          <Button
             onClick={handleSend}
-            disabled={!inputText.trim() || isLoading}
+            disabled={!inputText.trim() || isLoading || isRecording}
             size="icon"
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
             aria-label="Send message"
@@ -271,6 +360,12 @@ export function ChatInterface() {
           </Button>
         </div>
       </div>
+
+      {/* TTS Settings Modal */}
+      <TTSSettings
+        isOpen={showTTSSettings}
+        onClose={() => setShowTTSSettings(false)}
+      />
     </div>
   )
 } 

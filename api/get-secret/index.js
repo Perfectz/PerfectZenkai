@@ -1,5 +1,13 @@
 // api/get-secret/index.js
-// Simplified configuration service using Azure Function App environment variables
+// Azure Key Vault configuration service using managed identity
+
+const { DefaultAzureCredential } = require('@azure/identity');
+const { SecretClient } = require('@azure/keyvault-secrets');
+
+// Initialize Key Vault client with managed identity
+const keyVaultUrl = 'https://perfectzenkai-secrets.vault.azure.net/';
+const credential = new DefaultAzureCredential();
+const secretClient = new SecretClient(keyVaultUrl, credential);
 
 module.exports = async function (context, req) {
     context.log('📥 Configuration request received');
@@ -20,72 +28,72 @@ module.exports = async function (context, req) {
         }
 
         const secretName = req.body.secretName;
-        context.log(`🔍 Retrieving configuration: ${secretName}`);
+        context.log(`🔍 Retrieving secret from Key Vault: ${secretName}`);
 
-        // Map secret names to environment variable names
-        const envMap = {
-            'supabase-url': 'SUPABASE_URL',
-            'supabase-anon-key': 'SUPABASE_ANON_KEY',
-            'openai-direct-api-key': 'OPENAI_API_KEY'
-        };
-
-        const envVarName = envMap[secretName];
-        if (!envVarName) {
-            context.log.error(`❌ Unknown configuration key: ${secretName}`);
+        // Validate secret name
+        const allowedSecrets = ['supabase-url', 'supabase-anon-key', 'openai-direct-api-key'];
+        if (!allowedSecrets.includes(secretName)) {
+            context.log.error(`❌ Unknown secret name: ${secretName}`);
             context.res = {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
                 body: { 
-                    error: `Unknown configuration key: ${secretName}`,
+                    error: `Unknown secret name: ${secretName}`,
                     code: 'UNKNOWN_SECRET_NAME',
-                    availableKeys: Object.keys(envMap)
+                    allowedSecrets: allowedSecrets
                 }
             };
             return;
         }
 
-        // Get value from environment variables
-        const value = process.env[envVarName];
-        if (!value) {
-            context.log.error(`❌ Configuration not found: ${envVarName}`);
+        // Get secret from Key Vault
+        const secret = await secretClient.getSecret(secretName);
+        
+        if (!secret || !secret.value) {
+            context.log.error(`❌ Secret not found: ${secretName}`);
             context.res = {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' },
                 body: { 
-                    error: `Configuration not found: ${secretName}`,
-                    code: 'SECRET_NOT_FOUND',
-                    envVar: envVarName
+                    error: `Secret not found: ${secretName}`,
+                    code: 'SECRET_NOT_FOUND'
                 }
             };
             return;
         }
 
-        context.log(`✅ Configuration retrieved successfully: ${secretName}`);
+        context.log(`✅ Secret retrieved successfully: ${secretName}`);
 
-        // Return the configuration value
+        // Return the secret value
         context.res = {
             status: 200,
             headers: { 
                 'Content-Type': 'application/json',
-                'Cache-Control': 'private, max-age=300' // Cache for 5 minutes
+                'Cache-Control': 'private, max-age=300', // Cache for 5 minutes
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
             },
             body: { 
-                value: value,
+                value: secret.value,
                 secretName: secretName,
-                source: 'Azure Function App Environment Variables',
+                source: 'Azure Key Vault',
                 timestamp: new Date().toISOString()
             }
         };
 
     } catch (error) {
-        context.log.error('💥 Unexpected error in get-secret function:', error);
+        context.log.error('💥 Error accessing Key Vault:', error);
         
         context.res = {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
             body: { 
-                error: 'Internal server error while retrieving configuration',
-                code: 'INTERNAL_ERROR',
+                error: 'Internal server error while retrieving secret',
+                code: 'KEY_VAULT_ERROR',
                 message: error.message
             }
         };

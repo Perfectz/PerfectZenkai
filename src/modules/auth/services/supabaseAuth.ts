@@ -222,7 +222,7 @@ export class SupabaseAuthService {
          
          if (error) throw error
          profile = {
-           username: (data as any)?.username as string
+           username: data?.username as string
          }
        } catch (error) {
          warn('Profile fetch error (using fallback):', error)
@@ -350,7 +350,7 @@ export class SupabaseAuthService {
 
           const { data } = await Promise.race([profilePromise, profileTimeout])
           profile = data ? {
-            username: (data as any)?.username as string
+            username: data?.username as string
           } : null
         } catch (error) {
           warn('Profile fetch failed, using auth metadata:', error)

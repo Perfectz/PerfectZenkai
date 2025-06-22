@@ -23,7 +23,7 @@ describe('PhotoUpload Component', () => {
     
     global.navigator.mediaDevices = {
       getUserMedia: jest.fn().mockResolvedValue(mockStream)
-    } as any;
+    } as MediaDevices;
 
     render(<PhotoUpload onPhotoCapture={mockOnPhotoCapture} />);
     

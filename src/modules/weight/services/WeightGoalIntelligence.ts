@@ -16,7 +16,7 @@ export class WeightGoalIntelligence {
   /**
    * Recommend realistic weight goals based on historical data
    */
-  recommendGoals(entries: WeightEntry[], currentGoal?: WeightGoal): GoalRecommendation[] {
+  recommendGoals(entries: WeightEntry[], _currentGoal?: WeightGoal): GoalRecommendation[] {
     if (entries.length === 0) {
       return this.getDefaultRecommendations()
     }
@@ -67,13 +67,14 @@ export class WeightGoalIntelligence {
     if (entries.length < 2) return goal
 
     const analysis = this.analytics.analyzeTrends(entries)
-    const currentWeight = entries[entries.length - 1]?.kg || goal.startingWeight || 0
+    // Store current weight for potential future use
+    // const _currentWeight = entries[entries.length - 1]?.kg || goal.startingWeight || 0
     
     // Calculate progress rate
     const expectedRate = this.calculateExpectedRate(goal)
     const actualRate = Math.abs(analysis.rate)
     
-    let adjustedGoal = { ...goal }
+    const adjustedGoal = { ...goal }
 
     // If progress is too slow, extend timeline or adjust target
     if (actualRate < expectedRate * 0.5) {
@@ -187,6 +188,8 @@ export class WeightGoalIntelligence {
 
     return milestones
   }
+
+
 
   // === PRIVATE HELPER METHODS ===
 

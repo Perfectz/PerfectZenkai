@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import type { WeightEntry, WeightGoal } from '../types'
 import { WeightAnalyticsEngine } from '../services/WeightAnalyticsEngine'
 import { WeightGoalIntelligence } from '../services/WeightGoalIntelligence'

@@ -1,4 +1,5 @@
 // src/modules/ai-chat/services/AiChatService.ts
+// UPDATED: Now uses Azure Functions + Key Vault for secure AI chat
 
 import { 
   AVAILABLE_FUNCTIONS, 
@@ -11,7 +12,7 @@ import type {
 } from '../types/chat.types'
 
 export interface AiChatConfig {
-  apiKey: string
+  azureFunctionUrl: string
   model: string
   temperature: number
   maxTokens: number
@@ -47,15 +48,13 @@ export class AiChatService {
     }
 
     try {
-      // Make OpenAI API call with function calling support
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Call Azure Function for secure AI chat (API keys stored in Key Vault)
+      const response = await fetch(this.config.azureFunctionUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: this.config.model,
           messages: this.buildMessageHistory(),
           functions: Object.values(AVAILABLE_FUNCTIONS),
           function_call: 'auto',
@@ -68,7 +67,7 @@ export class AiChatService {
 
       if (!response.ok) {
         const error = await response.text()
-        throw new Error(`OpenAI API error: ${response.status} - ${error}`)
+        throw new Error(`Azure Function error: ${response.status} - ${error}`)
       }
 
       // Handle streaming response
@@ -171,7 +170,7 @@ export class AiChatService {
   }
 
   private async *handleNonStreamingResponse(
-    data: any, 
+    data: { choices?: Array<{ message?: { content?: string; function_call?: { name: string; arguments: string } } }> }, 
     assistantMessage: ChatMessage
   ): AsyncGenerator<StreamingChatResponse, void, unknown> {
     const choice = data.choices?.[0]

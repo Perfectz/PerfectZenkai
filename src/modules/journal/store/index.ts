@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { getSupabaseClient } from '@/lib/supabase'
 import { 
   JournalEntry, 
+  JournalEntryRow,
   MorningEntry, 
   EveningEntry, 
   JournalAnalytics, 
@@ -76,7 +77,7 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
       if (error) throw error
       
-      const entries = (data || []).map((row: any) => transformRowToEntry(row))
+      const entries = (data || []).map((row: JournalEntryRow) => transformRowToEntry(row))
       set({ entries, isLoading: false })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
@@ -115,8 +116,8 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
           user_id: '', // TODO: Get from auth context
           entry_date: rowData.entry_date || new Date().toISOString().split('T')[0],
           entry_type: rowData.entry_type || 'both',
-          morning_entry: rowData.morning_entry as any,
-          evening_entry: rowData.evening_entry as any,
+          morning_entry: rowData.morning_entry,
+          evening_entry: rowData.evening_entry,
           created_at: rowData.created_at,
           updated_at: rowData.updated_at,
         }])
@@ -125,7 +126,7 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
       if (error) throw error
       
-      const newEntry = transformRowToEntry(data as any)
+      const newEntry = transformRowToEntry(data as JournalEntryRow)
       const { entries } = get()
       const updatedEntries = [newEntry, ...entries].sort((a, b) => 
         new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
@@ -155,8 +156,8 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
         .update({
           entry_date: rowData.entry_date,
           entry_type: rowData.entry_type,
-          morning_entry: rowData.morning_entry as any,
-          evening_entry: rowData.evening_entry as any,
+          morning_entry: rowData.morning_entry,
+          evening_entry: rowData.evening_entry,
           updated_at: rowData.updated_at,
         })
         .eq('id', id)
@@ -165,7 +166,7 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
       if (error) throw error
       
-      const updatedEntry = transformRowToEntry(data as any)
+      const updatedEntry = transformRowToEntry(data as JournalEntryRow)
       const { entries } = get()
       const updatedEntries = entries.map(entry => 
         entry.id === id ? updatedEntry : entry

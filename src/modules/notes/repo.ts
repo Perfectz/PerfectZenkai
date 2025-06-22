@@ -3,6 +3,16 @@ import { v4 as uuidv4 } from 'uuid'
 import { Note } from './types'
 import { getSupabaseClientSync } from '@/lib/supabase-client'
 
+// Supabase database row interface
+interface SupabaseNote {
+  id: string
+  title: string
+  content: string
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
 class NotesDatabase extends Dexie {
   notes!: Table<Note>
 
@@ -103,7 +113,7 @@ export const supabaseNotesRepo = {
 
     if (error) throw error
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item: SupabaseNote) => ({
       id: item.id,
       title: item.title ?? '',
       content: item.content ?? '',

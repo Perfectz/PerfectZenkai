@@ -1,5 +1,6 @@
 import { WeightManagementAgent } from './WeightManagementAgent'
 import { useWeightStore } from '../store'
+import { WeightEntry } from '../types'
 
 // Global instance of the weight management agent
 const weightAgent = new WeightManagementAgent()
@@ -165,7 +166,7 @@ export const weightAgentImplementations = {
   /**
    * Predict weight progress and trajectory
    */
-  async predictWeightProgress(args: { 
+  async predictWeightProgress(_args: { 
     daysAhead: number
     includeConfidence?: boolean 
   }) {
@@ -199,7 +200,7 @@ export const weightAgentImplementations = {
   /**
    * Provide personalized weight management coaching
    */
-  async getWeightCoaching(args?: { 
+  async getWeightCoaching(_args?: { 
     focusArea?: 'motivation' | 'plateau' | 'goal-setting' | 'tracking' | 'general' 
   }) {
     try {
@@ -242,9 +243,9 @@ export function getWeightAgentImplementations() {
 // === HELPER FUNCTIONS ===
 
 function filterWeightsByTimeframe(
-  weights: any[], 
+  weights: WeightEntry[],
   timeframe: 'week' | 'month' | 'quarter' | 'year' | 'all'
-): any[] {
+): WeightEntry[] {
   if (timeframe === 'all') return weights
 
   const now = new Date()

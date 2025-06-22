@@ -297,7 +297,7 @@ describe('ContextBuilder', () => {
 
     it('should handle data corruption gracefully', async () => {
       // Mock corrupted data
-      vi.mocked(contextBuilder['getMealData']).mockResolvedValueOnce(null as any)
+      vi.mocked(contextBuilder['getMealData']).mockResolvedValueOnce([] as never)
 
       const context = await contextBuilder.buildContext('medium')
 

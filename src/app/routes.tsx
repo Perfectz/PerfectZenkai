@@ -7,6 +7,7 @@ import TodoPage from '@/modules/tasks/pages/TodoPage'
 import NotesPage from '@/modules/notes/pages/NotesPage'
 import DashboardPage from '@/modules/dashboard/pages/DashboardPage'
 import JournalPage from '@/modules/journal/pages/JournalPage'
+import { DailyJournalPage } from '@/modules/daily-journal'
 import { GoalsPage } from '@/modules/goals'
 import { ChatPage } from '@/modules/ai-chat'
 import { authRoutes, ProtectedRoute } from '@/modules/auth'
@@ -30,6 +31,7 @@ export const appRoutes: RouteObject[] = [
       { path: 'todo', element: <TodoPage /> },
       { path: 'goals', element: <GoalsPage /> },
       { path: 'journal', element: <JournalPage /> },
+      { path: 'daily-standup', element: <DailyJournalPage /> },
       { path: 'notes', element: <NotesPage /> },
       { path: 'chat', element: <ChatPage /> },
     ],

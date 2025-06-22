@@ -113,7 +113,7 @@ export function mockNetworkConditions() {
 
     slow: (delay: number = 2000) => {
       // Mock fetch to simulate slow network
-      global.fetch = vi.fn().mockImplementation(async (...args) => {
+      global.fetch = vi.fn().mockImplementation(async (..._args) => {
         await new Promise(resolve => setTimeout(resolve, delay))
         return new Response(JSON.stringify({ error: 'timeout' }), { status: 408 })
       })
@@ -175,4 +175,6 @@ export function getTestEnvironment() {
     isDevelopment: process.env.NODE_ENV === 'development',
     shouldSkipNetworkTests: !hasSupabase || process.env.SKIP_NETWORK_TESTS === 'true'
   }
-} 
+}
+
+ 

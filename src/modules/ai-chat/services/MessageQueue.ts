@@ -106,9 +106,9 @@ export class MessageQueue {
       const stored = localStorage.getItem('ai-chat-queue')
       if (stored) {
         const parsed = JSON.parse(stored)
-        this.queue = parsed.map((item: any) => ({
+        this.queue = parsed.map((item: Record<string, unknown>) => ({
           ...item,
-          timestamp: new Date(item.timestamp)
+          timestamp: new Date(item.timestamp as string)
         }))
       }
     } catch (error) {

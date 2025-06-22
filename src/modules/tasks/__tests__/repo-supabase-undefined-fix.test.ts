@@ -25,7 +25,7 @@ describe('HybridTasksRepo - Supabase Client Fix', () => {
 
     it('should handle undefined supabase client gracefully', async () => {
       // Arrange
-      mockGetSupabaseClientSync.mockReturnValue(undefined as any)
+      mockGetSupabaseClientSync.mockReturnValue(undefined as unknown)
       
       // Act & Assert - This should NOT throw "supabase is not defined"  
       await expect(hybridTasksRepo.getAllTodos('user123')).resolves.not.toThrow()
