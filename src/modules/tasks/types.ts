@@ -119,3 +119,54 @@ export interface LegacyTodo {
   createdAt: string
   updatedAt: string
 }
+
+// === MVP-21: Recurring Tasks System Types ===
+
+export type RecurrenceType = 'daily' | 'weekly' | 'monthly'
+export type RecurrenceStatus = 'active' | 'paused' | 'completed'
+
+export interface RecurrencePattern {
+  type: RecurrenceType
+  interval: number // Every N days/weeks/months
+  daysOfWeek?: number[] // For weekly: [0,1,2,3,4,5,6] (Sun-Sat)
+  endDate?: string // Optional end date
+  maxOccurrences?: number // Optional max completions
+}
+
+export interface TodoCompletion {
+  id: string
+  completedAt: string
+  scheduledFor: string
+  points: number
+  streakDay: number
+}
+
+export interface RecurringTodo extends Omit<Todo, 'done' | 'completedAt'> {
+  isRecurring: true
+  recurrence: RecurrencePattern
+  status: RecurrenceStatus
+  completions: TodoCompletion[]
+  nextDueDate: string
+  currentStreak: number
+  bestStreak: number
+}
+
+export interface StreakStats {
+  currentStreak: number
+  bestStreak: number
+  totalCompletions: number
+  consistencyRate: number // percentage
+  averageGapDays: number
+}
+
+// Union type for all task types
+export type AnyTodo = Todo | RecurringTodo
+
+// Type guards
+export function isRecurringTodo(todo: AnyTodo): todo is RecurringTodo {
+  return 'isRecurring' in todo && todo.isRecurring === true
+}
+
+export function isRegularTodo(todo: AnyTodo): todo is Todo {
+  return !('isRecurring' in todo) || todo.isRecurring !== true
+}

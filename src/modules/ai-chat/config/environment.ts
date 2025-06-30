@@ -8,32 +8,48 @@ export interface AiChatConfig {
   rateLimitRpm: number
   timeoutMs: number
   enabled: boolean
+  useLocalApi: boolean
+  openaiApiKey?: string
 }
 
 export function getAiChatConfig(): AiChatConfig {
-  // Note: AI Chat now uses Azure Functions + Key Vault for security
-  // No client-side API keys needed!
+  // HYBRID APPROACH:
+  // - Local Development: Use OpenAI API directly if VITE_OPENAI_API_KEY is available
+  // - Production: Use Azure Functions + Key Vault for security
   
-  // SECURITY: Now uses Azure Functions + Key Vault - no client-side API keys needed!
+  const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY
+  const isDev = import.meta.env.DEV
+  const useLocalApi = isDev && !!openaiApiKey
+  
   const azureFunctionUrl = import.meta.env.VITE_AZURE_FUNCTION_URL || 
     'https://perfectzenkai-api.azurewebsites.net/api/ai-chat'
   
+  console.log(`🤖 AI Chat Mode: ${useLocalApi ? '🔧 Local OpenAI API' : '☁️ Azure Functions'}`)
+  
   return {
     azureFunctionUrl,
-    model: import.meta.env.VITE_AI_MODEL || 'gpt-4.1-mini',
+    model: import.meta.env.VITE_AI_MODEL || 'gpt-4o-mini',
     temperature: parseFloat(import.meta.env.VITE_AI_TEMPERATURE || '0.7'),
     maxTokens: parseInt(import.meta.env.VITE_AI_MAX_TOKENS || '150'),
     streamingEnabled: import.meta.env.VITE_AI_STREAMING !== 'false',
     contextDepth: (import.meta.env.VITE_AI_CONTEXT_DEPTH as 'shallow' | 'medium' | 'deep') || 'medium',
     rateLimitRpm: parseInt(import.meta.env.VITE_AI_RATE_LIMIT_RPM || '20'),
-    timeoutMs: parseInt(import.meta.env.VITE_AI_TIMEOUT_MS || '20000'),
-    enabled: true // Now secure with Azure Functions
+    timeoutMs: parseInt(import.meta.env.VITE_AI_TIMEOUT_MS || '15000'),
+    enabled: true,
+    useLocalApi,
+    openaiApiKey: useLocalApi ? openaiApiKey : undefined
   }
 }
 
 export function validateConfig(config: AiChatConfig): void {
-  if (!config.azureFunctionUrl) {
-    throw new Error('Azure Function URL is required')
+  if (config.useLocalApi) {
+    if (!config.openaiApiKey) {
+      throw new Error('OpenAI API key is required for local development mode')
+    }
+  } else {
+    if (!config.azureFunctionUrl) {
+      throw new Error('Azure Function URL is required for production mode')
+    }
   }
   
   if (config.temperature < 0 || config.temperature > 2) {
@@ -54,15 +70,15 @@ export function validateConfig(config: AiChatConfig): void {
 }
 
 export const environment = {
-  // Azure Function URL for AI Chat
-  // In production (GitHub Pages), use the deployed Azure Function
-  // In development, use local Azure Function or fallback to GitHub Pages
-  azureFunctionUrl: import.meta.env.DEV 
-    ? 'https://perfectzenkai-api.azurewebsites.net/api/ai-chat'
-    : 'https://perfectzenkai-api.azurewebsites.net/api/ai-chat',
+  // Hybrid AI Chat configuration
+  azureFunctionUrl: import.meta.env.VITE_AZURE_FUNCTION_URL || 
+    'https://perfectzenkai-api.azurewebsites.net/api/ai-chat',
   
   // Development mode detection
   isDevelopment: import.meta.env.DEV,
+  
+  // Local OpenAI API key (dev only)
+  hasLocalApiKey: !!import.meta.env.VITE_OPENAI_API_KEY,
   
   // GitHub Pages deployment URL (fallback for development)
   githubPagesUrl: 'https://pzgamin.github.io/PerfectZenkai',

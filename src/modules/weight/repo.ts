@@ -40,21 +40,64 @@ class WeightDatabase extends Dexie {
 }
 
 // Global database instance - will be reinitialized per user
-let db: WeightDatabase
+let db: WeightDatabase | null = null
+let currentUserId: string | null = null
+let initializationPromise: Promise<WeightDatabase> | null = null
 
-// Initialize database for specific user
-export const initializeWeightDatabase = (userId: string) => {
-  if (db) {
-    db.close()
+// Initialize database for specific user with proper singleton management
+export const initializeWeightDatabase = async (userId: string): Promise<WeightDatabase> => {
+  // If we already have a database for this user, return it
+  if (db && currentUserId === userId && !db.hasBeenClosed()) {
+    return db
   }
-  db = new WeightDatabase(userId)
-  return db
+
+  // If there's already an initialization in progress for this user, wait for it
+  if (initializationPromise && currentUserId === userId) {
+    return initializationPromise
+  }
+
+  // Create new initialization promise
+  initializationPromise = (async () => {
+    try {
+      // Close existing database if it exists and is for a different user
+      if (db && (currentUserId !== userId || db.hasBeenClosed())) {
+        try {
+          if (!db.hasBeenClosed()) {
+            await db.close()
+          }
+        } catch (error) {
+          console.warn('Warning: Error closing existing database:', error)
+        }
+        db = null
+      }
+
+      // Create new database instance
+      currentUserId = userId
+      db = new WeightDatabase(userId)
+      
+      // Wait for database to be ready by attempting to open
+      await db.open()
+      
+      console.log(`✅ Weight database initialized for user: ${userId}`)
+      return db
+    } catch (error) {
+      console.error('❌ Failed to initialize weight database:', error)
+      db = null
+      currentUserId = null
+      throw error
+    } finally {
+      initializationPromise = null
+    }
+  })()
+
+  return initializationPromise
 }
 
 // Get current database instance
 const getDatabase = (): WeightDatabase => {
-  if (!db) {
-    // Fallback to anonymous database if no user
+  if (!db || db.hasBeenClosed()) {
+    // Fallback to anonymous database if no user or database is closed
+    console.warn('⚠️ Database not initialized or has been closed, creating fallback instance')
     db = new WeightDatabase()
   }
   return db
@@ -383,7 +426,8 @@ export const hybridWeightRepo = {
           if (cloudResult) {
             await weightRepo.addWeight({
               dateISO: cloudResult.dateISO,
-              kg: cloudResult.kg
+              kg: cloudResult.kg,
+              weight: cloudResult.kg
             })
             localResult = cloudResult
             console.info('✅ Successfully synced entry to local storage:', { id: cloudResult.id, dateISO: cloudResult.dateISO })
@@ -391,7 +435,8 @@ export const hybridWeightRepo = {
             // Create a new entry with the updates (fallback)
             const newEntry = {
               dateISO: updates.dateISO || new Date().toISOString().split('T')[0],
-              kg: updates.kg || 0
+              kg: updates.kg || 0,
+              weight: updates.kg || 0
             }
             localResult = await weightRepo.addWeight(newEntry)
             console.info('✅ Created new local entry as fallback:', { id: localResult.id, dateISO: localResult.dateISO })
@@ -459,7 +504,8 @@ export const hybridWeightRepo = {
             // Entry exists in cloud but not locally - add it
             await weightRepo.addWeight({
               dateISO: cloudWeight.dateISO,
-              kg: cloudWeight.kg
+              kg: cloudWeight.kg,
+              weight: cloudWeight.kg
             })
             syncedCount++
             console.debug(`✅ Synced entry to local: ${cloudWeight.dateISO}`)

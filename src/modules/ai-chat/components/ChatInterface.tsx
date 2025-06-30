@@ -6,10 +6,41 @@ import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
 import { TTSSettings } from './TTSSettings'
 import { AiChatService } from '../services/AiChatService'
+import { getAiChatConfig, validateConfig } from '../config/environment'
 import type { ChatMessage, StreamingChatResponse } from '../types/chat.types'
 
+// Add these interfaces at the top of the file after imports
+interface SpeechRecognitionEvent {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
 
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
 
+interface SpeechRecognitionAPI {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new() => SpeechRecognitionAPI;
+    webkitSpeechRecognition?: new() => SpeechRecognitionAPI;
+  }
+}
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -20,21 +51,28 @@ export function ChatInterface() {
   const [functionExecuting, setFunctionExecuting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isRecording, setIsRecording] = useState(false)
-  const [speechRecognition, setSpeechRecognition] = useState<unknown>(null)
+  const [speechRecognition, setSpeechRecognition] = useState<SpeechRecognitionAPI | null>(null)
   const [showTTSSettings, setShowTTSSettings] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const chatService = useRef<AiChatService>(
-    new AiChatService({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
-      model: 'gpt-4o',
-      temperature: 0.7,
+  const chatService = useRef<AiChatService | null>(null)
+  
+  // Initialize chat service
+  if (!chatService.current) {
+    const config = getAiChatConfig()
+    validateConfig(config)
+    chatService.current = new AiChatService({
+      azureFunctionUrl: config.azureFunctionUrl,
+      model: config.model,
+      temperature: config.temperature,
       maxTokens: 2000,
       timeout: 8000,
-      streaming: true
+      streaming: true,
+      useLocalApi: config.useLocalApi,
+      openaiApiKey: config.openaiApiKey
     })
-  )
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -46,7 +84,7 @@ export function ChatInterface() {
 
   // Initialize speech recognition
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition()
       recognition.continuous = false
@@ -73,7 +111,7 @@ export function ChatInterface() {
     setIsStreaming(true)
 
     try {
-      const responseGenerator = chatService.current.sendMessage(inputText.trim())
+      const responseGenerator = chatService.current!.sendMessage(inputText.trim())
       
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -181,13 +219,13 @@ export function ChatInterface() {
     setIsRecording(true)
     setError(null)
 
-    speechRecognition.onresult = (event: any) => {
+    speechRecognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript
       setInputText(transcript)
       setIsRecording(false)
     }
 
-    speechRecognition.onerror = (event: any) => {
+    speechRecognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error)
       setError(`Voice input error: ${event.error}`)
       setIsRecording(false)

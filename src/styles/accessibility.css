@@ -1,0 +1,276 @@
+/* src/styles/accessibility.css */
+
+/* High Contrast Mode */
+.high-contrast {
+  --color-background: #000000;
+  --color-surface: #1a1a1a;
+  --color-primary: #ffffff;
+  --color-secondary: #ffff00;
+  --color-accent: #00ffff;
+  --color-error: #ff6b6b;
+  --color-success: #51cf66;
+  --color-warning: #ffd43b;
+  --color-info: #339af0;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-border: #ffffff;
+  --color-focus: #ffff00;
+}
+
+.high-contrast * {
+  border-color: var(--color-border) !important;
+}
+
+.high-contrast .cyber-card {
+  background: var(--color-surface) !important;
+  border: 2px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.high-contrast .cyber-button,
+.high-contrast button {
+  background: var(--color-surface) !important;
+  border: 2px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.high-contrast .cyber-button:hover,
+.high-contrast button:hover {
+  background: var(--color-primary) !important;
+  color: var(--color-background) !important;
+}
+
+.high-contrast .cyber-button:focus,
+.high-contrast button:focus,
+.high-contrast input:focus,
+.high-contrast textarea:focus,
+.high-contrast select:focus {
+  outline: 3px solid var(--color-focus) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  background: var(--color-surface) !important;
+  border: 2px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.high-contrast .text-ki-green,
+.high-contrast .text-plasma-cyan {
+  color: var(--color-secondary) !important;
+}
+
+.high-contrast .bg-ki-green,
+.high-contrast .bg-plasma-cyan {
+  background: var(--color-secondary) !important;
+  color: var(--color-background) !important;
+}
+
+/* Reduced Motion */
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .animate-pulse,
+.reduced-motion .animate-spin,
+.reduced-motion .animate-bounce {
+  animation: none !important;
+}
+
+.reduced-motion .transition-all,
+.reduced-motion .transition-colors,
+.reduced-motion .transition-transform {
+  transition: none !important;
+}
+
+/* Large Text Mode */
+.large-text {
+  font-size: 1.25em !important;
+}
+
+.large-text .text-xs {
+  font-size: 1rem !important;
+}
+
+.large-text .text-sm {
+  font-size: 1.125rem !important;
+}
+
+.large-text .text-base {
+  font-size: 1.25rem !important;
+}
+
+.large-text .text-lg {
+  font-size: 1.5rem !important;
+}
+
+.large-text .text-xl {
+  font-size: 1.75rem !important;
+}
+
+.large-text .text-2xl {
+  font-size: 2rem !important;
+}
+
+/* Enhanced Touch Targets for Accessibility */
+.large-text .touch-target {
+  min-height: 56px !important;
+  min-width: 56px !important;
+}
+
+.large-text .touch-target-comfortable {
+  min-height: 64px !important;
+  min-width: 64px !important;
+}
+
+/* Screen Reader Optimizations */
+.screen-reader-enabled .sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.5rem !important;
+  margin: 0.25rem !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background: var(--color-info) !important;
+  color: white !important;
+  border: 1px solid white !important;
+  border-radius: 0.25rem !important;
+}
+
+/* Enhanced Focus Indicators */
+.high-contrast *:focus,
+.screen-reader-enabled *:focus {
+  outline: 3px solid var(--color-focus, #ffff00) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgba(255, 255, 0, 0.3) !important;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-background, #000);
+  color: var(--color-text-primary, #fff);
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 9999;
+  border: 2px solid var(--color-focus, #ffff00);
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Navigation Landmarks */
+[role="main"]:focus,
+[role="navigation"]:focus,
+[role="banner"]:focus,
+[role="contentinfo"]:focus {
+  outline: 3px solid var(--color-focus, #ffff00) !important;
+  outline-offset: 2px !important;
+}
+
+/* Enhanced Error States */
+.high-contrast [aria-invalid="true"],
+.high-contrast .error {
+  border-color: var(--color-error) !important;
+  color: var(--color-error) !important;
+  background: rgba(255, 107, 107, 0.1) !important;
+}
+
+/* Enhanced Success States */
+.high-contrast .success,
+.high-contrast [aria-describedby*="success"] {
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+  background: rgba(81, 207, 102, 0.1) !important;
+}
+
+/* Loading and Busy States */
+.high-contrast [aria-busy="true"] {
+  border-color: var(--color-warning) !important;
+  background: rgba(255, 212, 59, 0.1) !important;
+}
+
+/* Disabled States */
+.high-contrast [disabled],
+.high-contrast [aria-disabled="true"] {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  background: #333 !important;
+  color: #666 !important;
+}
+
+/* Enhanced Table Accessibility */
+.high-contrast table {
+  border-collapse: collapse !important;
+}
+
+.high-contrast th,
+.high-contrast td {
+  border: 2px solid var(--color-border) !important;
+  padding: 0.75rem !important;
+}
+
+.high-contrast th {
+  background: var(--color-surface) !important;
+  font-weight: bold !important;
+}
+
+/* Enhanced Form Accessibility */
+.high-contrast fieldset {
+  border: 2px solid var(--color-border) !important;
+  margin: 1rem 0 !important;
+  padding: 1rem !important;
+}
+
+.high-contrast legend {
+  background: var(--color-background) !important;
+  padding: 0 0.5rem !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Enhanced List Accessibility */
+.high-contrast ul,
+.high-contrast ol {
+  padding-left: 2rem !important;
+}
+
+.high-contrast li {
+  margin-bottom: 0.5rem !important;
+}
+
+/* Enhanced Link Accessibility */
+.high-contrast a {
+  color: var(--color-accent) !important;
+  text-decoration: underline !important;
+}
+
+.high-contrast a:hover {
+  background: var(--color-accent) !important;
+  color: var(--color-background) !important;
+}
+
+/* Print Accessibility */
+@media print {
+  .high-contrast {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .high-contrast * {
+    background: transparent !important;
+    color: black !important;
+    border-color: black !important;
+  }
+} 

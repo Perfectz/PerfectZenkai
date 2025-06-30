@@ -1,5 +1,5 @@
 // src/modules/ai-chat/services/AiChatService.ts
-// UPDATED: Now uses Azure Functions + Key Vault for secure AI chat
+// HYBRID: Uses OpenAI API directly in dev mode, Azure Functions in production
 
 import { 
   AVAILABLE_FUNCTIONS, 
@@ -18,6 +18,8 @@ export interface AiChatConfig {
   maxTokens: number
   timeout: number
   streaming: boolean
+  useLocalApi: boolean
+  openaiApiKey?: string
 }
 
 export class AiChatService {
@@ -48,37 +50,13 @@ export class AiChatService {
     }
 
     try {
-      // Call Azure Function for secure AI chat (API keys stored in Key Vault)
-      const response = await fetch(this.config.azureFunctionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: this.buildMessageHistory(),
-          functions: Object.values(AVAILABLE_FUNCTIONS),
-          function_call: 'auto',
-          temperature: this.config.temperature,
-          max_tokens: this.config.maxTokens,
-          stream: this.config.streaming
-        }),
-        signal: AbortSignal.timeout(this.config.timeout)
-      })
-
-      if (!response.ok) {
-        const error = await response.text()
-        throw new Error(`Azure Function error: ${response.status} - ${error}`)
-      }
-
-      // Handle streaming response
-      if (this.config.streaming && response.body) {
-        yield* this.handleStreamingResponse(response.body, assistantMessage)
+      if (this.config.useLocalApi && this.config.openaiApiKey) {
+        // LOCAL DEVELOPMENT: Use OpenAI API directly
+        yield* this.sendMessageViaOpenAI(assistantMessage)
       } else {
-        // Handle non-streaming response
-        const data = await response.json()
-        yield* this.handleNonStreamingResponse(data, assistantMessage)
+        // PRODUCTION: Use Azure Functions for security
+        yield* this.sendMessageViaAzureFunction(assistantMessage)
       }
-
     } catch (error) {
       // Add error response to history
       assistantMessage.content = `❌ **Error**: ${error instanceof Error ? error.message : 'Unknown error occurred'}`
@@ -90,6 +68,93 @@ export class AiChatService {
 
       // Yield error response
       yield* this.yieldSingleResponse(assistantMessage, true)
+    }
+  }
+
+  private async *sendMessageViaOpenAI(
+    assistantMessage: ChatMessage
+  ): AsyncGenerator<StreamingChatResponse, void, unknown> {
+    console.log('🔧 Using Local OpenAI API for AI Chat')
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.config.openaiApiKey}`
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        messages: this.buildMessageHistory(),
+        functions: Object.values(AVAILABLE_FUNCTIONS),
+        function_call: 'auto',
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        stream: this.config.streaming
+      }),
+      signal: AbortSignal.timeout(this.config.timeout)
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unable to read error response')
+      console.error(`🚨 OpenAI API Error: ${response.status}`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      })
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`)
+    }
+
+    // Handle streaming response
+    if (this.config.streaming && response.body) {
+      yield* this.handleStreamingResponse(response.body, assistantMessage)
+    } else {
+      // Handle non-streaming response
+      const data = await response.json()
+      yield* this.handleNonStreamingResponse(data, assistantMessage)
+    }
+  }
+
+  private async *sendMessageViaAzureFunction(
+    assistantMessage: ChatMessage
+  ): AsyncGenerator<StreamingChatResponse, void, unknown> {
+    console.log('☁️ Using Azure Functions for AI Chat')
+    
+    // Call Azure Function for secure AI chat (API keys stored in Key Vault)
+    const response = await fetch(this.config.azureFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: this.buildMessageHistory(),
+        functions: Object.values(AVAILABLE_FUNCTIONS),
+        function_call: 'auto',
+        temperature: this.config.temperature,
+        max_tokens: this.config.maxTokens,
+        stream: this.config.streaming
+      }),
+      signal: AbortSignal.timeout(this.config.timeout)
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unable to read error response')
+      console.error(`🚨 Azure Function Error: ${response.status}`, {
+        url: this.config.azureFunctionUrl,
+        status: response.status,
+        statusText: response.statusText,
+        errorText,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+      throw new Error(`Azure Function error: ${response.status} - ${errorText}`)
+    }
+
+    // Handle streaming response
+    if (this.config.streaming && response.body) {
+      yield* this.handleStreamingResponse(response.body, assistantMessage)
+    } else {
+      // Handle non-streaming response
+      const data = await response.json()
+      yield* this.handleNonStreamingResponse(data, assistantMessage)
     }
   }
 
@@ -192,13 +257,14 @@ export class AiChatService {
           content: i === 0 ? partial : ' ' + words[i],
           message: { ...assistantMessage, content: partial }
         }
-        await new Promise(resolve => setTimeout(resolve, 50)) // Simulate streaming delay
+        // Small delay to simulate streaming
+        await new Promise(resolve => setTimeout(resolve, 50))
       }
-    }
 
-    yield {
-      type: 'complete',
-      message: { ...assistantMessage }
+      yield {
+        type: 'complete',
+        message: { ...assistantMessage }
+      }
     }
   }
 

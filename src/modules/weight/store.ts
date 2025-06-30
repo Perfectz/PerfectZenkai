@@ -162,15 +162,25 @@ export const useWeightStore = create<WeightState>((set) => ({
   },
 
   loadWeights: async () => {
+    const currentState = useWeightStore.getState()
+    
+    // Prevent concurrent loading attempts
+    if (currentState.isLoading) {
+      console.log('⏳ Weight loading already in progress, skipping...')
+      return
+    }
+
     try {
       set({ isLoading: true, error: null })
 
       const user = useAuthStore.getState().user
       const userId = user?.id
 
+      console.log('🔄 Starting weight load for user:', userId || 'anonymous')
+
       // Initialize database for this user
       if (userId) {
-        initializeWeightDatabase(userId)
+        await initializeWeightDatabase(userId)
         
         // Sync data to ensure local and cloud are in sync
         try {
@@ -195,7 +205,8 @@ export const useWeightStore = create<WeightState>((set) => ({
 
       console.log('✅ Weights loaded successfully:', { 
         count: weights.length, 
-        cloud: !!userId 
+        cloud: !!userId,
+        weightIds: weights.map(w => w.id).slice(0, 3) // Log first 3 IDs for debugging
       })
     } catch (error) {
       console.error('❌ Failed to load weights:', error)
@@ -340,11 +351,21 @@ export const useWeightStore = create<WeightState>((set) => ({
   },
 
   loadActiveGoal: async () => {
+    const currentState = useWeightStore.getState()
+    
+    // Prevent concurrent loading attempts
+    if (currentState.isGoalLoading) {
+      console.log('⏳ Goal loading already in progress, skipping...')
+      return
+    }
+
     try {
       set({ isGoalLoading: true, goalError: null })
 
       const user = useAuthStore.getState().user
       const userId = user?.id
+
+      console.log('🔄 Starting goal load for user:', userId || 'anonymous')
 
       const activeGoal = await hybridWeightGoalRepo.getActiveGoal(userId)
 
@@ -355,7 +376,8 @@ export const useWeightStore = create<WeightState>((set) => ({
 
       console.log('✅ Active goal loaded:', { 
         hasGoal: !!activeGoal, 
-        cloud: !!userId 
+        cloud: !!userId,
+        goalId: activeGoal?.id
       })
     } catch (error) {
       console.error('❌ Failed to load active goal:', error)

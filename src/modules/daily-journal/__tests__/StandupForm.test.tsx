@@ -1,6 +1,8 @@
+import React from 'react'
 import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { StandupForm } from '../components/StandupForm'
 
 // Mock the daily journal store
 const mockUseDailyJournalStore = vi.fn()

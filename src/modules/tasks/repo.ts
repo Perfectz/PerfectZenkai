@@ -33,7 +33,7 @@ export const initializeTasksDatabase = (userId: string) => {
 }
 
 // Get current database instance
-const getDatabase = (): TasksDatabase => {
+export const getDatabase = (): TasksDatabase => {
   if (!db) {
     // Fallback to anonymous database if no user
     db = new TasksDatabase()
@@ -486,20 +486,29 @@ export const hybridTasksRepo = {
     try {
       const supabase = getSupabaseClientSync()
       if (supabase && userId) {
-        // Try Supabase first
+        // Save to Supabase first - this is now the source of truth
         const result = await supabaseTasksRepo.addTodo(todo, userId)
-        // Also save to local for offline access
-        await tasksRepo.addTodo(todo)
-        console.log('✅ Todo saved to cloud and local:', { id: result.id, summary: result.summary })
+        
+        // ALSO save to local IndexedDB with the SAME ID for offline access
+        const todoWithSameId = {
+          ...todo,
+          id: result.id,  // Use the cloud ID, not a new local ID
+          createdAt: result.createdAt,
+          updatedAt: result.updatedAt
+        }
+        const database = getDatabase()
+        await database.todos.put(todoWithSameId)  // Use put() to ensure same ID
+        
+        console.log('✅ Todo saved to cloud with ID synced locally:', { id: result.id, summary: result.summary })
         return result
       }
     } catch (error) {
       console.warn('Supabase save failed, using local storage:', error)
     }
     
-    // Fallback to local storage
+    // Fallback to local storage only (offline mode)
     const result = await tasksRepo.addTodo(todo)
-    console.log('✅ Todo saved locally only:', { id: result.id, summary: result.summary })
+    console.log('📱 Todo saved locally only (offline):', { id: result.id, summary: result.summary })
     return result
   },
 
@@ -573,23 +582,69 @@ export const hybridTasksRepo = {
   },
 
   async getAllTodos(userId?: string): Promise<Todo[]> {
+    let cloudTodos: Todo[] = []
+    let localTodos: Todo[] = []
+    let useCloud = false
+
     try {
       const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try to get from Supabase first
-        const cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
+        cloudTodos = await supabaseTasksRepo.getAllTodos(userId)
+        useCloud = true
         console.log('✅ Todos loaded from cloud:', { count: cloudTodos.length })
-        return cloudTodos
       }
     } catch (error) {
-      console.warn('Supabase fetch failed, using local storage:', error)
+      console.warn('☁️ Supabase fetch failed, using local storage:', error)
+      useCloud = false
     }
     
-    // Fallback to local storage
-    const localTodos = await tasksRepo.getAllTodos()
+    // Only get local todos if cloud failed OR we need to merge
+    if (!useCloud || cloudTodos.length === 0) {
+      try {
+        localTodos = await tasksRepo.getAllTodos()
+        console.log('✅ Todos loaded from local storage:', { count: localTodos.length })
+      } catch (error) {
+        console.error('❌ Failed to load local todos:', error)
+        return []
+      }
+    }
+
+    // PRIORITY: If we successfully connected to cloud, use cloud data as source of truth
+    if (useCloud) {
+      if (cloudTodos.length > 0) {
+        // Cloud has data - use it (with deduplication)
+        const deduplicatedTodos = removeDuplicateContent(deduplicateTodos(cloudTodos))
+        console.log('☁️ Using cloud todos as source of truth:', { 
+          original: cloudTodos.length,
+          deduplicated: deduplicatedTodos.length
+        })
+        return deduplicatedTodos
+      } else {
+        // Cloud is empty but accessible - this means user has no todos
+        // Don't use local storage as it may contain stale duplicates
+        console.log('☁️ Cloud is empty - user has no todos (ignoring local duplicates)')
+        
+        // CLEANUP: If local has data but cloud is empty, clean local storage
+        if (localTodos.length > 0) {
+          console.log('🧹 Cleaning local storage duplicates...')
+          try {
+            await tasksRepo.clearAll()
+            console.log('✅ Local storage cleaned')
+          } catch (cleanupError) {
+            console.warn('⚠️ Failed to clean local storage:', cleanupError)
+          }
+        }
+        
+        return []
+      }
+    }
+
+    // FALLBACK: Cloud not available, use local storage with deduplication
     const deduplicatedTodos = removeDuplicateContent(deduplicateTodos(localTodos))
-    console.log('✅ Todos loaded from local storage:', { 
-      count: deduplicatedTodos.length,
+    console.log('💾 Using local todos (cloud unavailable):', { 
+      original: localTodos.length,
+      deduplicated: deduplicatedTodos.length,
       duplicatesRemoved: localTodos.length - deduplicatedTodos.length
     })
     return deduplicatedTodos
@@ -636,13 +691,16 @@ export const hybridTasksRepo = {
       console.info(`📥 Found ${cloudTodos.length} todos in cloud storage`)
 
       // Get all local data
-      const localTodos = await tasksRepo.getAllTodos()
-      console.info(`💾 Found ${localTodos.length} todos in local storage`)
+      const rawLocalTodos = await tasksRepo.getAllTodos()
+      // Deduplicate local todos first to prevent syncing duplicates
+      const localTodos = removeDuplicateContent(deduplicateTodos(rawLocalTodos))
+      console.info(`💾 Found ${localTodos.length} unique todos in local storage (${rawLocalTodos.length - localTodos.length} duplicates removed)`)
 
-      // Create a map of local todos by ID for quick lookup
+      // Create maps for efficient lookup
       const localTodosMap = new Map(localTodos.map(t => [t.id, t]))
+      const cloudTodosMap = new Map(cloudTodos.map(t => [t.id, t]))
 
-      // Sync cloud todos to local storage
+      // Sync cloud todos to local storage (missing local entries)
       for (const cloudTodo of cloudTodos) {
         try {
           const localTodo = localTodosMap.get(cloudTodo.id)
@@ -692,6 +750,71 @@ export const hybridTasksRepo = {
           }
         } catch (error) {
           console.warn(`⚠️ Failed to sync todo ${cloudTodo.id}:`, error)
+          errorCount++
+        }
+      }
+
+      // Sync local todos to cloud storage (missing cloud entries)
+      for (const localTodo of localTodos) {
+        try {
+          const cloudTodo = cloudTodosMap.get(localTodo.id)
+          
+          if (!cloudTodo) {
+            // Todo exists locally but not in cloud - add it to cloud
+            try {
+              await supabaseTasksRepo.addTodo({
+                summary: localTodo.summary,
+                description: localTodo.description,
+                descriptionFormat: localTodo.descriptionFormat,
+                done: localTodo.done,
+                priority: localTodo.priority,
+                category: localTodo.category,
+                points: localTodo.points,
+                dueDate: localTodo.dueDate,
+                dueDateTime: localTodo.dueDateTime,
+                subtasks: localTodo.subtasks,
+                completedAt: localTodo.completedAt,
+                createdAt: localTodo.createdAt,
+                updatedAt: localTodo.updatedAt,
+              }, userId)
+              syncedCount++
+              console.debug(`☁️ Synced todo to cloud: ${localTodo.summary}`)
+            } catch (cloudError) {
+              console.warn(`⚠️ Failed to sync todo ${localTodo.id} to cloud:`, cloudError)
+              errorCount++
+            }
+          } else {
+            // Todo exists in both - check if local version is newer
+            const localUpdated = new Date(localTodo.updatedAt)
+            const cloudUpdated = new Date(cloudTodo.updatedAt)
+            
+            if (localUpdated > cloudUpdated) {
+              // Local version is newer, update cloud
+              try {
+                await supabaseTasksRepo.updateTodo(localTodo.id, {
+                  summary: localTodo.summary,
+                  description: localTodo.description,
+                  descriptionFormat: localTodo.descriptionFormat,
+                  done: localTodo.done,
+                  priority: localTodo.priority,
+                  category: localTodo.category,
+                  points: localTodo.points,
+                  dueDate: localTodo.dueDate,
+                  dueDateTime: localTodo.dueDateTime,
+                  subtasks: localTodo.subtasks,
+                  completedAt: localTodo.completedAt,
+                  updatedAt: localTodo.updatedAt,
+                })
+                syncedCount++
+                console.debug(`☁️ Updated cloud todo: ${localTodo.summary}`)
+              } catch (cloudError) {
+                console.warn(`⚠️ Failed to update todo ${localTodo.id} in cloud:`, cloudError)
+                errorCount++
+              }
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Failed to process local todo ${localTodo.id}:`, error)
           errorCount++
         }
       }
@@ -805,6 +928,79 @@ export const hybridTasksRepo = {
     } catch (localError) {
       console.error('❌ Failed to clear todos locally:', localError)
       throw localError
+    }
+  },
+
+  // Utility method to clean up all duplicate todos
+  async cleanupDuplicates(userId?: string): Promise<{ cleaned: number; remaining: number }> {
+    console.info('🧹 Starting duplicate cleanup...')
+    
+    try {
+      // Get all todos (both cloud and local)
+      const allTodos = await this.getAllTodos(userId)
+      console.info(`📊 Found ${allTodos.length} todos before cleanup`)
+      
+      // Apply aggressive deduplication
+      const cleanedTodos = removeDuplicateContent(deduplicateTodos(allTodos))
+      const duplicatesRemoved = allTodos.length - cleanedTodos.length
+      
+      if (duplicatesRemoved > 0) {
+        console.info(`🗑️ Found ${duplicatesRemoved} duplicates to remove`)
+        
+        // Clear all todos and re-add the cleaned ones
+        if (userId) {
+          const supabase = getSupabaseClientSync()
+          if (supabase) {
+            try {
+              await supabaseTasksRepo.clearAll(userId)
+              console.info('🗑️ Cleared cloud todos')
+            } catch (error) {
+              console.warn('⚠️ Failed to clear cloud todos:', error)
+            }
+          }
+        }
+        
+        // Clear local todos
+        try {
+          const database = getDatabase()
+          await database.todos.clear()
+          console.info('🗑️ Cleared local todos')
+        } catch (error) {
+          console.warn('⚠️ Failed to clear local todos:', error)
+        }
+        
+        // Re-add cleaned todos
+        for (const todo of cleanedTodos) {
+          try {
+            await this.addTodo({
+              summary: todo.summary,
+              description: todo.description,
+              descriptionFormat: todo.descriptionFormat,
+              done: todo.done,
+              priority: todo.priority,
+              category: todo.category,
+              points: todo.points,
+              dueDate: todo.dueDate,
+              dueDateTime: todo.dueDateTime,
+              subtasks: todo.subtasks,
+              completedAt: todo.completedAt,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+            }, userId)
+          } catch (error) {
+            console.warn(`⚠️ Failed to re-add todo: ${todo.summary}`, error)
+          }
+        }
+        
+        console.info(`✅ Cleanup complete: ${duplicatesRemoved} duplicates removed, ${cleanedTodos.length} todos remaining`)
+      } else {
+        console.info('✅ No duplicates found - data is clean')
+      }
+      
+      return { cleaned: duplicatesRemoved, remaining: cleanedTodos.length }
+    } catch (error) {
+      console.error('❌ Duplicate cleanup failed:', error)
+      throw error
     }
   },
 }

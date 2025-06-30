@@ -3,6 +3,9 @@
 /* Mobile Design Tokens */
 @import './styles/mobile-tokens.css';
 
+/* Accessibility Styles */
+@import './styles/accessibility.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,6 +18,8 @@
     --ki-green: #22ffb7;
     --hyper-magenta: #ff2eea;
     --plasma-cyan: #1be7ff;
+    --azure-blue: #0078d4;
+    --azure-500: #0078d4;
 
     /* Neutral Scale */
     --gray-900: #0f172a;
@@ -388,6 +393,9 @@
   }
   .text-dark-navy {
     color: var(--dark-navy);
+  }
+  .text-azure-500 {
+    color: var(--azure-500);
   }
 
   .bg-ki-green {

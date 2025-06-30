@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import NavigationBar from './NavigationBar'
 import GlobalFab from './GlobalFab'
-import OfflineBanner from './components/OfflineBanner'
+import { OfflineIndicator } from '@/shared/components/OfflineIndicator'
 import InstallSheet from './components/InstallSheet'
 import ForceInstallButton from './components/ForceInstallButton'
 import { ToastProvider } from '@/shared/ui/toast'
@@ -12,8 +12,8 @@ export default function AppLayout() {
   return (
     <ToastProvider>
       <div className="min-h-screen bg-background">
-        {/* Offline Banner */}
-        <OfflineBanner />
+        {/* Offline Status Indicator */}
+        <OfflineIndicator />
 
         {/* Navigation Bar (includes top user bar and bottom nav) */}
         <NavigationBar />

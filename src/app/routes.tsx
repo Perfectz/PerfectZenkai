@@ -11,10 +11,17 @@ import { DailyJournalPage } from '@/modules/daily-journal'
 import { GoalsPage } from '@/modules/goals'
 import { ChatPage } from '@/modules/ai-chat'
 import { authRoutes, ProtectedRoute } from '@/modules/auth'
+import UseCaseOverviewPage from '@/components/UseCaseOverviewPage'
 
 export const appRoutes: RouteObject[] = [
   // Authentication routes (public)
   ...authRoutes,
+  
+  // Public portfolio routes
+  {
+    path: '/use-case-overview',
+    element: <UseCaseOverviewPage />,
+  },
 
   // Protected app routes
   {

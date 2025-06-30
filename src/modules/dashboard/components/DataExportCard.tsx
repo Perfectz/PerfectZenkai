@@ -6,7 +6,7 @@ import {
   exportAllData,
   downloadDataAsFile,
   getDataSummary,
-  AppDataExport,
+  PerfectZenkaiDataExport,
 } from '@/shared/utils/dataExport'
 import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
 
@@ -15,7 +15,7 @@ export function DataExportCard() {
   const [exportStatus, setExportStatus] = useState<
     'idle' | 'success' | 'error'
   >('idle')
-  const [lastExport, setLastExport] = useState<AppDataExport | null>(null)
+  const [lastExport, setLastExport] = useState<PerfectZenkaiDataExport | null>(null)
   
   // Mobile interactions
   const { isMobile } = useResponsiveBreakpoint()
@@ -95,26 +95,56 @@ export function DataExportCard() {
         {summary && (
           <div className="rounded-lg border border-gray-700 bg-gray-900 p-3">
             <div className="mb-2 font-mono text-xs text-gray-400">
-              Last Export: {new Date(summary.exportDate).toLocaleDateString()}
+              Last Export: {summary.exportDate} • v{summary.exportVersion}
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="mb-2 font-mono text-xs text-gray-500">
+              {summary.totalRecords} total records • {summary.exportDurationMs}ms export
+            </div>
+            <div className="grid grid-cols-4 gap-2">
               <div className="text-center">
                 <div className="text-ki-green font-mono text-sm font-bold">
                   {summary.totalWeights}
                 </div>
-                <div className="text-xs text-gray-500">Weights</div>
+                <div className="text-xs text-gray-500">Weight</div>
               </div>
               <div className="text-center">
                 <div className="text-plasma-cyan font-mono text-sm font-bold">
                   {summary.totalTasks}
                 </div>
-                <div className="text-xs text-gray-500">Quests</div>
+                <div className="text-xs text-gray-500">Tasks</div>
               </div>
               <div className="text-center">
                 <div className="text-hyper-magenta font-mono text-sm font-bold">
-                  {summary.totalNotes}
+                  {summary.totalMeals}
                 </div>
-                <div className="text-xs text-gray-500">Notes</div>
+                <div className="text-xs text-gray-500">Meals</div>
+              </div>
+              <div className="text-center">
+                <div className="text-yellow-400 font-mono text-sm font-bold">
+                  {summary.totalWorkouts}
+                </div>
+                <div className="text-xs text-gray-500">Workouts</div>
+              </div>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="text-center">
+                <div className="text-purple-400 font-mono text-sm font-bold">
+                  {summary.totalJournalEntries}
+                </div>
+                <div className="text-xs text-gray-500">Journal</div>
+              </div>
+              <div className="text-center">
+                <div className="text-orange-400 font-mono text-sm font-bold">
+                  {summary.totalStandups}
+                </div>
+                <div className="text-xs text-gray-500">Standups</div>
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-gray-700">
+              <div className="text-center">
+                <div className="text-green-400 font-mono text-xs">
+                  Data Quality: {summary.dataQualityScore}% • Completion: {summary.completionRate?.toFixed(1)}%
+                </div>
               </div>
             </div>
           </div>

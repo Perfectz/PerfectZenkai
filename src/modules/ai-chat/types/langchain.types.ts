@@ -17,6 +17,7 @@ export interface UserContext {
   weight: WeightContext
   tasks: TaskContext[]
   preferences: UserPreferences
+  correlations?: ContextCorrelations
 }
 
 export interface WorkoutContext {
@@ -25,6 +26,12 @@ export interface WorkoutContext {
   duration: number
   intensity: 'low' | 'medium' | 'high'
   caloriesBurned?: number
+  performanceMetrics?: {
+    averageHeartRate?: number
+    maxHeartRate?: number
+    recoveryTime?: number
+  }
+  progressTrend?: 'improving' | 'maintaining' | 'declining'
 }
 
 export interface Exercise {
@@ -42,6 +49,13 @@ export interface MealContext {
   foods: Food[]
   calories: number
   macros: Macros
+  nutritionScore?: number
+  dietaryPatterns?: string[]
+  healthMetrics?: {
+    fiber: number
+    sugar: number
+    sodium: number
+  }
 }
 
 export interface Food {
@@ -56,6 +70,10 @@ export interface Macros {
   carbs: number
   fat: number
   fiber?: number
+  // Enhanced macro analysis
+  proteinRatio?: number
+  carbRatio?: number
+  fatRatio?: number
 }
 
 export interface WeightContext {
@@ -64,6 +82,12 @@ export interface WeightContext {
   trend: 'increasing' | 'decreasing' | 'stable'
   entries: WeightEntry[]
   unit: 'kg' | 'lbs'
+  progressAnalysis?: string
+  predictedGoalDate?: string
+  weeklyAverage?: number
+  volatility?: number
+  changeRate?: number
+  consistency?: number
 }
 
 export interface WeightEntry {
@@ -80,6 +104,20 @@ export interface TaskContext {
   categories: string[]
   productivity: 'low' | 'medium' | 'high'
   streaks: number
+  productivityPatterns?: {
+    bestTimeOfDay: string
+    mostProductiveDays: string[]
+    averageCompletionTime: number
+  }
+  completionTrends?: {
+    weeklyRate: number
+    monthlyRate: number
+    trend: 'improving' | 'stable' | 'declining'
+  }
+  focusAreas?: string[]
+  completionRate?: number
+  currentStreak?: number
+  longestStreak?: number
 }
 
 export interface UserPreferences {
@@ -111,4 +149,32 @@ export interface RetryConfig {
   baseDelay: number
   backoffFactor: number
   jitter: boolean
+}
+
+export interface ContextCorrelations {
+  workoutWeightCorrelation?: {
+    correlation: number
+    significance: 'strong' | 'moderate' | 'weak' | 'none'
+    insights: string[]
+  }
+  nutritionPerformanceCorrelation?: {
+    correlation: number
+    significance: 'strong' | 'moderate' | 'weak' | 'none'
+    insights: string[]
+  }
+  mealTimingImpact?: {
+    preWorkoutMeals: string
+    postWorkoutMeals: string
+    energyCorrelation: number
+  }
+  healthProductivityCorrelation?: {
+    correlation: number
+    significance: 'strong' | 'moderate' | 'weak' | 'none'
+    insights: string[]
+  }
+  exerciseTaskCorrelation?: {
+    correlation: number
+    significance: 'strong' | 'moderate' | 'weak' | 'none'
+    insights: string[]
+  }
 } 

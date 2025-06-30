@@ -1,303 +1,224 @@
-# Perfect Zenkai — Project Rules & Standards
+# Perfect Zenkai Project Rules - Updated
 
-## Core Architecture Rules
+## 🎯 **Current Development Status**
 
-### 🏗️ Module Isolation
+### **Phase 1: Foundation Completion (Today's Priority)**
+- **Location**: `docs/mvp/Phase 1 MVPS/` (40+ MVPs)
+- **Status**: Final cleanup and completion in progress
+- **Target**: Complete all foundational features, technical debt resolution, 90%+ test coverage
+- **Achievement**: 96.6% ESLint error reduction (237 → 8 errors)
 
-- **STRICT RULE:** Modules may import `shared/` but **NEVER each other**
-- **Shell Rule:** `src/app/` imports only module **routes**, never internal components
-- **Import Hierarchy:** `app/ → modules/ → shared/ → types/`
-- **Violation = Build Failure:** Use ESLint rules to enforce import boundaries
+### **Phase 2: Enhancement & Advanced Features (Next Sprint)**
+- **Location**: `docs/mvp/Phase 2 MVPs/` (Ready for population)
+- **Focus**: Advanced AI capabilities, performance optimization, enterprise features
+- **Preparation**: Architecture roadmap defined, enhancement strategies planned
 
-### 📁 Folder Structure (IMMUTABLE)
+## 🎨 **Major Update: Enhanced Landing Page**
 
+### **Completed Features**
+- **Professional Design**: Gradient backgrounds, dramatic shadows, mobile-responsive
+- **Login-First UX**: Prominent authentication with integrated information architecture
+- **Expandable Sections**: 5 comprehensive information panels
+- **Visual Effects**: Enhanced title with white gradient and glowing "Zenkai"
+- **Platform Showcase**: Technical achievements, feature overview, onboarding guides
+
+### **Title Enhancement (Latest)**
+```typescript
+// Dramatic title with readability optimization
+<h1 style={{
+  textShadow: '0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)',
+  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent'
+}}>
+  Perfect <span className="text-ki-green" style={{
+    textShadow: '0 0 20px rgba(34, 255, 183, 0.6)',
+    background: 'linear-gradient(135deg, #22ffb7 0%, #1be7ff 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
+  }}>Zenkai</span>
+</h1>
 ```
-src/
-├── app/           # AppShell, routes, NavigationBar, GlobalFab
-├── modules/       # weight/, tasks/, dashboard/ (isolated domains)
-├── shared/        # ui/, hooks/, lib/ (common utilities)
-├── types/         # Global TypeScript definitions
-└── test/          # Test utilities, setupTests.ts
-```
 
-### 🔄 Module Pattern (CONSISTENT)
+## Core Development Principles
 
-Every module MUST follow this exact structure:
+### 1. **Phase-Based Development**
+- **Phase 1**: Foundation, core features, technical excellence
+- **Phase 2**: Enhancement, advanced AI, performance optimization
+- **Phase 3**: Enterprise features, scalability, advanced analytics
 
-```
-src/modules/{name}/
-├── index.ts       # Public API exports only
-├── types.ts       # Module-specific types
-├── store.ts       # Zustand slice
-├── repo.ts        # Dexie database layer
-├── routes.ts      # React Router routes
-├── pages/         # Route components
-└── components/    # Internal components
-```
+### 2. **Test-Driven Development (TDD)**
+- **RED → GREEN → REFACTOR** cycle mandatory
+- **90%+ test coverage** for new features
+- **100% coverage** for critical workflows
+- **Real-time test reporting** in MVP documentation
 
-## Technology Stack (LOCKED)
+### 3. **Vertical Slice Architecture**
+- **Complete feature slices**: UI + Logic + Data + Tests
+- **Module isolation**: Clear boundaries, defined interfaces
+- **Type safety**: Enterprise-grade TypeScript with strict mode
 
-### 📦 Core Dependencies
-
-- **Build:** Vite + React 18 + TypeScript
-- **Styling:** Tailwind 3 + shadcn/ui + lucide-react
-- **PWA:** @vite-pwa/react + Workbox
-- **State:** Zustand (no Redux, no Context API for global state)
-- **Database:** Dexie (IndexedDB wrapper)
-- **Testing:** Vitest + Playwright + @testing-library/react
-
-### 🚫 Forbidden Dependencies
-
-- No jQuery, Lodash, or utility libraries (use native JS)
-- No CSS-in-JS libraries (Tailwind only)
-- No state management other than Zustand
-- No UI libraries other than shadcn/ui
-- No testing frameworks other than Vitest/Playwright
-
-## Code Quality Standards
-
-### ✅ Quality Gates (NON-NEGOTIABLE)
-
-- **Test Coverage:** ≥80% (Vitest)
-- **PWA Score:** ≥90 (Lighthouse)
-- **TypeScript:** Strict mode, no `any` types
-- **ESLint:** Zero warnings/errors
-- **Prettier:** Auto-format on save
-
-### 📝 Code Style
-
-- **File Naming:** PascalCase for components, camelCase for utilities
-- **Component Structure:** Props interface → Component → Export default
-- **Import Order:** External → Internal → Relative (auto-sorted)
-- **Comments:** JSDoc for public APIs, inline for complex logic only
-
-### 🧪 Testing Requirements
-
-- **Unit Tests:** All store actions, hooks, utilities
-- **Component Tests:** User interactions, error states
-- **E2E Tests:** Critical user journeys, offline scenarios
-- **Mobile Testing:** All E2E tests use 375×667 viewport
+### 4. **Code Quality Excellence**
+- **96.6% error reduction** achievement maintained
+- **Zero ESLint errors** in production builds
+- **TypeScript strict mode** compliance
+- **Enterprise-grade** code standards
 
 ## Development Workflow
 
-### 🔄 MVP Development Process
+### **MVP Documentation Process**
+1. **Create MVP document** using phase-appropriate templates
+2. **Define success criteria** and vertical slice breakdown
+3. **Plan TDD approach** with comprehensive test strategy
+4. **Get confirmation** before implementation
+5. **Real-time updates** during development
+6. **Retrospective completion** with metrics and learnings
 
-1. **Read MVP Doc:** Understand user stories & acceptance criteria
-2. **Copy Implementation Prompt:** Paste into AI tool exactly as written
-3. **Generate Code:** Follow architecture rules strictly
-4. **Copy Test-Code Prompt:** Generate matching tests
-5. **Run Quality Gates:** All must pass before next MVP
-6. **Update Status:** Mark MVP as complete in docs
+### **Quality Gates**
+- **Test Coverage**: ≥90% for features, 100% for critical paths
+- **Performance**: <2s load times, ≥90 Lighthouse scores
+- **Build Quality**: Zero ESLint errors, clean TypeScript compilation
+- **User Experience**: Mobile-first, accessible, professional design
 
-### 📋 Definition of Done
+### **Phase 1 Completion Checklist**
+- [ ] All MVP implementations in Phase 1 folder completed
+- [ ] Technical debt resolution (maintain 96.6% error reduction)
+- [ ] Comprehensive test coverage across all modules
+- [ ] Enhanced landing page functionality verified
+- [ ] Documentation updated with current status
+- [ ] Phase 2 roadmap prepared
 
-- [ ] All acceptance criteria met
-- [ ] Implementation matches prompt specifications
-- [ ] Tests pass (unit + e2e + lighthouse)
-- [ ] Code follows architecture rules
-- [ ] Mobile testing completed
-- [ ] Documentation updated
+## Technical Standards
 
-### 🚀 Deployment Checklist
+### **Architecture Requirements**
+- **Vertical Slice Architecture** with domain-driven design
+- **Hybrid data strategy** (offline-first with cloud sync)
+- **AI Agent Architecture** with function registry pattern
+- **Progressive Web App** with service worker caching
+- **Enterprise security** with Azure Key Vault integration
 
-- [ ] `pnpm lint` exits 0
-- [ ] `pnpm test --coverage` ≥80%
-- [ ] `pnpm test:e2e` passes
-- [ ] `pnpm lighthouse` ≥90 PWA score
-- [ ] Manual mobile testing completed
-- [ ] All MVP status updated
+### **Performance Benchmarks**
+- **Individual modules**: <100KB bundle size
+- **Component render time**: <16ms
+- **State updates**: <100ms response time
+- **Bundle splitting**: Route-level code splitting
+- **Lighthouse scores**: ≥90 across all metrics
 
-## UI/UX Standards
+### **Code Organization**
+```
+src/modules/[feature]/
+├── components/          # React UI components
+├── hooks/              # Business logic hooks
+├── services/           # Domain services & AI agents
+├── stores/             # Zustand state management
+├── types/              # TypeScript interfaces
+├── pages/              # Route components
+├── __tests__/          # Comprehensive test suites
+└── index.ts            # Public API exports
+```
 
-### 📱 Mobile-First Design
+## Enhanced Landing Page Architecture
 
-- **Primary Viewport:** 375×667 (iPhone SE)
-- **Touch Targets:** Minimum 44px × 44px
-- **Gestures:** Long-press (200ms), swipe-to-delete
-- **Navigation:** Bottom nav + FAB pattern
+### **Information Sections**
+1. **🚀 Key Features**: AI Assistant, Weight Management, Food Analysis, Task Productivity, Mental Wellness, Daily Standup
+2. **🏗️ Technical Architecture**: React 18, TypeScript, Supabase, Azure, PWA capabilities
+3. **🏆 Technical Achievements**: 96.6% code quality, enterprise-grade implementation
+4. **🚀 Getting Started**: User onboarding, developer setup guides
+5. **🤝 Contributing**: Development standards, testing guidelines
 
-### 🎨 Design System
+### **Visual Design System**
+- **Gradient backgrounds**: Professional depth and visual appeal
+- **Dramatic shadows**: Multi-layer drop shadows for text prominence
+- **Ki-green branding**: Consistent color scheme with glowing effects
+- **Mobile-responsive**: Optimized for all screen sizes
+- **Accessibility**: High contrast, readable typography
 
-- **Theme:** Dark mode primary (#111827 background)
-- **Components:** shadcn/ui only (no custom components unless necessary)
-- **Icons:** lucide-react only
-- **Spacing:** Tailwind spacing scale (4px increments)
-- **Typography:** Default shadcn typography scale
+## AI Agent Integration
 
-### ⚡ Performance Rules
+### **Function Registry Pattern**
+- **Centralized function calling** for AI Chat integration
+- **Domain-specific agents**: Weight, Tasks, Wellness, Food, Standup
+- **Type-safe interfaces** for all AI function parameters
+- **Error handling** and fallback strategies
 
-- **Bundle Size:** <500KB initial load
-- **Lazy Loading:** Use React.lazy for heavy components (Recharts)
-- **Images:** WebP format, proper sizing
-- **Caching:** Workbox runtime caching for all assets
-
-## Data Management
-
-### 💾 Persistence Strategy
-
-- **Local-First:** All data stored in Dexie (IndexedDB)
-- **Offline-First:** App works without network
-- **Data Types:** Strongly typed with TypeScript interfaces
-- **Migrations:** Version Dexie schema changes
-
-### 🔄 State Management
-
-- **Global State:** Zustand stores only
-- **Local State:** React useState/useReducer
-- **Server State:** Not applicable (local-first app)
-- **Hydration:** Load from Dexie on app init
+### **Specialized Agents**
+- **WeightManagementAgent**: Analytics, predictions, coaching
+- **TaskProductivityAgent**: Prioritization, workflow optimization
+- **JournalWellnessAgent**: Emotional analysis, crisis support
+- **FoodAnalysisAgent**: Vision AI, nutrition validation
+- **DailyStandupAgent**: Voice input, AI insights
 
 ## Security & Privacy
 
-### 🔒 Data Protection
+### **Authentication Architecture**
+- **Supabase Auth** with local fallback
+- **Azure Key Vault** for secrets management
+- **User data isolation** with database partitioning
+- **Encrypted storage** for sensitive information
 
-- **Local Only:** No data leaves device
-- **No Analytics:** No tracking or telemetry
-- **Permissions:** Request only when needed (notifications, install)
-- **Storage:** Encrypted IndexedDB where possible
+### **Privacy-First Design**
+- **Offline-first** data handling
+- **User-controlled** data export
+- **No tracking** or analytics without consent
+- **Transparent** data usage policies
 
-### 🛡️ Security Headers
+## Deployment & Operations
 
-- **CSP:** Content Security Policy in index.html
-- **HTTPS:** Required for PWA features
-- **Permissions Policy:** Restrict unnecessary APIs
+### **Progressive Web App**
+- **Service worker** with intelligent caching
+- **Offline functionality** with background sync
+- **Install prompts** and PWA optimization
+- **Performance monitoring** and error tracking
 
-## Error Handling
+### **Production Readiness**
+- **GitHub Pages** deployment pipeline
+- **Automated testing** in CI/CD
+- **Performance benchmarking** with Lighthouse
+- **Security scanning** and vulnerability assessment
 
-### 🚨 Error Boundaries
+## Phase 2 Preparation
 
-- **Global Boundary:** Catch all unhandled React errors
-- **Module Boundaries:** Isolate module failures
-- **Fallback UI:** Graceful degradation, not blank screens
+### **Advanced AI Capabilities**
+- **Multi-modal interactions** (voice, vision, text)
+- **Predictive analytics** enhancement
+- **Context-aware recommendations**
+- **Advanced natural language processing**
 
-### 📊 Error Logging
+### **Performance Optimization**
+- **Advanced caching** strategies
+- **Database query** optimization
+- **Real-time monitoring** implementation
+- **Micro-frontend** architecture consideration
 
-- **Console Only:** No external error reporting
-- **User Feedback:** Clear error messages
-- **Recovery:** Provide retry mechanisms
-
-## Documentation Standards
-
-### 📚 Required Documentation
-
-- **MVP Status:** Always current in individual MVP docs
-- **Architecture Decisions:** Document in relevant MVP docs
-- **API Changes:** Update type definitions immediately
-- **Breaking Changes:** Update all affected documentation
-
-### 📝 Documentation Format
-
-- **Markdown:** All docs in `/docs` folder
-- **Status Emojis:** 🔴🟡🟢🔵⚪ for progress tracking
-- **Cross-References:** Link related docs
-- **Examples:** Include code examples for complex concepts
-
-## Git Workflow
-
-### 🌿 Branch Strategy
-
-- **Main Branch:** Always deployable
-- **Feature Branches:** One per MVP
-- **Naming:** `mvp-{number}-{description}` (e.g., `mvp-2-weight-module`)
-
-### 💬 Commit Standards
-
-- **Format:** `{type}: {description}` (e.g., `feat: add weight tracking`)
-- **Types:** feat, fix, docs, test, refactor, style
-- **Scope:** Keep commits focused and atomic
-
-### 🔍 Code Review
-
-- **Self-Review:** Check against all rules before commit
-- **AI Review:** Use AI tools to verify architecture compliance
-- **Quality Gates:** All automated checks must pass
-
-## Performance Monitoring
-
-### 📊 Metrics to Track
-
-- **Bundle Size:** Monitor with bundlephobia
-- **Lighthouse Scores:** PWA, Performance, Accessibility
-- **Test Coverage:** Maintain ≥80% always
-- **Build Time:** Keep under 30 seconds
-
-### 🎯 Performance Budgets
-
-- **JavaScript:** <300KB gzipped
-- **CSS:** <50KB gzipped
-- **Images:** <100KB total
-- **Fonts:** Use system fonts only
-
-## Accessibility Standards
-
-### ♿ WCAG Compliance
-
-- **Level:** AA minimum
-- **Keyboard Navigation:** All interactive elements
-- **Screen Readers:** Proper ARIA labels
-- **Color Contrast:** 4.5:1 minimum ratio
-
-### 🎯 Focus Management
-
-- **Focus Indicators:** Visible focus rings
-- **Tab Order:** Logical navigation flow
-- **Skip Links:** For main content areas
-
-## Emergency Procedures
-
-### 🚨 Build Failures
-
-1. **Revert:** Roll back to last working commit
-2. **Isolate:** Identify failing component/module
-3. **Fix:** Address root cause, not symptoms
-4. **Test:** Verify fix doesn't break other functionality
-
-### 🔧 Hotfix Process
-
-1. **Branch:** Create hotfix branch from main
-2. **Fix:** Minimal change to address issue
-3. **Test:** Run full test suite
-4. **Deploy:** Merge directly to main after review
+### **Enterprise Features**
+- **Advanced security** protocols
+- **Multi-tenant** architecture
+- **Analytics dashboard** enhancement
+- **Enterprise integration** APIs
 
 ## Success Metrics
 
-### 📈 Project Success
+### **Phase 1 Completion Targets**
+- **100% MVP implementation** in Phase 1 folder
+- **96.6%+ error reduction** maintained
+- **90%+ test coverage** across all modules
+- **Enhanced landing page** fully functional
+- **Production deployment** ready
 
-- **All MVPs Completed:** 7/7 MVPs delivered
-- **Quality Gates:** 100% pass rate
-- **Mobile Experience:** Smooth on target devices
-- **PWA Installation:** Successful install flow
+### **Quality Benchmarks**
+- **Zero ESLint errors** in production builds
+- **TypeScript strict mode** compliance
+- **Lighthouse ≥90** across all metrics
+- **<2s load times** for all pages
+- **Mobile-first** responsive design
 
-### 🎯 Technical Success
-
-- **Zero Production Bugs:** No critical issues
-- **Performance:** <3s load time on 3G
-- **Accessibility:** WCAG AA compliance
-- **Maintainability:** Easy to extend and modify
-
----
-
-## Rule Enforcement
-
-### 🤖 Automated Enforcement
-
-- **ESLint Rules:** Import boundaries, code style
-- **TypeScript:** Strict mode, no implicit any
-- **Prettier:** Code formatting
-- **Husky Hooks:** Pre-commit quality checks
-
-### 👥 Human Enforcement
-
-- **Code Reviews:** Architecture compliance
-- **Documentation Reviews:** Keep docs current
-- **Testing Reviews:** Adequate coverage and quality
-
-### 📊 Compliance Tracking
-
-- **Weekly Reviews:** Check rule adherence
-- **Metrics Dashboard:** Track quality gates
-- **Retrospectives:** Improve rules based on learnings
+### **User Experience Standards**
+- **Professional design** with consistent branding
+- **Accessible interface** meeting WCAG guidelines
+- **Intuitive navigation** and information architecture
+- **Comprehensive onboarding** for new users
+- **Developer-friendly** contribution process
 
 ---
 
-**Remember: These rules exist to ensure a high-quality, maintainable, and successful PWA. When in doubt, follow the rules. When rules conflict, prioritize user experience and code quality.**
+**Status**: Phase 1 completion in progress with enhanced landing page delivered. Preparing for Phase 2 advanced feature development with comprehensive foundation established.

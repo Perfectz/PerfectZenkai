@@ -4,6 +4,12 @@ import { hybridTasksRepo, tasksRepo, initializeTasksDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
 import { getSupabaseClient } from '@/lib/supabase-client'
 
+// Global loading lock to prevent race conditions across multiple components
+const globalLoadingLock = {
+  isLoading: false,
+  loadingPromise: null as Promise<void> | null,
+}
+
 interface TasksState {
   todos: Todo[]
   templates: TaskTemplate[]
@@ -44,6 +50,7 @@ interface TasksState {
   getOverdueTodos: () => Todo[]
   getTodosByCategory: (category: Category) => Todo[]
   getTodosByPriority: (priority: Priority) => Todo[]
+  cleanupDuplicates: () => Promise<{ cleaned: number; remaining: number }>
 
   // New actions
   getPointsStats: () => {
@@ -295,54 +302,67 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   },
 
   loadTodos: async () => {
+    const currentState = get()
+    
+    // ENHANCED: Global loading lock to prevent race conditions
+    if (globalLoadingLock.isLoading) {
+      console.log('⏳ Global loading lock active, skipping duplicate call...')
+      return
+    }
+
+    // ENHANCED: Prevent concurrent loading attempts with better protection
+    if (currentState.isLoading || currentState.isSyncing) {
+      console.log('⏳ Todo loading already in progress, skipping duplicate call...')
+      return
+    }
+
+    // ENHANCED: Extra safety - if we already have todos and no force reload, skip
+    if (currentState.todos.length > 0) {
+      console.log('📋 Todos already loaded, skipping duplicate load...')
+      return
+    }
+
     try {
+      // Set global loading lock
+      globalLoadingLock.isLoading = true
       set({ isLoading: true, error: null })
 
       // Get current user for Supabase operations
       const user = useAuthStore.getState().user
       const userId = user?.id
 
+      console.log('🔄 Starting todo load for user:', userId || 'anonymous')
+
       // Initialize database for this user
       if (userId) {
         initializeTasksDatabase(userId)
-        
-        // Only sync if not already syncing
-        const { isSyncing } = get()
-        if (!isSyncing) {
-          try {
-            set({ isSyncing: true })
-            const syncResult = await hybridTasksRepo.syncData(userId)
-            if (syncResult.synced > 0) {
-              console.info(`🔄 Synced ${syncResult.synced} todo entries during load`)
-            }
-          } catch (syncError) {
-            console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
-          } finally {
-            set({ isSyncing: false })
-          }
-        }
       }
 
+      // Load todos directly WITHOUT sync to prevent duplication issues
       const todos = await hybridTasksRepo.getAllTodos(userId)
 
       set({ todos, isLoading: false })
+      globalLoadingLock.isLoading = false
 
       console.log('✅ Todos loaded successfully:', { 
         count: todos.length,
-        cloud: !!userId 
+        cloud: !!userId,
+        todoIds: todos.map(t => t.id).slice(0, 3) // Log first 3 IDs for debugging
       })
     } catch (error) {
       console.error('❌ Failed to load todos:', error)
       set({
         error: error instanceof Error ? error.message : 'Failed to load todos',
         isLoading: false,
-        isSyncing: false,
       })
+      globalLoadingLock.isLoading = false
     }
   },
 
   refreshTodos: async () => {
     try {
+      // Force reload by clearing current todos first
+      set({ todos: [] })
       await get().loadTodos()
     } catch (error) {
       console.error('❌ Failed to refresh todos:', error)
@@ -612,6 +632,38 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   getTodosByPriority: (priority) => {
     return get().todos.filter((todo) => todo.priority === priority)
+  },
+
+  cleanupDuplicates: async () => {
+    try {
+      set({ isLoading: true, error: null })
+
+      // Get current user for Supabase operations
+      const user = useAuthStore.getState().user
+      const userId = user?.id
+
+      const result = await hybridTasksRepo.cleanupDuplicates(userId)
+
+      // Reload todos after cleanup
+      await get().loadTodos()
+
+      set({ isLoading: false })
+
+      console.log('✅ Duplicates cleaned successfully:', { 
+        local: true, 
+        cloud: !!userId,
+        result
+      })
+
+      return result
+    } catch (error) {
+      console.error('❌ Failed to clean duplicates:', error)
+      set({
+        error: error instanceof Error ? error.message : 'Failed to clean duplicates',
+        isLoading: false,
+      })
+      throw error
+    }
   },
 
   // New actions

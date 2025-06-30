@@ -6,14 +6,18 @@ import type { UserContext } from '../../types/langchain.types'
 vi.mock('../../../workout/store', () => ({
   useWorkoutStore: () => ({
     getAllWorkouts: vi.fn(() => []),
-    getRecentWorkouts: vi.fn(() => [])
+    getRecentWorkouts: vi.fn(() => []),
+    getWorkouts: vi.fn(),
+    getWorkoutStats: vi.fn()
   })
 }))
 
 vi.mock('../../../meals/store', () => ({
   useMealStore: () => ({
     getAllMeals: vi.fn(() => []),
-    getRecentMeals: vi.fn(() => [])
+    getRecentMeals: vi.fn(() => []),
+    getMeals: vi.fn(),
+    getMealStats: vi.fn()
   })
 }))
 
@@ -22,7 +26,10 @@ vi.mock('../../../weight/store', () => ({
     getAllEntries: vi.fn(() => []),
     getCurrentWeight: vi.fn(() => 70),
     getGoalWeight: vi.fn(() => 65),
-    getTrend: vi.fn(() => 'decreasing')
+    getTrend: vi.fn(() => 'decreasing'),
+    getWeightEntries: vi.fn(),
+    getWeightGoal: vi.fn(),
+    getWeightTrend: vi.fn()
   })
 }))
 
@@ -31,7 +38,9 @@ vi.mock('../../../tasks/store', () => ({
     getAllTodos: vi.fn(() => []),
     getCompletedCount: vi.fn(() => 5),
     getPendingCount: vi.fn(() => 3),
-    getOverdueCount: vi.fn(() => 1)
+    getOverdueCount: vi.fn(() => 1),
+    getTaskStats: vi.fn(),
+    getProductivityMetrics: vi.fn()
   })
 }))
 
@@ -323,6 +332,203 @@ describe('ContextBuilder', () => {
       // Should timeout and use fallback
       expect(endTime - startTime).toBeLessThan(600)
       expect(context).toBeDefined()
+    })
+  })
+})
+
+describe('ContextBuilder - Task 6.3: Real Module Integration', () => {
+  let contextBuilder: ContextBuilder
+  
+  beforeEach(() => {
+    contextBuilder = new ContextBuilder()
+    vi.clearAllMocks()
+  })
+
+  describe('Real Workout Data Integration', () => {
+    it('should fetch actual workout data from workout store', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.workouts).toBeDefined()
+      expect(context.workouts.length).toBeGreaterThan(0)
+      expect(context.workouts[0]).toHaveProperty('exercises')
+      expect(context.workouts[0]).toHaveProperty('duration')
+      expect(context.workouts[0]).toHaveProperty('intensity')
+      expect(context.workouts[0]).toHaveProperty('caloriesBurned')
+    })
+
+    it('should include workout performance metrics and trends', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.workouts).toBeDefined()
+      // Should include performance trends, favorite exercises, progress metrics
+      const workoutContext = context.workouts[0]
+      expect(workoutContext).toHaveProperty('performanceMetrics')
+      expect(workoutContext).toHaveProperty('progressTrend')
+    })
+
+    it('should respect depth parameter for workout data', async () => {
+      // RED: This test should fail initially
+      const shallowContext = await contextBuilder.buildContext('shallow')
+      const deepContext = await contextBuilder.buildContext('deep')
+      
+      expect(shallowContext.workouts.length).toBeLessThanOrEqual(3)
+      expect(deepContext.workouts.length).toBeGreaterThan(shallowContext.workouts.length)
+    })
+  })
+
+  describe('Real Weight Data Integration', () => {
+    it('should fetch actual weight data from weight store', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.weight).toBeDefined()
+      expect(context.weight.currentWeight).toBeGreaterThan(0)
+      expect(context.weight.entries).toBeDefined()
+      expect(context.weight.trend).toMatch(/increasing|decreasing|stable/)
+    })
+
+    it('should include weight progress analysis and predictions', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.weight).toHaveProperty('progressAnalysis')
+      expect(context.weight).toHaveProperty('predictedGoalDate')
+      expect(context.weight).toHaveProperty('weeklyAverage')
+      expect(context.weight).toHaveProperty('volatility')
+    })
+
+    it('should calculate weight trends and statistics', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.weight.trend).toBeDefined()
+      expect(context.weight).toHaveProperty('changeRate')
+      expect(context.weight).toHaveProperty('consistency')
+    })
+  })
+
+  describe('Real Meal Data Integration', () => {
+    it('should fetch actual meal data from meal store', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.meals).toBeDefined()
+      expect(context.meals.length).toBeGreaterThan(0)
+      expect(context.meals[0]).toHaveProperty('foods')
+      expect(context.meals[0]).toHaveProperty('macros')
+      expect(context.meals[0]).toHaveProperty('calories')
+    })
+
+    it('should include nutrition analysis and dietary patterns', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.meals[0]).toHaveProperty('nutritionScore')
+      expect(context.meals[0]).toHaveProperty('dietaryPatterns')
+      expect(context.meals[0]).toHaveProperty('healthMetrics')
+    })
+
+    it('should calculate macro ratios and calorie trends', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.meals[0].macros).toHaveProperty('proteinRatio')
+      expect(context.meals[0].macros).toHaveProperty('carbRatio')
+      expect(context.meals[0].macros).toHaveProperty('fatRatio')
+    })
+  })
+
+  describe('Real Task Data Integration', () => {
+    it('should fetch actual task data from tasks store', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.tasks).toBeDefined()
+      expect(context.tasks.length).toBeGreaterThan(0)
+      expect(context.tasks[0]).toHaveProperty('completed')
+      expect(context.tasks[0]).toHaveProperty('pending')
+      expect(context.tasks[0]).toHaveProperty('productivity')
+    })
+
+    it('should include productivity patterns and task analysis', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.tasks[0]).toHaveProperty('productivityPatterns')
+      expect(context.tasks[0]).toHaveProperty('completionTrends')
+      expect(context.tasks[0]).toHaveProperty('focusAreas')
+    })
+
+    it('should calculate task completion rates and streaks', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.tasks[0]).toHaveProperty('completionRate')
+      expect(context.tasks[0]).toHaveProperty('currentStreak')
+      expect(context.tasks[0]).toHaveProperty('longestStreak')
+    })
+  })
+
+  describe('Cross-Module Data Correlation', () => {
+    it('should identify correlations between workout and weight data', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context).toHaveProperty('correlations')
+      expect(context.correlations).toHaveProperty('workoutWeightCorrelation')
+    })
+
+    it('should analyze nutrition and workout performance relationships', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.correlations).toHaveProperty('nutritionPerformanceCorrelation')
+      expect(context.correlations).toHaveProperty('mealTimingImpact')
+    })
+
+    it('should identify productivity and health correlations', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      
+      expect(context.correlations).toHaveProperty('healthProductivityCorrelation')
+      expect(context.correlations).toHaveProperty('exerciseTaskCorrelation')
+    })
+  })
+
+  describe('Performance and Error Handling', () => {
+    it('should complete context building within 1s performance target', async () => {
+      const startTime = Date.now()
+      await contextBuilder.buildContext('deep')
+      const endTime = Date.now()
+      
+      expect(endTime - startTime).toBeLessThan(1000) // <1s target for Task 6.3
+    })
+
+    it('should handle module data fetch failures gracefully', async () => {
+      // Mock store failure
+      vi.mocked(vi.fn()).mockRejectedValue(new Error('Store connection failed'))
+      
+      const context = await contextBuilder.buildContext('deep')
+      
+      // Should return partial context instead of failing completely
+      expect(context).toBeDefined()
+      expect(context.workouts).toBeDefined() // Should have fallback data
+    })
+
+    it('should provide relevant response verification', async () => {
+      // RED: This test should fail initially
+      const context = await contextBuilder.buildContext('deep')
+      const prompt = contextBuilder.formatContextForPrompt(context)
+      
+      // Should contain real data, not mock data
+      expect(prompt).not.toContain('Mock')
+      expect(prompt).not.toContain('mock')
+      expect(prompt).toContain('WORKOUT HISTORY')
+      expect(prompt).toContain('WEIGHT PROGRESS')
+      expect(prompt).toContain('NUTRITION LOG')
+      expect(prompt).toContain('TASK COMPLETION')
     })
   })
 }) 
