@@ -7,7 +7,7 @@ import type { Todo, Priority } from '@/modules/tasks/types'
 import type { WeightEntry, WeightGoalInput } from '@/modules/weight/types'
 import { FoodAnalysisAgent } from '@/modules/meals/services/FoodAnalysisAgent'
 import { keyVaultService } from '@/services/keyVaultService'
-import { getSupabaseClientSync } from '@/lib/supabase-client'
+import { getSupabaseClient } from '@/lib/supabase-client'
 import { WeightManagementAgent } from '@/modules/weight/services/WeightManagementAgent'
 import { JournalWellnessAgent } from '@/modules/journal/services/JournalWellnessAgent'
 import { HealthAnalyticsAgent } from '@/modules/health-analytics/services/HealthAnalyticsAgent'
@@ -1908,7 +1908,7 @@ You can try again or contact support if the issue persists.`,
         }
       }
 
-      const supabase = getSupabaseClientSync()
+      const supabase = await getSupabaseClient()
       if (!supabase) {
         throw new Error('Failed to initialize Supabase client')
       }
@@ -1927,7 +1927,7 @@ You can try again or contact support if the issue persists.`,
         notes: params.notes || null
       }
 
-      const { data, error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => { select: () => { single: () => Promise<{ data: unknown; error: unknown }> } } } })
+      const { data, error } = await supabase
         .from('meal_entries')
         .insert(mealEntry)
         .select()
@@ -1962,12 +1962,12 @@ You can try again or contact support if the issue persists.`,
         }
       }
 
-      const supabase = getSupabaseClientSync()
+      const supabase = await getSupabaseClient()
       if (!supabase) {
         throw new Error('Failed to initialize Supabase client')
       }
 
-      let query = (supabase as unknown as { from: (table: string) => { select: (columns: string) => { eq: (column: string, value: string) => { order: (column: string, options: { ascending: boolean }) => unknown } } } })
+      let query = supabase
         .from('meal_entries')
         .select('*')
         .eq('user_id', user.id)
@@ -2064,7 +2064,7 @@ You can try again or contact support if the issue persists.`,
 
       const template = insightTemplates[params.insightType as keyof typeof insightTemplates] || insightTemplates.general
 
-      const supabase = getSupabaseClientSync()
+      const supabase = await getSupabaseClient()
       if (!supabase) {
         throw new Error('Failed to initialize Supabase client')
       }
@@ -2115,7 +2115,7 @@ You can try again or contact support if the issue persists.`,
         }
       }
 
-      const supabase = getSupabaseClientSync()
+      const supabase = await getSupabaseClient()
       if (!supabase) {
         throw new Error('Failed to initialize Supabase client')
       }

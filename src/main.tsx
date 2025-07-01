@@ -14,11 +14,7 @@ getSupabaseClient().catch(error => {
   console.warn('Supabase initialization failed, running in offline mode:', error)
 })
 
-// Initialize stores after auth is ready
-// Note: Tasks store will initialize itself after auth check completes
-initializeWeightStore()
-initializeNotesStore()
-// initializeTasksStore() - Removed to prevent loading before auth is ready
+
 
 // Register service worker in both development and production for PWA testing
 /* Legacy manual service worker registration removed – vite-plugin-pwa now handles this automatically */

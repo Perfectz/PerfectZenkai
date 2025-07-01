@@ -1,15 +1,15 @@
 // api/get-secret/index.js
 // Azure Key Vault configuration service using managed identity
 
-const { DefaultAzureCredential } = require('@azure/identity');
-const { SecretClient } = require('@azure/keyvault-secrets');
+import { DefaultAzureCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets';
 
 // Initialize Key Vault client with managed identity
 const keyVaultUrl = 'https://perfectzenkai-secrets.vault.azure.net/';
 const credential = new DefaultAzureCredential();
 const secretClient = new SecretClient(keyVaultUrl, credential);
 
-module.exports = async function (context, req) {
+export default async function (context, req) {
     context.log('📥 Configuration request received');
     
     try {
@@ -70,7 +70,7 @@ module.exports = async function (context, req) {
             headers: { 
                 'Content-Type': 'application/json',
                 'Cache-Control': 'private, max-age=300', // Cache for 5 minutes
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': 'https://perfectzenkai.netlify.app',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
@@ -89,7 +89,7 @@ module.exports = async function (context, req) {
             status: 500,
             headers: { 
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': 'https://perfectzenkai.netlify.app'
             },
             body: { 
                 error: 'Internal server error while retrieving secret',

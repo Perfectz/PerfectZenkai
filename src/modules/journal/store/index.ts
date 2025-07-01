@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { getSupabaseClient } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 import { 
   JournalEntry, 
   JournalEntryRow,
@@ -63,24 +64,38 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   // Load all journal entries
   loadEntries: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        throw new Error('Supabase client not available')
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          throw new Error('Supabase client not available')
+        }
+
+        // RLS is now enabled, so user_id filtering is handled automatically by the database
+        const { data, error } = await supabase
+          .from('journal_entries')
+          .select('*')
+          .order('entry_date', { ascending: false })
+
+        if (error) throw error
+        
+        const entries = (data || []).map((row: JournalEntryRow) => transformRowToEntry(row))
+        set({ entries, isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load journal entries (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to load journal entries after multiple retries',
+            isLoading: false,
+          })
+        }
       }
-
-      // RLS is now enabled, so user_id filtering is handled automatically by the database
-      const { data, error } = await supabase
-        .from('journal_entries')
-        .select('*')
-        .order('entry_date', { ascending: false })
-
-      if (error) throw error
-      
-      const entries = (data || []).map((row: JournalEntryRow) => transformRowToEntry(row))
-      set({ entries, isLoading: false })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
   },
 
@@ -103,109 +118,172 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
   // Add new journal entry
   addEntry: async (entry) => {
     set({ isLoading: true, error: null })
-    try {
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        throw new Error('Supabase client not available')
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          throw new Error('Supabase client not available')
+        }
+
+        const rowData = transformEntryToRow(entry)
+        const { data, error } = await supabase
+          .from('journal_entries')
+          .insert([{
+            user_id: '', // TODO: Get from auth context
+            entry_date: rowData.entry_date || new Date().toISOString().split('T')[0],
+            entry_type: rowData.entry_type || 'both',
+            morning_entry: rowData.morning_entry,
+            evening_entry: rowData.evening_entry,
+            created_at: rowData.created_at,
+            updated_at: rowData.updated_at,
+          }])
+          .select()
+          .single()
+
+        if (error) throw error
+        
+        const newEntry = transformRowToEntry(data as JournalEntryRow)
+        const { entries } = get()
+        const updatedEntries = [newEntry, ...entries].sort((a, b) => 
+          new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
+        )
+        
+        set({ entries: updatedEntries, isLoading: false })
+        
+        // Recalculate analytics
+        get().loadAnalytics()
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'journal_entries',
+          data: newEntry,
+          localId: newEntry.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add journal entry (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
       }
-
-      const rowData = transformEntryToRow(entry)
-      const { data, error } = await supabase
-        .from('journal_entries')
-        .insert([{
-          user_id: '', // TODO: Get from auth context
-          entry_date: rowData.entry_date || new Date().toISOString().split('T')[0],
-          entry_type: rowData.entry_type || 'both',
-          morning_entry: rowData.morning_entry,
-          evening_entry: rowData.evening_entry,
-          created_at: rowData.created_at,
-          updated_at: rowData.updated_at,
-        }])
-        .select()
-        .single()
-
-      if (error) throw error
-      
-      const newEntry = transformRowToEntry(data as JournalEntryRow)
-      const { entries } = get()
-      const updatedEntries = [newEntry, ...entries].sort((a, b) => 
-        new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
-      )
-      
-      set({ entries: updatedEntries, isLoading: false })
-      
-      // Recalculate analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
   },
 
   // Update existing journal entry
   updateEntry: async (id, updates) => {
     set({ isLoading: true, error: null })
-    try {
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        throw new Error('Supabase client not available')
-      }
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      const rowData = transformEntryToRow(updates)
-      const { data, error } = await supabase
-        .from('journal_entries')
-        .update({
-          entry_date: rowData.entry_date,
-          entry_type: rowData.entry_type,
-          morning_entry: rowData.morning_entry,
-          evening_entry: rowData.evening_entry,
-          updated_at: rowData.updated_at,
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          throw new Error('Supabase client not available')
+        }
+
+        const rowData = transformEntryToRow(updates)
+        const { data, error } = await supabase
+          .from('journal_entries')
+          .update({
+            entry_date: rowData.entry_date,
+            entry_type: rowData.entry_type,
+            morning_entry: rowData.morning_entry,
+            evening_entry: rowData.evening_entry,
+            updated_at: rowData.updated_at,
+          })
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+        
+        const updatedEntry = transformRowToEntry(data as JournalEntryRow)
+        const { entries } = get()
+        const updatedEntries = entries.map(entry => 
+          entry.id === id ? updatedEntry : entry
+        )
+        
+        set({ entries: updatedEntries, isLoading: false })
+        
+        // Recalculate analytics
+        get().loadAnalytics()
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'journal_entries',
+          data: updatedEntry,
+          localId: updatedEntry.id,
+          timestamp: new Date().toISOString(),
         })
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) throw error
-      
-      const updatedEntry = transformRowToEntry(data as JournalEntryRow)
-      const { entries } = get()
-      const updatedEntries = entries.map(entry => 
-        entry.id === id ? updatedEntry : entry
-      )
-      
-      set({ entries: updatedEntries, isLoading: false })
-      
-      // Recalculate analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update journal entry (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Delete journal entry
   deleteEntry: async (id) => {
     set({ isLoading: true, error: null })
-    try {
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        throw new Error('Supabase client not available')
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          throw new Error('Supabase client not available')
+        }
+
+        const { error } = await supabase
+          .from('journal_entries')
+          .delete()
+          .eq('id', id)
+
+        if (error) throw error
+        
+        const { entries } = get()
+        const updatedEntries = entries.filter(entry => entry.id !== id)
+        
+        set({ entries: updatedEntries, isLoading: false })
+        
+        // Recalculate analytics
+        get().loadAnalytics()
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'journal_entries',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete journal entry (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
       }
-
-      const { error } = await supabase
-        .from('journal_entries')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-      
-      const { entries } = get()
-      const updatedEntries = entries.filter(entry => entry.id !== id)
-      
-      set({ entries: updatedEntries, isLoading: false })
-      
-      // Recalculate analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
   },
 
@@ -300,4 +378,4 @@ export const useJournalError = () => useJournalStore(state => state.error)
 // Computed selectors
 export const useTodayEntry = () => useJournalStore(state => state.getTodayEntry())
 export const useRecentEntries = (limit?: number) => useJournalStore(state => state.getRecentEntries(limit))
-export const useEntryByDate = (date: string) => useJournalStore(state => state.getEntryByDate(date)) 
+export const useEntryByDate = (date: string) => useJournalStore(state => state.getEntryByDate(date))

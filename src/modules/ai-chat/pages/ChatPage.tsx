@@ -9,7 +9,7 @@ export function ChatPage() {
   const [showSecurityNotice] = useState(true)
   
   // Use the showSecurityNotice variable to avoid unused variable error
-  console.debug('Security notice state:', showSecurityNotice)
+  console.debug('Security notice state:', String(showSecurityNotice))
 
   // Check if AI chat is available (API key configured securely)
   const isAiChatAvailable = import.meta.env.VITE_AI_CHAT_ENABLED === 'true' && 

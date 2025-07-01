@@ -248,18 +248,24 @@ describe('TextToSpeechService', () => {
 
       // Start first audio
       const speakPromise1 = ttsService.speak('Hello 1')
-      expect(ttsService.isPlaying()).toBe(true)
+      await vi.waitFor(() => expect(ttsService.isPlaying()).toBe(true))
+
+      // Simulate the first audio ending (it should be stopped by the second one)
+      const firstAudio = ttsService['currentAudio'] as unknown as MockAudio;
+      expect(firstAudio).toBeDefined();
 
       // Start second audio (should stop first)
       const speakPromise2 = ttsService.speak('Hello 2')
-      
-      // Complete both
-      setTimeout(() => {
-        const audio = ttsService['currentAudio'] as unknown as MockAudio
-        if (audio) audio.triggerEnd()
-      }, 10)
+      await vi.waitFor(() => expect(firstAudio.paused).toBe(true)); // First audio should be paused
+      await vi.waitFor(() => expect(ttsService.isPlaying()).toBe(true)); // Second audio should be playing
 
-      await Promise.all([speakPromise1, speakPromise2])
+      // Simulate second audio ending
+      setTimeout(() => {
+        const secondAudio = ttsService['currentAudio'] as unknown as MockAudio;
+        if (secondAudio) secondAudio.triggerEnd();
+      }, 10);
+
+      await Promise.all([speakPromise1, speakPromise2]);
     })
   })
 

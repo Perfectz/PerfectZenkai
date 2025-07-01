@@ -2,13 +2,10 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
-import { localAuthService } from '../services/localAuth'
-// Removed unused supabase import
-import {
-  initializeUserDatabases,
-  clearUserDatabases,
-  sanitizeUserId,
-} from '../utils/dataIsolation'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
+import { initializeWeightStore } from '@/modules/weight'
+import { initializeNotesStore } from '@/modules/notes'
+import { ttsService } from '@/modules/ai-chat/services/TextToSpeechService'
 
 interface LoginCredentials {
   username: string
@@ -41,11 +38,7 @@ interface AuthStore extends AuthState {
 }
 
 // Helper function to determine which auth service to use
-const getAuthService = () => {
-  // Always try Azure Key Vault Supabase first, fall back to local if it fails
-  console.log('🔧 Using Azure Key Vault Supabase auth (with local fallback)')
-  return 'supabase'
-}
+
 
 // MVP-10: Debounce configuration
 const AUTH_CHECK_DEBOUNCE_MS = 500
@@ -93,6 +86,26 @@ const withRetry = async <T>(
   throw lastError!
 }
 
+// Helper function to sanitize user IDs for use in paths or keys
+const sanitizeUserId = (userId: string): string => {
+  // Replace non-alphanumeric characters with underscores
+  return userId.replace(/[^a-zA-Z0-9]/g, '_')
+}
+
+// Helper function to initialize user-specific databases
+const initializeUserDatabases = (sanitizedUserId: string) => {
+  // This function would contain logic to initialize or switch to user-specific databases
+  // For now, it's a placeholder to demonstrate the concept.
+  console.log(`Initializing databases for user: ${sanitizedUserId}`)
+  // Example: initializeWeightStore(sanitizedUserId), initializeNotesStore(sanitizedUserId)
+}
+
+// Helper function to clear user-specific databases
+const clearUserDatabases = async (sanitizedUserId: string) => {
+  console.log(`Clearing databases for user: ${sanitizedUserId}`)
+  // Example: await clearWeightStore(sanitizedUserId), await clearNotesStore(sanitizedUserId)
+}
+
 // Global flag to track if auth state change has provided user info
 let authStateChangeProvidedUser = false
 
@@ -116,49 +129,27 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null })
 
         try {
-          console.log('🚀 Starting login process for:', credentials.username)
-          const authService = getAuthService()
-          console.log('🔧 Using auth service:', authService)
-
           let user: User | null = null
           let token: string = ''
 
-          if (authService === 'supabase') {
-            try {
-              const { user: supabaseUser, error } =
-                await supabaseAuth.loginWithUsername(
-                  credentials.username,
-                  credentials.password
-                )
+          try {
+            const { user: supabaseUser, error } =
+              await supabaseAuth.loginWithUsername(
+                credentials.username,
+                credentials.password
+              )
 
-              if (error) {
-                console.error('❌ Supabase login error:', error)
-                throw new Error(error.message)
-              }
-
-              user = supabaseUser
-              token = user?.id || ''
-            } catch (supabaseError) {
-              console.error('❌ Supabase login failed:', supabaseError)
-              console.log('🔄 Attempting fallback to local auth for login...')
-              
-              // Fallback to local auth
-              try {
-                const result = await withRetry(() => localAuthService.login(credentials))
-                user = result.user
-                token = result.token
-                console.log('✅ Fallback to local auth login successful:', user.username)
-              } catch (localError) {
-                console.error('❌ Local auth login also failed:', localError)
-                const errorMessage = supabaseError instanceof Error ? supabaseError.message : 'Authentication failed'
-                throw new Error(`Authentication failed: ${errorMessage}`)
-              }
+            if (error) {
+              console.error('❌ Supabase login error:', error)
+              throw new Error(error.message)
             }
-          } else {
-            // Use local auth service with retry logic
-            const result = await withRetry(() => localAuthService.login(credentials))
-            user = result.user
-            token = result.token
+
+            user = supabaseUser
+            token = user?.id || ''
+          } catch (supabaseError) {
+            console.error('❌ Supabase login failed:', supabaseError)
+            const errorMessage = supabaseError instanceof Error ? supabaseError.message : 'Authentication failed'
+            throw new Error(`Authentication failed: ${errorMessage}`)
           }
 
           console.log('🔍 Login result:', { user, token })
@@ -183,6 +174,9 @@ export const useAuthStore = create<AuthStore>()(
           const sanitizedUserId = sanitizeUserId(user.id)
           initializeUserDatabases(sanitizedUserId)
 
+          // Trigger full sync after successful login
+          offlineSyncService.fullSync()
+
           console.log('🎉 Login process completed successfully')
         } catch (error) {
           console.error('💥 Login error in store:', error)
@@ -205,26 +199,20 @@ export const useAuthStore = create<AuthStore>()(
             throw new Error('Password must be at least 6 characters long')
           }
 
-          const authService = getAuthService()
-          console.log('🔧 Using auth service for registration:', authService)
+          console.log('🔧 Using Supabase for registration')
 
-          if (authService === 'supabase') {
-            const { user, error } = await supabaseAuth.register(
-              data.username,
-              data.email,
-              data.password
-            )
+          const { user, error } = await supabaseAuth.register(
+            data.username,
+            data.email,
+            data.password
+          )
 
-            if (error) {
-              throw new Error(error.message)
-            }
+          if (error) {
+            throw new Error(error.message)
+          }
 
-            if (!user) {
-              throw new Error('Registration failed')
-            }
-          } else {
-            // Use local auth service with retry logic
-            await withRetry(() => localAuthService.register(data))
+          if (!user) {
+            throw new Error('Registration failed')
           }
 
           // For registration, we'll just set loading to false and not authenticate
@@ -266,12 +254,7 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           // Logout from appropriate service
-          const authService = getAuthService()
-          if (authService === 'supabase') {
-            await supabaseAuth.logout()
-          } else {
-            localAuthService.logout()
-          }
+          await supabaseAuth.logout()
 
           // Clear local state
           set({
@@ -285,10 +268,16 @@ export const useAuthStore = create<AuthStore>()(
             retryCount: 0,
           })
 
-          // Clear localStorage (but preserve local auth data if using local service)
-          if (authService === 'supabase') {
-            localStorage.clear()
-          }
+          // Clear localStorage
+          localStorage.clear()
+
+          // Clear offline sync errors and queue
+          offlineSyncService.clearErrors()
+          // Assuming a clearQueue method exists or will be added to OfflineSyncService
+          // offlineSyncService.clearQueue()
+
+          // Clear TTS cache
+          ttsService.clearCache()
         } catch (error) {
           console.error('Logout error:', error)
           // Even if logout fails, clear local state
@@ -336,76 +325,41 @@ export const useAuthStore = create<AuthStore>()(
         set({ isCheckingAuth: true, lastAuthCheck: now })
 
         try {
-          const authService = getAuthService()
           let user: User | null = null
           let token: string = ''
 
-          console.log('🔧 Using auth service:', authService)
-
-          // MVP-10: Use retry logic for auth service calls
-          if (authService === 'supabase') {
-            console.log('🔍 Checking Supabase auth status...')
-            
-            // If auth state change already provided user, skip the potentially hanging Supabase call
-            const state = get()
-            if (authStateChangeProvidedUser && state.user) {
-              console.log('✅ Using user from auth state change, skipping Supabase call')
-              user = state.user
-              token = state.token || user.id
-            } else {
-              try {
-                // Add timeout for Supabase operations (increased to 8 seconds)
-                const timeoutPromise = new Promise<never>((_, reject) => {
-                  setTimeout(() => reject(new Error('Supabase auth timeout')), 8000)
-                })
-                
-                // Try to get session directly (faster, no profile fetch)
-                user = await Promise.race([
-                  supabaseAuth.getSession(),
-                  timeoutPromise
-                ])
-                token = user?.id || ''
-                console.log('✅ Supabase auth check successful:', user?.email)
-              } catch (error) {
-                console.error('❌ Supabase auth check failed:', error)
-                
-                // Try to fallback to local auth if Supabase consistently fails
-                console.log('🔄 Attempting fallback to local auth...')
-                try {
-                  const session = localAuthService.getCurrentUser()
-                  if (session) {
-                    user = session.user
-                    token = session.token
-                    console.log('✅ Fallback to local auth successful:', user.username)
-                  } else {
-                    console.log('ℹ️ No local session found either')
-                    user = null
-                    token = ''
-                  }
-                } catch (localError) {
-                  console.error('❌ Local auth fallback also failed:', localError)
-                  user = null
-                  token = ''
-                }
-                
-                // Force logout from Supabase to clean up
-                try {
-                  await supabaseAuth.logout()
-                  console.log('🔄 Logged out from Supabase after failure')
-                } catch (logoutError) {
-                  console.error('Failed to logout from Supabase:', logoutError)
-                }
-              }
-            }
+          console.log('🔍 Checking Supabase auth status...')
+          
+          // If auth state change already provided user, skip the potentially hanging Supabase call
+          const state = get()
+          if (authStateChangeProvidedUser && state.user) {
+            console.log('✅ Using user from auth state change, skipping Supabase call')
+            user = state.user
+            token = state.token || user.id
           } else {
-            // Use local auth service (no retry needed for synchronous call)
-            const session = localAuthService.getCurrentUser()
-            if (session) {
-              user = session.user
-              token = session.token
-              console.log('✅ Found existing session for user:', user.username)
-            } else {
-              console.log('ℹ️ No existing session found')
+            try {
+              // Add timeout for Supabase operations (increased to 8 seconds)
+              const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('Supabase auth timeout')), 8000)
+              })
+              
+              // Try to get session directly (faster, no profile fetch)
+              user = await Promise.race([
+                supabaseAuth.getSession(),
+                timeoutPromise
+              ])
+              token = user?.id || ''
+              console.log('✅ Supabase auth check successful:', user?.email)
+            } catch (error) {
+              console.error('❌ Supabase auth check failed:', error)
+              
+              // Force logout from Supabase to clean up
+              try {
+                await supabaseAuth.logout()
+                console.log('🔄 Logged out from Supabase after failure')
+              } catch (logoutError) {
+                console.error('Failed to logout from Supabase:', logoutError)
+              }
             }
           }
 
@@ -490,12 +444,14 @@ export const useAuthStore = create<AuthStore>()(
         const sanitizedUserId = sanitizeUserId(user.id)
         initializeUserDatabases(sanitizedUserId)
         
-        // Initialize tasks store after user is set
+        // Initialize module stores after user is set
         try {
+          await initializeWeightStore()
+          await initializeNotesStore()
           const { initializeTasksStore } = await import('@/modules/tasks')
           await initializeTasksStore()
         } catch (error) {
-          console.error('Failed to initialize tasks store in setUser:', error)
+          console.error('Failed to initialize module stores in setUser:', error)
         }
       },
 
@@ -511,13 +467,7 @@ export const useAuthStore = create<AuthStore>()(
           console.error('❌ Supabase logout failed:', error)
         }
 
-        try {
-          // Clear local auth session
-          localAuthService.logout()
-          console.log('✅ Local auth logout completed')
-        } catch (error) {
-          console.error('❌ Local auth logout failed:', error)
-        }
+        
 
         // Clear all localStorage
         try {

@@ -1,28 +1,16 @@
-import { getSupabaseClient } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
 import type { User, AuthError } from '../types/auth'
 import { debug, info, warn, error as logError } from '@/shared/utils/logging'
 
 export class SupabaseAuthService {
 
-  /**
-   * Get Supabase client from Azure Key Vault
-   */
-  private async getSupabase() {
-    try {
-      console.log('🔄 Using Azure Key Vault Supabase...')
-      const client = await getSupabaseClient()
-      return client
-    } catch (error) {
-      console.error('Failed to get Supabase client:', error)
-      return null
-    }
-  }
+  
 
   /**
    * Check if Supabase client is available and properly configured
    */
   private async isSupabaseAvailable(): Promise<boolean> {
-    const client = await this.getSupabase()
+    const client = await getSupabaseClient()
     return !!client
   }
 
@@ -98,7 +86,7 @@ export class SupabaseAuthService {
 
     try {
       console.log('🔐 Starting registration for:', { username, email })
-      const supabase = await this.getSupabase()
+      const supabase = await getSupabaseClient()
       if (!supabase) {
         return { user: null, error: this.getUnavailableError() }
       }
@@ -190,7 +178,7 @@ export class SupabaseAuthService {
       console.log('🔐 Starting login with email:', email)
 
              // Authenticate with Supabase
-       const supabase = await this.getSupabase()
+       const supabase = await getSupabaseClient()
        if (!supabase) {
          return { user: null, error: this.getUnavailableError() }
        }
@@ -264,7 +252,7 @@ export class SupabaseAuthService {
        let profile: { id: string; username: string; email?: string } | null = null
        let email: string | null = null
 
-       const supabase = await this.getSupabase()
+       const supabase = await getSupabaseClient()
        if (!supabase) {
          return { user: null, error: this.getUnavailableError() }
        }
@@ -325,7 +313,7 @@ export class SupabaseAuthService {
       })
 
       const getCurrentUserOperation = async () => {
-        const supabase = await this.getSupabase()
+        const supabase = await getSupabaseClient()
         if (!supabase) return null
         
         const { data: { user: authUser }, error } = await supabase.auth.getUser()
@@ -379,7 +367,7 @@ export class SupabaseAuthService {
     }
 
     try {
-      const supabase = await this.getSupabase()
+      const supabase = await getSupabaseClient()
       if (!supabase) return
       
       await supabase.auth.signOut()
@@ -393,10 +381,41 @@ export class SupabaseAuthService {
   /**
    * Set up auth state change listener with error handling
    */
-  onAuthStateChange(_callback: (user: User | null) => void) {
-    // Temporarily disabled due to compilation issues
-    console.warn('onAuthStateChange temporarily disabled')
-    return () => {}
+  onAuthStateChange(callback: (user: User | null) => void) {
+    let currentUserId: string | null = null;
+
+    const unsubscribe = getSupabaseClient().then(supabase => {
+      if (!supabase) {
+        console.warn('Supabase client not available for auth state change listener.');
+        return () => {};
+      }
+
+      return supabase.auth.onAuthStateChange((event, session) => {
+        const newUser = session?.user || null;
+        const newUserId = newUser?.id || null;
+
+        // Only trigger callback if user status has actually changed
+        if (newUserId !== currentUserId) {
+          currentUserId = newUserId;
+          if (newUser) {
+            callback({
+              id: newUser.id,
+              name: newUser.user_metadata?.username || newUser.email || 'User',
+              email: newUser.email || '',
+            });
+          } else {
+            callback(null);
+          }
+        }
+      }).data.subscription.unsubscribe;
+    }).catch(error => {
+      console.error('Error setting up auth state change listener:', error);
+      return () => {};
+    });
+
+    return () => {
+      unsubscribe.then(unsub => unsub());
+    };
   }
 
   /**
@@ -408,7 +427,7 @@ export class SupabaseAuthService {
     }
 
     try {
-      const supabase = await this.getSupabase()
+      const supabase = await getSupabaseClient()
       if (!supabase) return null
       
       const { data: { session }, error } = await supabase.auth.getSession()

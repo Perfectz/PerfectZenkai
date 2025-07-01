@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { SupabaseAuthService } from '../services/supabaseAuth'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 // Integration tests that run against actual Supabase instance or mock
 describe('Authentication Integration Tests', () => {
   let authService: SupabaseAuthService
+  let supabase: any;
   
   // Test user accounts for integration testing
   const testUser1 = {
@@ -23,6 +24,7 @@ describe('Authentication Integration Tests', () => {
     authService = new SupabaseAuthService()
     
     // Clean up any existing test users
+    supabase = await getSupabaseClient(); // Assign supabase here
     if (supabase) {
       try {
         // Attempt to sign out any existing sessions
@@ -35,14 +37,15 @@ describe('Authentication Integration Tests', () => {
 
   afterAll(async () => {
     // Clean up test data if running against real Supabase
+    supabase = await getSupabaseClient(); // Assign supabase here
     if (supabase) {
       try {
         await supabase.auth.signOut()
       } catch (error) {
         // Ignore cleanup errors
       }
-    }
-  })
+      }
+    })
 
   describe('Complete Authentication Flow', () => {
     it('should complete full registration and login flow for test user 1', async () => {

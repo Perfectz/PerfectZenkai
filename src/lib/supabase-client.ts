@@ -9,9 +9,16 @@ let initializationPromise: Promise<TypedSupabaseClient | null> | null = null
 
 const isTestEnvironment = import.meta.env.MODE === 'test' || process.env.NODE_ENV === 'test'
 
-async function initializeSupabaseClient(): Promise<TypedSupabaseClient | null> {
-  if (supabaseClient || isTestEnvironment) {
-    return supabaseClient
+async function initializeSupabase(): Promise<TypedSupabaseClient | null> {
+  // This function should only be called once.
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
+  if (isTestEnvironment) {
+    // In a test environment, we might not want to connect to Supabase.
+    // Or we might want to use a mock client. For now, returning null.
+    return null;
   }
 
   try {
@@ -42,15 +49,10 @@ export async function getSupabaseClient(): Promise<TypedSupabaseClient | null> {
   }
 
   if (!initializationPromise) {
-    initializationPromise = initializeSupabaseClient()
+    initializationPromise = initializeSupabase()
   }
 
   return await initializationPromise
 }
 
-// For repositories that need a synchronous client (temporary fallback)
-export function getSupabaseClientSync(): TypedSupabaseClient | null {
-  return supabaseClient
-}
-
-export type { Database } 
+export type { Database }

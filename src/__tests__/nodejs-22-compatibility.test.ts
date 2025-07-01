@@ -46,21 +46,21 @@ describe('Node.js 22 Compatibility Tests', () => {
       expect(packageJson.dependencies?.react).toBeTruthy();
       // React 18+ is Node.js 22 compatible
       const reactVersion = packageJson.dependencies?.react;
-      expect(reactVersion).toMatch(/^(18\.|19\.|^18)/);
+      expect(reactVersion).toMatch(/^18\./);
     });
 
     test('should have compatible Vite version', () => {
       expect(packageJson.devDependencies?.vite).toBeTruthy();
       // Vite 5+ is Node.js 22 compatible
       const viteVersion = packageJson.devDependencies?.vite;
-      expect(viteVersion).toMatch(/^([5-9]\.|^[5-9])/);
+      expect(viteVersion).toMatch(/^6\./);
     });
 
     test('should have compatible TypeScript version', () => {
       expect(packageJson.devDependencies?.typescript).toBeTruthy();
       // TypeScript 5+ is Node.js 22 compatible
       const tsVersion = packageJson.devDependencies?.typescript;
-      expect(tsVersion).toMatch(/^([5-9]\.|^[5-9])/);
+      expect(tsVersion).toMatch(/^5\./);
     });
   });
 

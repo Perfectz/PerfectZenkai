@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@azure/keyvault-secrets": "^4.8.0",
-    "@azure/identity": "^4.0.1"
+    "@azure/identity": "^4.0.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@azure/functions": "^4.5.0"

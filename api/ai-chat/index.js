@@ -1,6 +1,7 @@
 // api/ai-chat/index.js - COST-OPTIMIZED Azure Function
 const { SecretClient } = require("@azure/keyvault-secrets");
 const { DefaultAzureCredential } = require("@azure/identity");
+const { z } = require("zod");
 
 // Global caching to minimize Key Vault calls (COST OPTIMIZATION)
 let cachedApiKey = null;
@@ -13,13 +14,41 @@ let dailyCostTracker = {
     requestCount: 0
 };
 
+// Define Zod schema for incoming messages
+const messageSchema = z.object({
+    role: z.enum(["user", "assistant", "system", "function"]),
+    content: z.string().nullable().optional(),
+    function_call: z.object({
+        name: z.string(),
+        arguments: z.string()
+    }).optional(),
+    name: z.string().optional(),
+});
+
+// Define Zod schema for incoming request body
+const chatRequestSchema = z.object({
+    messages: z.array(messageSchema).min(1, "messages array cannot be empty"),
+    temperature: z.number().min(0).max(2).default(0.7).optional(),
+    max_tokens: z.number().int().min(1).default(150).optional(),
+    functions: z.array(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        parameters: z.record(z.any())
+    })).optional(),
+    function_call: z.union([
+        z.literal("none"),
+        z.literal("auto"),
+        z.object({ name: z.string() })
+    ]).optional(),
+});
+
 module.exports = async function (context, req) {
     const startTime = Date.now();
     
     // CORS headers for multiple deployment targets
     context.res = {
         headers: {
-            'Access-Control-Allow-Origin': '*', // Allow all origins for broader deployment support
+            'Access-Control-Allow-Origin': 'https://perfectzenkai.netlify.app', // Restrict to your frontend domain
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             'Access-Control-Max-Age': '86400' // Cache preflight for 24 hours
@@ -88,29 +117,36 @@ module.exports = async function (context, req) {
             context.log('Direct OpenAI API key cached successfully');
         }
 
-        // Validate request body
-        if (!req.body || !req.body.messages || !Array.isArray(req.body.messages)) {
+        // Validate request body using Zod
+        let parsedBody;
+        try {
+            parsedBody = chatRequestSchema.parse(req.body);
+        } catch (validationError) {
+            context.log.error('Request body validation failed:', validationError.errors);
             context.res.status = 400;
-            context.res.body = { error: 'Invalid request: messages array required' };
+            context.res.body = { 
+                error: 'Invalid request body',
+                details: validationError.errors
+            };
             return;
         }
 
         // UPDATED: Use GPT-4.1-mini with function calling support
         const openAIRequest = {
             model: 'gpt-4.1-mini',
-            messages: req.body.messages,
-            temperature: req.body.temperature || 0.7,
-            max_tokens: req.body.max_tokens || 150, // COST CONTROL: Reduced tokens due to higher GPT-4 cost
+            messages: parsedBody.messages,
+            temperature: parsedBody.temperature || 0.7,
+            max_tokens: parsedBody.max_tokens || 150, // COST CONTROL: Reduced tokens due to higher GPT-4 cost
             timeout: 20000 // Slightly longer timeout for GPT-4
         };
 
         // Add function calling support if functions are provided
-        if (req.body.functions && Array.isArray(req.body.functions)) {
-            openAIRequest.functions = req.body.functions;
-            openAIRequest.function_call = req.body.function_call || 'auto';
+        if (parsedBody.functions) {
+            openAIRequest.functions = parsedBody.functions;
+            openAIRequest.function_call = parsedBody.function_call || 'auto';
         }
 
-        context.log(`Making OpenAI API call with ${req.body.messages.length} messages`);
+        context.log(`Making OpenAI API call with ${parsedBody.messages.length} messages`);
 
         // Call OpenAI API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {

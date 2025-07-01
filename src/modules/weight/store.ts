@@ -3,6 +3,7 @@ import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
 import { hybridWeightRepo, hybridWeightGoalRepo, initializeWeightDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
 import { debug, error as logError } from '@/shared/utils/logging'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 
 interface WeightState {
   weights: WeightEntry[]
@@ -19,7 +20,7 @@ interface WeightState {
   loadWeights: () => Promise<void>
   refreshWeights: () => Promise<void>
   clearWeights: () => Promise<void>
-  syncData: () => Promise<{ synced: number; errors: number }>
+  
 
   // Goal actions
   setGoal: (goal: WeightGoalInput) => Promise<void>
@@ -80,6 +81,14 @@ export const useWeightStore = create<WeightState>((set) => ({
         cloud: !!userId,
         entry: newEntry 
       })
+
+      offlineSyncService.queueOperation({
+        type: 'CREATE',
+        table: 'weight_entries',
+        data: newEntry,
+        localId: newEntry.id,
+        timestamp: new Date().toISOString(),
+      })
     } catch (error) {
       logError('Failed to save weight:', error)
       set({
@@ -112,6 +121,14 @@ export const useWeightStore = create<WeightState>((set) => ({
         updates, 
         cloud: !!userId,
         entry: updatedEntry 
+      })
+
+      offlineSyncService.queueOperation({
+        type: 'UPDATE',
+        table: 'weight_entries',
+        data: updatedEntry,
+        localId: updatedEntry.id,
+        timestamp: new Date().toISOString(),
       })
     } catch (error) {
       logError('Failed to update weight:', error)
@@ -151,6 +168,14 @@ export const useWeightStore = create<WeightState>((set) => ({
       }))
 
       console.log('✅ Weight deleted successfully:', { id, cloud: !!userId })
+
+      offlineSyncService.queueOperation({
+        type: 'DELETE',
+        table: 'weight_entries',
+        data: { id },
+        localId: id,
+        timestamp: new Date().toISOString(),
+      })
     } catch (error) {
       console.error('❌ Failed to delete weight:', error)
       set({
@@ -182,15 +207,7 @@ export const useWeightStore = create<WeightState>((set) => ({
       if (userId) {
         await initializeWeightDatabase(userId)
         
-        // Sync data to ensure local and cloud are in sync
-        try {
-          const syncResult = await hybridWeightRepo.syncData(userId)
-          if (syncResult.synced > 0) {
-            console.info(`🔄 Synced ${syncResult.synced} weight entries during load`)
-          }
-        } catch (syncError) {
-          console.warn('⚠️ Data sync failed during load, continuing with available data:', syncError)
-        }
+        
       }
 
       const weights = await hybridWeightRepo.getAllWeights(userId)
@@ -273,25 +290,7 @@ export const useWeightStore = create<WeightState>((set) => ({
     }
   },
 
-  syncData: async () => {
-    const user = useAuthStore.getState().user
-    const userId = user?.id
-
-    const result = await hybridWeightRepo.syncData(userId)
-    
-    // If data was synced, reload the weights to reflect changes
-    if (result.synced > 0) {
-      const weights = await hybridWeightRepo.getAllWeights(userId)
-      set(() => ({
-        weights: weights.sort(
-          (a, b) =>
-            new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime()
-        ),
-      }))
-    }
-    
-    return result
-  },
+  
 
   // Goal management actions
   setGoal: async (goal) => {
@@ -311,6 +310,14 @@ export const useWeightStore = create<WeightState>((set) => ({
       console.log('✅ Goal set successfully:', { 
         goal: newGoal, 
         cloud: !!userId 
+      })
+
+      offlineSyncService.queueOperation({
+        type: 'CREATE',
+        table: 'weight_goals',
+        data: newGoal,
+        localId: newGoal.id,
+        timestamp: new Date().toISOString(),
       })
     } catch (error) {
       console.error('❌ Failed to set goal:', error)
@@ -339,6 +346,14 @@ export const useWeightStore = create<WeightState>((set) => ({
       console.log('✅ Goal updated successfully:', { 
         goal: updatedGoal, 
         cloud: !!userId 
+      })
+
+      offlineSyncService.queueOperation({
+        type: 'UPDATE',
+        table: 'weight_goals',
+        data: updatedGoal,
+        localId: updatedGoal.id,
+        timestamp: new Date().toISOString(),
       })
     } catch (error) {
       console.error('❌ Failed to update goal:', error)
@@ -403,6 +418,14 @@ export const useWeightStore = create<WeightState>((set) => ({
       })
 
       console.log('✅ Goal deactivated successfully:', { id, cloud: !!userId })
+
+      offlineSyncService.queueOperation({
+        type: 'UPDATE',
+        table: 'weight_goals',
+        data: { id, isActive: false },
+        localId: id,
+        timestamp: new Date().toISOString(),
+      })
     } catch (error) {
       console.error('❌ Failed to deactivate goal:', error)
       set({

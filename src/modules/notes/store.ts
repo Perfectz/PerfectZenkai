@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Note } from './types'
 import { hybridNotesRepo } from './repo'
 import { useAuthStore } from '@/modules/auth'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 
 interface NotesState {
   notes: Note[]
@@ -23,132 +24,196 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   error: null,
 
   addNote: async (note) => {
-    try {
-      set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      // Get current user for Supabase operations
-      const user = useAuthStore.getState().user
-      const userId = user?.id
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        set({ isLoading: true, error: null })
 
-      const now = new Date().toISOString()
-      const newNote = await hybridNotesRepo.addNote({
-        ...note,
-        createdAt: now,
-        updatedAt: now,
-      }, userId)
+        // Get current user for Supabase operations
+        const user = useAuthStore.getState().user
+        const userId = user?.id
 
-      set((state) => ({
-        notes: [newNote, ...state.notes],
-        isLoading: false,
-      }))
+        const now = new Date().toISOString()
+        const newNote = await hybridNotesRepo.addNote({
+          ...note,
+          createdAt: now,
+          updatedAt: now,
+        }, userId)
 
-      console.log('✅ Note saved successfully:', { 
-        local: true, 
-        cloud: !!userId,
-        note: newNote 
-      })
-    } catch (error) {
-      console.error('❌ Failed to save note:', error)
-      set({
-        error: error instanceof Error ? error.message : 'Failed to add note',
-        isLoading: false,
-      })
-      throw error
+        set((state) => ({
+          notes: [newNote, ...state.notes],
+          isLoading: false,
+        }))
+
+        console.log('✅ Note saved successfully:', { 
+          local: true, 
+          cloud: !!userId,
+          note: newNote 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'notes',
+          data: newNote,
+          localId: newNote.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to save note (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to add note after multiple retries',
+            isLoading: false,
+          })
+          throw error
+        }
+      }
     }
   },
 
   updateNote: async (id, updates) => {
-    try {
-      set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      // Get current user for Supabase operations
-      const user = useAuthStore.getState().user
-      const userId = user?.id
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        set({ isLoading: true, error: null })
 
-      await hybridNotesRepo.updateNote(id, updates, userId)
+        // Get current user for Supabase operations
+        const user = useAuthStore.getState().user
+        const userId = user?.id
 
-      set((state) => ({
-        notes: state.notes
-          .map((note) =>
-            note.id === id
-              ? { ...note, ...updates, updatedAt: new Date().toISOString() }
-              : note
-          )
-          .sort(
-            (a, b) =>
-              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          ),
-        isLoading: false,
-      }))
+        await hybridNotesRepo.updateNote(id, updates, userId)
 
-      console.log('✅ Note updated successfully:', { 
-        local: true, 
-        cloud: !!userId,
-        id, updates 
-      })
-    } catch (error) {
-      console.error('❌ Failed to update note:', error)
-      set({
-        error: error instanceof Error ? error.message : 'Failed to update note',
-        isLoading: false,
-      })
-      throw error
+        set((state) => ({
+          notes: state.notes
+            .map((note) =>
+              note.id === id
+                ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+                : note
+            )
+            .sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            ),
+          isLoading: false,
+        }))
+
+        console.log('✅ Note updated successfully:', { 
+          local: true, 
+          cloud: !!userId,
+          id, updates 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'notes',
+          data: { id, ...updates },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update note (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to update note after multiple retries',
+            isLoading: false,
+          })
+          throw error
+        }
+      }
     }
   },
 
   deleteNote: async (id) => {
-    try {
-      set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      // Get current user for Supabase operations
-      const user = useAuthStore.getState().user
-      const userId = user?.id
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        set({ isLoading: true, error: null })
 
-      await hybridNotesRepo.deleteNote(id, userId)
+        // Get current user for Supabase operations
+        const user = useAuthStore.getState().user
+        const userId = user?.id
 
-      set((state) => ({
-        notes: state.notes.filter((note) => note.id !== id),
-        isLoading: false,
-      }))
+        await hybridNotesRepo.deleteNote(id, userId)
 
-      console.log('✅ Note deleted successfully:', { 
-        local: true, 
-        cloud: !!userId,
-        id 
-      })
-    } catch (error) {
-      console.error('❌ Failed to delete note:', error)
-      set({
-        error: error instanceof Error ? error.message : 'Failed to delete note',
-        isLoading: false,
-      })
-      throw error
+        set((state) => ({
+          notes: state.notes.filter((note) => note.id !== id),
+          isLoading: false,
+        }))
+
+        console.log('✅ Note deleted successfully:', { 
+          local: true, 
+          cloud: !!userId,
+          id 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'notes',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete note (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to delete note after multiple retries',
+            isLoading: false,
+          })
+          throw error
+        }
+      }
     }
   },
 
   loadNotes: async () => {
-    try {
-      set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      // Get current user for Supabase operations
-      const user = useAuthStore.getState().user
-      const userId = user?.id
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        set({ isLoading: true, error: null })
 
-      const notes = await hybridNotesRepo.getAllNotes(userId)
+        // Get current user for Supabase operations
+        const user = useAuthStore.getState().user
+        const userId = user?.id
 
-      set({ notes, isLoading: false })
+        const notes = await hybridNotesRepo.getAllNotes(userId)
 
-      console.log('✅ Notes loaded successfully:', { 
-        count: notes.length,
-        source: userId ? 'Supabase' : 'Local',
-        userId 
-      })
-    } catch (error) {
-      console.error('❌ Failed to load notes:', error)
-      set({
-        error: error instanceof Error ? error.message : 'Failed to load notes',
-        isLoading: false,
-      })
+        set({ notes, isLoading: false })
+
+        console.log('✅ Notes loaded successfully:', { 
+          count: notes.length,
+          source: userId ? 'Supabase' : 'Local',
+          userId 
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load notes (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to load notes after multiple retries',
+            isLoading: false,
+          })
+        }
+      }
     }
   },
 

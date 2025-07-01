@@ -42,7 +42,7 @@ class ConfigurationService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to fetch secret: HTTP ${response.status}`);
       }
 
       const data = await response.json();
@@ -105,7 +105,7 @@ class ConfigurationService {
       return { url, anonKey };
     } catch (error) {
       console.error('❌ Failed to load Supabase configuration:', error);
-      throw new Error('Could not load Supabase configuration. Please check your environment variables or Azure Function deployment.');
+      throw new Error('Could not connect to Azure Key Vault. Please check your internet connection and Azure Function deployment.');
     }
   }
 

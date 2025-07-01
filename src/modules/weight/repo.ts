@@ -1,8 +1,7 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
-import { getSupabaseClientSync } from '@/lib/supabase-client'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 // Supabase database row interfaces
 interface SupabaseWeightEntry {
@@ -106,7 +105,7 @@ const getDatabase = (): WeightDatabase => {
 // Supabase repository for cloud storage
 export const supabaseWeightRepo = {
   async addWeight(entry: Omit<WeightEntry, 'id'>, userId: string): Promise<WeightEntry> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     // First try to insert
@@ -153,7 +152,7 @@ export const supabaseWeightRepo = {
   },
 
   async deleteWeight(id: string): Promise<void> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -165,7 +164,7 @@ export const supabaseWeightRepo = {
   },
 
   async getAllWeights(userId: string): Promise<WeightEntry[]> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -185,7 +184,7 @@ export const supabaseWeightRepo = {
   },
 
   async getWeightById(id: string): Promise<WeightEntry | undefined> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -210,7 +209,7 @@ export const supabaseWeightRepo = {
   },
 
   async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>): Promise<WeightEntry> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
@@ -241,7 +240,7 @@ export const supabaseWeightRepo = {
   },
 
   async clearAll(userId: string): Promise<void> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -327,6 +326,7 @@ export const weightRepo = {
 // Hybrid repository that uses Supabase when available, falls back to IndexedDB
 export const hybridWeightRepo = {
   async addWeight(entry: Omit<WeightEntry, 'id'>, userId?: string): Promise<WeightEntry> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         // Try Supabase first
@@ -344,6 +344,7 @@ export const hybridWeightRepo = {
   },
 
   async deleteWeight(id: string, userId?: string): Promise<void> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         await supabaseWeightRepo.deleteWeight(id)
@@ -357,6 +358,7 @@ export const hybridWeightRepo = {
   },
 
   async getAllWeights(userId?: string): Promise<WeightEntry[]> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         // Try to get from Supabase first
@@ -371,6 +373,7 @@ export const hybridWeightRepo = {
   },
 
   async getWeightById(id: string, userId?: string): Promise<WeightEntry | undefined> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         return await supabaseWeightRepo.getWeightById(id)
@@ -383,6 +386,7 @@ export const hybridWeightRepo = {
   },
 
   async updateWeight(id: string, updates: Partial<Omit<WeightEntry, 'id'>>, userId?: string): Promise<WeightEntry> {
+    const supabase = await getSupabaseClient()
     let cloudResult: WeightEntry | null = null
 
     // Try Supabase first if available
@@ -462,6 +466,7 @@ export const hybridWeightRepo = {
   },
 
   async clearAll(userId?: string): Promise<void> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         await supabaseWeightRepo.clearAll(userId)
@@ -473,67 +478,7 @@ export const hybridWeightRepo = {
     await weightRepo.clearAll()
   },
 
-  async syncData(userId?: string): Promise<{ synced: number; errors: number }> {
-    if (!supabase || !userId) {
-      console.info('🔄 Skipping data sync - no cloud storage available')
-      return { synced: 0, errors: 0 }
-    }
-
-    console.info('🔄 Starting weight data synchronization...')
-    let syncedCount = 0
-    let errorCount = 0
-
-    try {
-      // Get all cloud data
-      const cloudWeights = await supabaseWeightRepo.getAllWeights(userId)
-      console.info(`📥 Found ${cloudWeights.length} entries in cloud storage`)
-
-      // Get all local data
-      const localWeights = await weightRepo.getAllWeights()
-      console.info(`💾 Found ${localWeights.length} entries in local storage`)
-
-      // Create a map of local entries by ID for quick lookup
-      const localWeightsMap = new Map(localWeights.map(w => [w.id, w]))
-
-      // Sync cloud entries to local storage
-      for (const cloudWeight of cloudWeights) {
-        try {
-          const localWeight = localWeightsMap.get(cloudWeight.id)
-          
-          if (!localWeight) {
-            // Entry exists in cloud but not locally - add it
-            await weightRepo.addWeight({
-              dateISO: cloudWeight.dateISO,
-              kg: cloudWeight.kg,
-              weight: cloudWeight.kg
-            })
-            syncedCount++
-            console.debug(`✅ Synced entry to local: ${cloudWeight.dateISO}`)
-          } else {
-            // Entry exists in both - check if they match
-            if (localWeight.kg !== cloudWeight.kg || localWeight.dateISO !== cloudWeight.dateISO) {
-              // Cloud version is newer, update local
-              await weightRepo.updateWeight(cloudWeight.id, {
-                dateISO: cloudWeight.dateISO,
-                kg: cloudWeight.kg
-              })
-              syncedCount++
-              console.debug(`🔄 Updated local entry: ${cloudWeight.dateISO}`)
-            }
-          }
-        } catch (error) {
-          console.warn(`⚠️ Failed to sync entry ${cloudWeight.id}:`, error)
-          errorCount++
-        }
-      }
-
-      console.info(`✅ Data sync complete: ${syncedCount} entries synced, ${errorCount} errors`)
-      return { synced: syncedCount, errors: errorCount }
-    } catch (error) {
-      console.error('❌ Data synchronization failed:', error)
-      return { synced: syncedCount, errors: errorCount + 1 }
-    }
-  },
+  
 
 
 }
@@ -541,7 +486,7 @@ export const hybridWeightRepo = {
 // Supabase repository for weight goals
 export const supabaseWeightGoalRepo = {
   async addGoal(goal: WeightGoalInput, userId: string): Promise<WeightGoal> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     // First, deactivate any existing active goals
@@ -577,7 +522,7 @@ export const supabaseWeightGoalRepo = {
   },
 
   async updateGoal(id: string, goal: Partial<WeightGoalInput>): Promise<WeightGoal> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const updateData: Record<string, unknown> = {}
@@ -606,7 +551,7 @@ export const supabaseWeightGoalRepo = {
   },
 
   async getActiveGoal(userId: string): Promise<WeightGoal | null> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -635,7 +580,7 @@ export const supabaseWeightGoalRepo = {
   },
 
   async deactivateGoal(id: string): Promise<void> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { error } = await supabase
@@ -647,7 +592,7 @@ export const supabaseWeightGoalRepo = {
   },
 
   async getAllGoals(userId: string): Promise<WeightGoal[]> {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
     const { data, error } = await supabase
@@ -733,8 +678,8 @@ export const weightGoalRepo = {
 // Hybrid repository for goals
 export const hybridWeightGoalRepo = {
   async addGoal(goal: WeightGoalInput, userId?: string): Promise<WeightGoal> {
+    const supabase = await getSupabaseClient()
     try {
-      const supabase = getSupabaseClientSync()
       if (supabase && userId) {
         // Try Supabase first
         const result = await supabaseWeightGoalRepo.addGoal(goal, userId)
@@ -751,6 +696,7 @@ export const hybridWeightGoalRepo = {
   },
 
   async updateGoal(id: string, goal: Partial<WeightGoalInput>, userId?: string): Promise<WeightGoal> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         const result = await supabaseWeightGoalRepo.updateGoal(id, goal)
@@ -766,6 +712,7 @@ export const hybridWeightGoalRepo = {
   },
 
   async getActiveGoal(userId?: string): Promise<WeightGoal | null> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         return await supabaseWeightGoalRepo.getActiveGoal(userId)
@@ -778,6 +725,7 @@ export const hybridWeightGoalRepo = {
   },
 
   async deactivateGoal(id: string, userId?: string): Promise<void> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         await supabaseWeightGoalRepo.deactivateGoal(id)
@@ -790,6 +738,7 @@ export const hybridWeightGoalRepo = {
   },
 
   async getAllGoals(userId?: string): Promise<WeightGoal[]> {
+    const supabase = await getSupabaseClient()
     try {
       if (supabase && userId) {
         return await supabaseWeightGoalRepo.getAllGoals(userId)

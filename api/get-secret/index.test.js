@@ -1,17 +1,19 @@
-const { describe, test, expect, vi, beforeEach } = require('vitest');
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 
 // Mock Azure SDK modules
-const getSecretMock = vi.fn();
 vi.mock('@azure/identity', () => ({
   DefaultAzureCredential: vi.fn(),
 }));
-vi.mock('@azure/keyvault-secrets', () => ({
-  SecretClient: vi.fn().mockImplementation(() => ({
-    getSecret: getSecretMock,
-  })),
-}));
+vi.mock('@azure/keyvault-secrets', () => {
+  const getSecretMock = vi.fn();
+  return {
+    SecretClient: vi.fn().mockImplementation(() => ({
+      getSecret: getSecretMock,
+    })),
+  };
+});
 
-const getSecretFunction = require('./index.js');
+import getSecretFunction from './index.js';
 
 describe('get-secret Azure Function', () => {
   let context;
@@ -40,10 +42,10 @@ describe('get-secret Azure Function', () => {
     await getSecretFunction(context, req);
 
     // Assert
-    expect(context.log).toHaveBeenCalledWith(expect.stringContaining('Error retrieving secret: Authentication failed.'));
+    expect(context.log).toHaveBeenCalledWith(expect.stringContaining('💥 Error accessing Key Vault:'));
     expect(context.res.status).toBe(500);
-    const body = JSON.parse(context.res.body);
-    expect(body.error).toBe('Authentication failed - check managed identity permissions');
+    const body = context.res.body;
+    expect(body.error).toBe('Internal server error while retrieving secret');
   });
 
   test('should return 403 for disallowed secret', async () => {
@@ -56,6 +58,6 @@ describe('get-secret Azure Function', () => {
 
     expect(context.res.status).toBe(403);
     const body = JSON.parse(context.res.body);
-    expect(body.error).toBe('Access to this secret is not allowed');
+    expect(body.error).toBe('Unknown secret name: some-random-secret');
   });
 }); 

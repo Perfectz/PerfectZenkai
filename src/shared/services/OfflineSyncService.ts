@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '@/lib/supabase-client'
+
 export interface SyncOperation {
   id: string
   type: 'CREATE' | 'UPDATE' | 'DELETE'
@@ -135,8 +137,7 @@ export class OfflineSyncService {
    * Execute a single sync operation against the server
    */
   private async executeOperation(operation: SyncOperation): Promise<void> {
-    const { getSupabaseClientSync } = await import('@/lib/supabase-client')
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     
     if (!supabase) {
       throw new Error('Supabase client not available')
@@ -190,8 +191,7 @@ export class OfflineSyncService {
     tableName: string,
     conflictResolution: ConflictResolution = { strategy: 'server-wins' }
   ): Promise<{ applied: number; conflicts: number }> {
-    const { getSupabaseClientSync } = await import('@/lib/supabase-client')
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     
     if (!supabase || !this.status.isOnline) {
       return { applied: 0, conflicts: 0 }

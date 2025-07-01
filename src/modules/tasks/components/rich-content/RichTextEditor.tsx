@@ -1,10 +1,32 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Eye, Edit3, Bold, Italic, List, Link, Code } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Textarea } from '@/shared/ui/textarea'
 import { DescriptionFormat } from '../../types'
+
+const ReactMarkdown = lazy(() => import('react-markdown'))
+const SyntaxHighlighter = lazy(() => import('react-syntax-highlighter'))
+const remarkGfm = lazy(() => import('remark-gfm'))
+const rehypeRaw = lazy(() => import('rehype-raw'))
+
+// You can choose a style from react-syntax-highlighter/dist/esm/styles/prism
+// For example, import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
+// For now, we'll use a simple inline style or a default if not provided
+const defaultCodeStyle = {
+  'pre[class*="language-"]': {
+    backgroundColor: '#2d2d2d',
+    color: '#ccc',
+    padding: '1em',
+    borderRadius: '0.5em',
+    overflow: 'auto',
+  },
+  'code[class*="language-"]': {
+    backgroundColor: '#2d2d2d',
+    color: '#ccc',
+  },
+}
 
 interface RichTextEditorProps {
   value?: string // Description content
@@ -79,34 +101,40 @@ export function RichTextEditor({
 
   const renderPreview = () => {
     if (currentFormat === 'markdown') {
-      return renderMarkdownPreview(currentValue)
+      return (
+        <Suspense fallback={<div>Loading preview...</div>}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '')
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={defaultCodeStyle}
+                    language={match[1]}
+                    PreTag="div"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                )
+              },
+            }}
+          >
+            {currentValue}
+          </ReactMarkdown>
+        </Suspense>
+      )
     } else if (currentFormat === 'html') {
       return <div dangerouslySetInnerHTML={{ __html: currentValue }} />
     } else {
       return <div className="whitespace-pre-wrap">{currentValue}</div>
     }
-  }
-
-  const renderMarkdownPreview = (markdown: string) => {
-    // Simple markdown renderer (we'll enhance this when react-markdown is available)
-    let html = markdown
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-muted px-1 rounded">$1</code>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-4 mb-2">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
-      .replace(/^- (.*$)/gm, '<li class="ml-4">• $1</li>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener">$1</a>')
-      .replace(/\n\n/g, '</p><p class="mt-2">')
-      .replace(/\n/g, '<br>')
-
-    // Wrap in paragraph tags
-    if (html && !html.includes('<h1>') && !html.includes('<h2>') && !html.includes('<h3>')) {
-      html = `<p>${html}</p>`
-    }
-
-    return <div dangerouslySetInnerHTML={{ __html: html }} className="prose prose-sm max-w-none" />
   }
 
   const editorId = `editor-${Math.random().toString(36).substr(2, 9)}`
@@ -242,32 +270,40 @@ export function RichTextPreview({
 }) {
   const renderContent = () => {
     if (format === 'markdown') {
-      return renderMarkdownPreview(content)
+      return (
+        <Suspense fallback={<div>Loading preview...</div>}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '')
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={defaultCodeStyle}
+                    language={match[1]}
+                    PreTag="div"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                )
+              },
+            }}
+          >
+            {content}
+          </ReactMarkdown>
+        </Suspense>
+      )
     } else if (format === 'html') {
       return <div dangerouslySetInnerHTML={{ __html: content }} />
     } else {
       return <div className="whitespace-pre-wrap">{content}</div>
     }
-  }
-
-  const renderMarkdownPreview = (markdown: string) => {
-    let html = markdown
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-sm font-semibold mt-2 mb-1">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-base font-semibold mt-2 mb-1">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-lg font-bold mt-2 mb-1">$1</h1>')
-      .replace(/^- (.*$)/gm, '<li class="ml-4 text-sm">• $1</li>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline text-sm" target="_blank" rel="noopener">$1</a>')
-      .replace(/\n\n/g, '</p><p class="mt-1">')
-      .replace(/\n/g, '<br>')
-
-    if (html && !html.includes('<h1>') && !html.includes('<h2>') && !html.includes('<h3>')) {
-      html = `<p class="text-sm">${html}</p>`
-    }
-
-    return <div dangerouslySetInnerHTML={{ __html: html }} className="prose prose-sm max-w-none" />
   }
 
   if (!content) return null

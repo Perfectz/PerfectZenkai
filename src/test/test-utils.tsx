@@ -2,6 +2,7 @@
 import { ReactElement, ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { AccessibilityProvider } from '../shared/components/AccessibilityProvider'
 
 // Provider wrapper that includes all necessary providers
 interface ProvidersProps {
@@ -10,7 +11,11 @@ interface ProvidersProps {
 }
 
 const AllProviders = ({ children, initialEntries = ['/'] }: ProvidersProps) => {
-  return <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
+  return (
+    <MemoryRouter initialEntries={initialEntries}>
+      <AccessibilityProvider>{children}</AccessibilityProvider>
+    </MemoryRouter>
+  )
 }
 
 // Custom render function that includes providers

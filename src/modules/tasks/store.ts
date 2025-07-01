@@ -3,6 +3,7 @@ import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { hybridTasksRepo, tasksRepo, initializeTasksDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 
 // Global loading lock to prevent race conditions across multiple components
 const globalLoadingLock = {
@@ -100,6 +101,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         cloud: !!userId,
         todo: newTodo 
       })
+
+      offlineSyncService.queueOperation({
+        type: 'CREATE',
+        table: 'todos',
+        data: newTodo,
+        localId: newTodo.id,
+        timestamp: new Date().toISOString(),
+      })
     } catch (error) {
       console.error('❌ Failed to save todo:', error)
       set({
@@ -134,6 +143,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         cloud: !!userId,
         id, updates 
       })
+
+      offlineSyncService.queueOperation({
+        type: 'UPDATE',
+        table: 'todos',
+        data: { id, ...updates },
+        localId: id,
+        timestamp: new Date().toISOString(),
+      })
     } catch (error) {
       console.error('❌ Failed to update todo:', error)
       set({
@@ -163,6 +180,14 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         local: true, 
         cloud: !!userId,
         id 
+      })
+
+      offlineSyncService.queueOperation({
+        type: 'DELETE',
+        table: 'todos',
+        data: { id },
+        localId: id,
+        timestamp: new Date().toISOString(),
       })
     } catch (error) {
       console.error('❌ Failed to delete todo:', error)

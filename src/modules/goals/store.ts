@@ -2,7 +2,8 @@ import { create } from 'zustand'
 // import { v4 as uuidv4 } from 'uuid' // Temporarily commented out
 import { SimpleGoal, GoalProgress, GoalWithProgress, GoalCategory } from './types'
 import { getRandomGoalColor } from './utils'
-import { getSupabaseClient } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 
 interface GoalsState {
   goals: SimpleGoal[]
@@ -68,188 +69,258 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
   error: null,
 
   loadGoals: async () => {
-    try {
-      set({ isLoading: true, error: null })
-      
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        // Fallback to mock data if Supabase not available
-        set({ goals: mockGoals, isLoading: false })
-        return
+    set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          // Fallback to mock data if Supabase not available
+          set({ goals: mockGoals, isLoading: false })
+          return
+        }
+
+        const { data, error } = await supabase
+          .from('goals')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        const goals: SimpleGoal[] = (data || []).map(item => ({
+          id: item.id as string,
+          title: item.title as string,
+          category: item.category as GoalCategory,
+          description: item.description as string | undefined,
+          targetDate: item.target_date as string | undefined,
+          color: item.color as string,
+          isActive: item.is_active as boolean,
+          createdAt: item.created_at as string,
+          updatedAt: item.updated_at as string,
+        }))
+
+        set({ goals, isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load goals (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to load goals after multiple retries',
+            isLoading: false,
+            goals: mockGoals // Keep mock data as fallback
+          })
+        }
       }
-
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      const goals: SimpleGoal[] = (data || []).map(item => ({
-        id: item.id as string,
-        title: item.title as string,
-        category: item.category as GoalCategory,
-        description: item.description as string | undefined,
-        targetDate: item.target_date as string | undefined,
-        color: item.color as string,
-        isActive: item.is_active as boolean,
-        createdAt: item.created_at as string,
-        updatedAt: item.updated_at as string,
-      }))
-
-      set({ goals, isLoading: false })
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to load goals',
-        isLoading: false,
-        goals: mockGoals // Keep mock data as fallback
-      })
     }
   },
 
   addGoal: async (goalData) => {
-    try {
-      set({ isLoading: true, error: null })
-      
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        throw new Error('Supabase client not available')
+    set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          throw new Error('Supabase client not available')
+        }
+
+        const newGoalData = {
+          title: goalData.title,
+          category: goalData.category,
+          description: goalData.description,
+          target_date: goalData.targetDate,
+          color: goalData.color || getRandomGoalColor(),
+          is_active: goalData.isActive !== false,
+          user_id: '', // TODO: Get from auth context
+        }
+
+        const { data, error } = await supabase
+          .from('goals')
+          .insert([newGoalData])
+          .select()
+          .single()
+
+        if (error) throw error
+
+        const newGoal: SimpleGoal = {
+          id: data.id as string,
+          title: data.title as string,
+          category: data.category as GoalCategory,
+          description: data.description as string | undefined,
+          targetDate: data.target_date as string | undefined,
+          color: data.color as string,
+          isActive: data.is_active as boolean,
+          createdAt: data.created_at as string,
+          updatedAt: data.updated_at as string,
+        }
+
+        set(state => ({
+          goals: [newGoal, ...state.goals],
+          isLoading: false,
+        }))
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'goals',
+          data: newGoal,
+          localId: newGoal.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to add goal after multiple retries',
+            isLoading: false 
+          })
+          throw error
+        }
       }
-
-      const newGoalData = {
-        title: goalData.title,
-        category: goalData.category,
-        description: goalData.description,
-        target_date: goalData.targetDate,
-        color: goalData.color || getRandomGoalColor(),
-        is_active: goalData.isActive !== false,
-        user_id: '', // TODO: Get from auth context
-      }
-
-      const { data, error } = await supabase
-        .from('goals')
-        .insert([newGoalData])
-        .select()
-        .single()
-
-      if (error) throw error
-
-      const newGoal: SimpleGoal = {
-        id: data.id as string,
-        title: data.title as string,
-        category: data.category as GoalCategory,
-        description: data.description as string | undefined,
-        targetDate: data.target_date as string | undefined,
-        color: data.color as string,
-        isActive: data.is_active as boolean,
-        createdAt: data.created_at as string,
-        updatedAt: data.updated_at as string,
-      }
-
-      set(state => ({
-        goals: [newGoal, ...state.goals],
-        isLoading: false,
-      }))
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to add goal',
-        isLoading: false 
-      })
     }
   },
 
   updateGoal: async (id, updates) => {
-    try {
-      set({ isLoading: true, error: null })
-      
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        // Fallback to local update if Supabase not available
-        const now = new Date().toISOString()
+    set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          // Fallback to local update if Supabase not available
+          const now = new Date().toISOString()
+          set(state => ({
+            goals: state.goals.map(goal =>
+              goal.id === id 
+                ? { ...goal, ...updates, updatedAt: now }
+                : goal
+            ),
+            isLoading: false,
+          }))
+          return
+        }
+
+        const updateData: Record<string, unknown> = {}
+        if (updates.title !== undefined) updateData.title = updates.title
+        if (updates.category !== undefined) updateData.category = updates.category
+        if (updates.description !== undefined) updateData.description = updates.description
+        if (updates.targetDate !== undefined) updateData.target_date = updates.targetDate
+        if (updates.color !== undefined) updateData.color = updates.color
+        if (updates.isActive !== undefined) updateData.is_active = updates.isActive
+
+        const { data, error } = await supabase
+          .from('goals')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        const updatedGoal: SimpleGoal = {
+          id: data.id as string,
+          title: data.title as string,
+          category: data.category as GoalCategory,
+          description: data.description as string | undefined,
+          targetDate: data.target_date as string | undefined,
+          color: data.color as string,
+          isActive: data.is_active as boolean,
+          createdAt: data.created_at as string,
+          updatedAt: data.updated_at as string,
+        }
+
         set(state => ({
           goals: state.goals.map(goal =>
-            goal.id === id 
-              ? { ...goal, ...updates, updatedAt: now }
-              : goal
+            goal.id === id ? updatedGoal : goal
           ),
           isLoading: false,
         }))
-        return
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'goals',
+          data: updatedGoal,
+          localId: updatedGoal.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to update goal after multiple retries',
+            isLoading: false 
+          })
+          throw error
+        }
       }
-
-      const updateData: Record<string, unknown> = {}
-      if (updates.title !== undefined) updateData.title = updates.title
-      if (updates.category !== undefined) updateData.category = updates.category
-      if (updates.description !== undefined) updateData.description = updates.description
-      if (updates.targetDate !== undefined) updateData.target_date = updates.targetDate
-      if (updates.color !== undefined) updateData.color = updates.color
-      if (updates.isActive !== undefined) updateData.is_active = updates.isActive
-
-      const { data, error } = await supabase
-        .from('goals')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      const updatedGoal: SimpleGoal = {
-        id: data.id as string,
-        title: data.title as string,
-        category: data.category as GoalCategory,
-        description: data.description as string | undefined,
-        targetDate: data.target_date as string | undefined,
-        color: data.color as string,
-        isActive: data.is_active as boolean,
-        createdAt: data.created_at as string,
-        updatedAt: data.updated_at as string,
-      }
-
-      set(state => ({
-        goals: state.goals.map(goal =>
-          goal.id === id ? updatedGoal : goal
-        ),
-        isLoading: false,
-      }))
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to update goal',
-        isLoading: false 
-      })
     }
   },
 
   deleteGoal: async (id) => {
-    try {
-      set({ isLoading: true, error: null })
-      
-      const supabase = await getSupabaseClient()
-      if (!supabase) {
-        // Fallback to local delete if Supabase not available
+    set({ isLoading: true, error: null })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) {
+          // Fallback to local delete if Supabase not available
+          set(state => ({
+            goals: state.goals.filter(goal => goal.id !== id),
+            isLoading: false,
+          }))
+          return
+        }
+
+        const { error } = await supabase
+          .from('goals')
+          .delete()
+          .eq('id', id)
+
+        if (error) throw error
+        
         set(state => ({
           goals: state.goals.filter(goal => goal.id !== id),
           isLoading: false,
         }))
-        return
+
+        // Queue for offline sync
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'goals',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to delete goal after multiple retries',
+            isLoading: false 
+          })
+          throw error
+        }
       }
-
-      const { error } = await supabase
-        .from('goals')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-      
-      set(state => ({
-        goals: state.goals.filter(goal => goal.id !== id),
-        isLoading: false,
-      }))
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to delete goal',
-        isLoading: false 
-      })
     }
   },
 

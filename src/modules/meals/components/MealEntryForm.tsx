@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -8,9 +8,10 @@ import { useMealStore } from '../store'
 import { MealType, MealEntryInput, FoodAnalysisResult } from '../types'
 import { Badge } from '@/shared/ui/badge'
 import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMobileInteractions'
-import { PhotoUpload } from './PhotoUpload'
 import { FoodAnalysisAgent } from '../services/FoodAnalysisAgent'
 import { keyVaultService } from '@/services/keyVaultService'
+
+const PhotoUpload = lazy(() => import('./PhotoUpload'))
 
 export function MealEntryForm() {
   const [mealType, setMealType] = useState<MealType>(() => {
@@ -269,11 +270,13 @@ export function MealEntryForm() {
             <Label className="cyber-label text-gray-300 mb-2 block">
               📸 Analyze Meal Photo
             </Label>
-            <PhotoUpload 
-              onPhotoCapture={handlePhotoAnalysis}
-              disabled={isAnalyzing}
-              maxSizeMB={1}
-            />
+            <Suspense fallback={<div>Loading photo upload...</div>}>
+              <PhotoUpload 
+                onPhotoCapture={handlePhotoAnalysis}
+                disabled={isAnalyzing}
+                maxSizeMB={1}
+              />
+            </Suspense>
             {isAnalyzing && (
               <div className="text-center mt-4">
                 <p className="text-plasma-cyan animate-pulse">Analyzing your meal...</p>

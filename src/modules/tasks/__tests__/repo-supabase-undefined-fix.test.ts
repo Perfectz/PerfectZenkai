@@ -1,11 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { hybridTasksRepo } from '../repo'
 import { getSupabaseClientSync } from '../../../lib/supabase-client'
+import Dexie from 'dexie'
 
 // Mock the supabase client
-vi.mock('../../../lib/supabase-client', () => ({
-  getSupabaseClientSync: vi.fn(),
-}))
+vi.mock('../../../lib/supabase-client', async () => {
+  const actual = await vi.importActual('../../../lib/supabase-client')
+  return {
+    ...actual,
+    getSupabaseClientSync: vi.fn(),
+  }
+})
+
+// Mock Dexie to prevent IndexedDB access in tests
+vi.mock('dexie', () => {
+  const mockTable = {
+    add: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    get: vi.fn(async () => undefined),
+    where: vi.fn().mockReturnThis(),
+    equals: vi.fn().mockReturnThis(),
+    toArray: vi.fn(async () => []), // Return empty array for getAllTodos
+    orderBy: vi.fn().mockReturnThis(),
+    reverse: vi.fn().mockReturnThis(),
+    clear: vi.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: vi.fn(() => ({
+      version: vi.fn().mockReturnThis(),
+      stores: vi.fn().mockReturnThis(),
+      todos: mockTable, // Ensure todos table is mocked
+      templates: mockTable, // Mock templates table as well if needed
+      close: vi.fn(),
+    })),
+  };
+});
 
 const mockGetSupabaseClientSync = vi.mocked(getSupabaseClientSync)
 

@@ -37,6 +37,19 @@ describe('HealthAnalyticsAgent - MVP-33 RED Phase Tests', () => {
     )
   })
 
+  // Additional Test Suite for Chat Integration
+  describe('HealthAnalyticsAgent - Chat Integration', () => {
+    let healthAgent: HealthAnalyticsAgent
+
+    beforeEach(() => {
+      healthAgent = new HealthAnalyticsAgent(
+        mockDataAggregator,
+        mockCorrelationEngine,
+        mockPredictionEngine,
+        mockRiskAssessment
+      )
+    })
+
   // 1. Health Dashboard & Data Aggregation Tests
   describe('Health Dashboard & Data Aggregation', () => {
     it('should aggregate data from all health modules', async () => {
@@ -543,4 +556,4 @@ describe('HealthAnalyticsAgent - Chat Integration', () => {
     expect(followUpResponse.comparison).toBeDefined()
     expect(followUpResponse.relativeTrends.length).toBeGreaterThan(0)
   })
-}) 
+})

@@ -1,8 +1,7 @@
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { create } from 'zustand'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
+import { offlineSyncService } from '@/shared/services/OfflineSyncService'
 
 // Use non-null assertion since supabase should be available in this context
 import { 
@@ -64,64 +63,106 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
   // Load workouts
   loadWorkouts: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase!
-        .from('workout_entries')
-        .select('*')
-        .order('created_at', { ascending: false })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
-      set({ workouts: data || [], isLoading: false })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_entries')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+        set({ workouts: data || [], isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load workouts (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Load exercises
   loadExercises: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase!
-        .from('exercises')
-        .select('*')
-        .order('name')
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
-      
-      // Map snake_case fields to camelCase for the store
-      const mappedData = (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        category: item.category,
-        description: item.description,
-        instructions: item.instructions,
-        muscleGroups: item.muscle_groups, // snake_case to camelCase
-        equipment: item.equipment,
-        isCustom: item.is_custom, // snake_case to camelCase
-        createdAt: item.created_at,
-        updatedAt: item.updated_at,
-      }))
-      
-      set({ exercises: mappedData, isLoading: false })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .order('name')
+
+        if (error) throw error
+        
+        // Map snake_case fields to camelCase for the store
+        const mappedData = (data || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          category: item.category,
+          description: item.description,
+          instructions: item.instructions,
+          muscleGroups: item.muscle_groups, // snake_case to camelCase
+          equipment: item.equipment,
+          isCustom: item.is_custom, // snake_case to camelCase
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        }))
+        
+        set({ exercises: mappedData, isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load exercises (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Load templates
   loadTemplates: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_templates')
-        .select('*')
-        .order('name')
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
-      set({ templates: data || [], isLoading: false })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_templates')
+          .select('*')
+          .order('name')
+
+        if (error) throw error
+        set({ templates: data || [], isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load templates (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
@@ -241,435 +282,727 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
   // Load goals
   loadGoals: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_goals')
-        .select('*')
-        .order('created_at', { ascending: false })
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
-      set({ goals: data || [], isLoading: false })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_goals')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+        set({ goals: data || [], isLoading: false })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to load goals (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Add workout
   addWorkout: async (workoutData) => {
     set({ isLoading: true, error: null })
-    try {
-      // Calculate calories if not provided
-      const calories = workoutData.calories || calculateCalories(
-        workoutData.exerciseType,
-        workoutData.duration,
-        workoutData.intensity
-      )
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      const { data, error } = await supabase
-        .from('workout_entries')
-        .insert([{
-          ...workoutData,
-          calories,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        // Calculate calories if not provided
+        const calories = workoutData.calories || calculateCalories(
+          workoutData.exerciseType,
+          workoutData.duration,
+          workoutData.intensity
+        )
 
-      if (error) throw error
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_entries')
+          .insert([{
+            ...workoutData,
+            calories,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single()
 
-      const { workouts } = get()
-      set({ 
-        workouts: [data, ...workouts],
-        isLoading: false 
-      })
+        if (error) throw error
 
-      // Refresh analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        const { workouts } = get()
+        set({ 
+          workouts: [data, ...workouts],
+          isLoading: false 
+        })
+
+        // Refresh analytics
+        get().loadAnalytics()
+
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'workout_entries',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add workout (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Update workout
   updateWorkout: async (id, updates) => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_entries')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_entries')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        const { workouts } = get()
+        set({
+          workouts: workouts.map(w => w.id === id ? data : w),
+          isLoading: false
         })
-        .eq('id', id)
-        .select()
-        .single()
 
-      if (error) throw error
+        // Refresh analytics
+        get().loadAnalytics()
 
-      const { workouts } = get()
-      set({
-        workouts: workouts.map(w => w.id === id ? data : w),
-        isLoading: false
-      })
-
-      // Refresh analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'workout_entries',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update workout (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Delete workout
   deleteWorkout: async (id) => {
     set({ isLoading: true, error: null })
-    try {
-      const { error } = await supabase
-        .from('workout_entries')
-        .delete()
-        .eq('id', id)
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { error } = await supabase
+          .from('workout_entries')
+          .delete()
+          .eq('id', id)
 
-      const { workouts } = get()
-      set({
-        workouts: workouts.filter(w => w.id !== id),
-        isLoading: false
-      })
+        if (error) throw error
 
-      // Refresh analytics
-      get().loadAnalytics()
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        const { workouts } = get()
+        set({
+          workouts: workouts.filter(w => w.id !== id),
+          isLoading: false
+        })
+
+        // Refresh analytics
+        get().loadAnalytics()
+
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'workout_entries',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete workout (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Add exercise
   addExercise: async (exerciseData) => {
     set({ isLoading: true, error: null })
-    try {
-      // Map camelCase fields to snake_case for database
-      const dbData = {
-        name: exerciseData.name,
-        type: exerciseData.type,
-        category: exerciseData.category,
-        description: exerciseData.description,
-        instructions: exerciseData.instructions,
-        muscle_groups: exerciseData.muscleGroups, // camelCase to snake_case
-        equipment: exerciseData.equipment,
-        is_custom: exerciseData.isCustom, // camelCase to snake_case
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        // Map camelCase fields to snake_case for database
+        const dbData = {
+          name: exerciseData.name,
+          type: exerciseData.type,
+          category: exerciseData.category,
+          description: exerciseData.description,
+          instructions: exerciseData.instructions,
+          muscle_groups: exerciseData.muscleGroups, // camelCase to snake_case
+          equipment: exerciseData.equipment,
+          is_custom: exerciseData.isCustom, // camelCase to snake_case
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('exercises')
+          .insert([dbData])
+          .select()
+          .single()
+
+        if (error) throw error
+
+        // Map snake_case fields back to camelCase for the store
+        const mappedData = {
+          id: data.id,
+          name: data.name,
+          type: data.type,
+          category: data.category,
+          description: data.description,
+          instructions: data.instructions,
+          muscleGroups: data.muscle_groups, // snake_case to camelCase
+          equipment: data.equipment,
+          isCustom: data.is_custom, // snake_case to camelCase
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        }
+
+        const { exercises } = get()
+        set({ 
+          exercises: [...exercises, mappedData],
+          isLoading: false 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'exercises',
+          data: mappedData,
+          localId: mappedData.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add exercise (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
       }
-
-      const { data, error } = await supabase
-        .from('exercises')
-        .insert([dbData])
-        .select()
-        .single()
-
-      if (error) throw error
-
-      // Map snake_case fields back to camelCase for the store
-      const mappedData = {
-        id: data.id,
-        name: data.name,
-        type: data.type,
-        category: data.category,
-        description: data.description,
-        instructions: data.instructions,
-        muscleGroups: data.muscle_groups, // snake_case to camelCase
-        equipment: data.equipment,
-        isCustom: data.is_custom, // snake_case to camelCase
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-      }
-
-      const { exercises } = get()
-      set({ 
-        exercises: [...exercises, mappedData],
-        isLoading: false 
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
   },
 
   // Update exercise
   updateExercise: async (id, updates) => {
     set({ isLoading: true, error: null })
-    try {
-      // Map camelCase fields to snake_case for database
-      const dbUpdates: Record<string, unknown> = {
-        updated_at: new Date().toISOString()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        // Map camelCase fields to snake_case for database
+        const dbUpdates: Record<string, unknown> = {
+          updated_at: new Date().toISOString()
+        }
+        
+        if (updates.name !== undefined) dbUpdates.name = updates.name
+        if (updates.type !== undefined) dbUpdates.type = updates.type
+        if (updates.category !== undefined) dbUpdates.category = updates.category
+        if (updates.description !== undefined) dbUpdates.description = updates.description
+        if (updates.instructions !== undefined) dbUpdates.instructions = updates.instructions
+        if (updates.muscleGroups !== undefined) dbUpdates.muscle_groups = updates.muscleGroups
+        if (updates.equipment !== undefined) dbUpdates.equipment = updates.equipment
+        if (updates.isCustom !== undefined) dbUpdates.is_custom = updates.isCustom
+
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('exercises')
+          .update(dbUpdates)
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        // Map snake_case fields back to camelCase for the store
+        const mappedData = {
+          id: data.id,
+          name: data.name,
+          type: data.type,
+          category: data.category,
+          description: data.description,
+          instructions: data.instructions,
+          muscleGroups: data.muscle_groups, // snake_case to camelCase
+          equipment: data.equipment,
+          isCustom: data.is_custom, // snake_case to camelCase
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        }
+
+        const { exercises } = get()
+        set({
+          exercises: exercises.map(e => e.id === id ? mappedData : e),
+          isLoading: false
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'exercises',
+          data: mappedData,
+          localId: mappedData.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update exercise (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
       }
-      
-      if (updates.name !== undefined) dbUpdates.name = updates.name
-      if (updates.type !== undefined) dbUpdates.type = updates.type
-      if (updates.category !== undefined) dbUpdates.category = updates.category
-      if (updates.description !== undefined) dbUpdates.description = updates.description
-      if (updates.instructions !== undefined) dbUpdates.instructions = updates.instructions
-      if (updates.muscleGroups !== undefined) dbUpdates.muscle_groups = updates.muscleGroups
-      if (updates.equipment !== undefined) dbUpdates.equipment = updates.equipment
-      if (updates.isCustom !== undefined) dbUpdates.is_custom = updates.isCustom
-
-      const { data, error } = await supabase
-        .from('exercises')
-        .update(dbUpdates)
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      // Map snake_case fields back to camelCase for the store
-      const mappedData = {
-        id: data.id,
-        name: data.name,
-        type: data.type,
-        category: data.category,
-        description: data.description,
-        instructions: data.instructions,
-        muscleGroups: data.muscle_groups, // snake_case to camelCase
-        equipment: data.equipment,
-        isCustom: data.is_custom, // snake_case to camelCase
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-      }
-
-      const { exercises } = get()
-      set({
-        exercises: exercises.map(e => e.id === id ? mappedData : e),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
   },
 
   // Delete exercise
   deleteExercise: async (id) => {
     set({ isLoading: true, error: null })
-    try {
-      const { error } = await supabase
-        .from('exercises')
-        .delete()
-        .eq('id', id)
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { error } = await supabase
+          .from('exercises')
+          .delete()
+          .eq('id', id)
 
-      const { exercises } = get()
-      set({
-        exercises: exercises.filter(e => e.id !== id),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        if (error) throw error
+
+        const { exercises } = get()
+        set({
+          exercises: exercises.filter(e => e.id !== id),
+          isLoading: false
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'exercises',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete exercise (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Add template
   addTemplate: async (templateData) => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_templates')
-        .insert([{
-          ...templateData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_templates')
+          .insert([{
+            ...templateData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single()
 
-      const { templates } = get()
-      set({ 
-        templates: [...templates, data],
-        isLoading: false 
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        if (error) throw error
+
+        const { templates } = get()
+        set({ 
+          templates: [...templates, data],
+          isLoading: false 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'workout_templates',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add template (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Update template
   updateTemplate: async (id, updates) => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_templates')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_templates')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        const { templates } = get()
+        set({
+          templates: templates.map(t => t.id === id ? data : t),
+          isLoading: false
         })
-        .eq('id', id)
-        .select()
-        .single()
 
-      if (error) throw error
-
-      const { templates } = get()
-      set({
-        templates: templates.map(t => t.id === id ? data : t),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'workout_templates',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update template (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Delete template
   deleteTemplate: async (id) => {
     set({ isLoading: true, error: null })
-    try {
-      const { error } = await supabase
-        .from('workout_templates')
-        .delete()
-        .eq('id', id)
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { error } = await supabase
+          .from('workout_templates')
+          .delete()
+          .eq('id', id)
 
-      const { templates } = get()
-      set({
-        templates: templates.filter(t => t.id !== id),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        if (error) throw error
+
+        const { templates } = get()
+        set({
+          templates: templates.filter(t => t.id !== id),
+          isLoading: false
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'workout_templates',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete template (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Add goal
   addGoal: async (goalData) => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_goals')
-        .insert([{
-          ...goalData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_goals')
+          .insert([{
+            ...goalData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single()
 
-      const { goals } = get()
-      set({ 
-        goals: [data, ...goals],
-        isLoading: false 
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        if (error) throw error
+
+        const { goals } = get()
+        set({ 
+          goals: [data, ...goals],
+          isLoading: false 
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'CREATE',
+          table: 'workout_goals',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to add goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Update goal
   updateGoal: async (id, updates) => {
     set({ isLoading: true, error: null })
-    try {
-      const { data, error } = await supabase
-        .from('workout_goals')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { data, error } = await supabase
+          .from('workout_goals')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        const { goals } = get()
+        set({
+          goals: goals.map(g => g.id === id ? data : g),
+          isLoading: false
         })
-        .eq('id', id)
-        .select()
-        .single()
 
-      if (error) throw error
-
-      const { goals } = get()
-      set({
-        goals: goals.map(g => g.id === id ? data : g),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        offlineSyncService.queueOperation({
+          type: 'UPDATE',
+          table: 'workout_goals',
+          data: data,
+          localId: data.id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to update goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Delete goal
   deleteGoal: async (id) => {
     set({ isLoading: true, error: null })
-    try {
-      const { error } = await supabase
-        .from('workout_goals')
-        .delete()
-        .eq('id', id)
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
-      if (error) throw error
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
+        const { error } = await supabase
+          .from('workout_goals')
+          .delete()
+          .eq('id', id)
 
-      const { goals } = get()
-      set({
-        goals: goals.filter(g => g.id !== id),
-        isLoading: false
-      })
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+        if (error) throw error
+
+        const { goals } = get()
+        set({
+          goals: goals.filter(g => g.id !== id),
+          isLoading: false
+        })
+
+        offlineSyncService.queueOperation({
+          type: 'DELETE',
+          table: 'workout_goals',
+          data: { id },
+          localId: id,
+          timestamp: new Date().toISOString(),
+        })
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to delete goal (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
+      }
     }
   },
 
   // Initialize exercise library
   initializeExerciseLibrary: async () => {
     set({ isLoading: true, error: null })
-    try {
-      const { exercises } = get()
-      
-      // Only add exercises that don't already exist
-      const existingNames = new Set(exercises.map(e => e.name))
-      const newExercises = EXERCISE_LIBRARY.filter(e => !existingNames.has(e.name))
-      
-      if (newExercises.length > 0) {
-        // Map camelCase fields to snake_case for database
-        const exercisesToInsert = newExercises.map(exercise => ({
-          name: exercise.name,
-          type: exercise.type,
-          category: exercise.category,
-          description: exercise.description,
-          instructions: exercise.instructions,
-          muscle_groups: exercise.muscleGroups, // camelCase to snake_case
-          equipment: exercise.equipment,
-          is_custom: false, // camelCase to snake_case
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }))
+    const MAX_RETRIES = 3
+    const RETRY_DELAY_MS = 1000
 
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const { exercises } = get()
+        
+        // Only add exercises that don't already exist
+        const existingNames = new Set(exercises.map(e => e.name))
+        const newExercises = EXERCISE_LIBRARY.filter(e => !existingNames.has(e.name))
+        
+        if (newExercises.length > 0) {
+          // Map camelCase fields to snake_case for database
+          const exercisesToInsert = newExercises.map(exercise => ({
+            name: exercise.name,
+            type: exercise.type,
+            category: exercise.category,
+            description: exercise.description,
+            instructions: exercise.instructions,
+            muscle_groups: exercise.muscleGroups, // camelCase to snake_case
+            equipment: exercise.equipment,
+            is_custom: false, // camelCase to snake_case
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }))
+
+          const supabase = await getSupabaseClient()
+        if (!supabase) throw new Error('Supabase not available')
         const { data, error } = await supabase
-          .from('exercises')
-          .insert(exercisesToInsert)
-          .select()
+            .from('exercises')
+            .insert(exercisesToInsert)
+            .select()
 
-        if (error) throw error
+          if (error) throw error
 
-        // Map snake_case fields back to camelCase for the store
-        const mappedData = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          type: item.type,
-          category: item.category,
-          description: item.description,
-          instructions: item.instructions,
-          muscleGroups: item.muscle_groups, // snake_case to camelCase
-          equipment: item.equipment,
-          isCustom: item.is_custom, // snake_case to camelCase
-          createdAt: item.created_at,
-          updatedAt: item.updated_at,
-        }))
+          // Map snake_case fields back to camelCase for the store
+          const mappedData = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            category: item.category,
+            description: item.description,
+            instructions: item.instructions,
+            muscleGroups: item.muscle_groups, // snake_case to camelCase
+            equipment: item.equipment,
+            isCustom: item.is_custom, // snake_case to camelCase
+            createdAt: item.created_at,
+            updatedAt: item.updated_at,
+          }))
 
-        set({ 
-          exercises: [...exercises, ...mappedData],
-          isLoading: false 
-        })
-      } else {
-        set({ isLoading: false })
+          set({ 
+            exercises: [...exercises, ...mappedData],
+            isLoading: false 
+          })
+        } else {
+          set({ isLoading: false })
+        }
+        return // Success, exit function
+      } catch (error) {
+        console.error(`❌ Failed to initialize exercise library (attempt ${i + 1}/${MAX_RETRIES}):`, error)
+        if (i < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, i)))
+        } else {
+          set({ error: (error as Error).message, isLoading: false })
+          throw error
+        }
       }
-    } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
     }
-  }
+  },
 })) 

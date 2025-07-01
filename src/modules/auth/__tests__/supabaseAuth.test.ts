@@ -3,7 +3,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { SupabaseAuthService } from '../services/supabaseAuth'
 
 // Mock the supabase import at the top level for proper hoisting
-vi.mock('@/lib/supabase', () => ({
+vi.mock('@/lib/supabase-client', async () => {
+  const mod = await vi.importActual('@/lib/supabase-client');
+  return {
+    ...mod,
+    getSupabaseClient: vi.fn(),
+  };
+});
   supabase: {
     auth: {
       signUp: vi.fn(),

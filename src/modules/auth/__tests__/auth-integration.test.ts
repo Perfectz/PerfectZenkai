@@ -1,10 +1,11 @@
 // src/modules/auth/__tests__/auth-integration.test.ts
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { SupabaseAuthService } from '../services/supabaseAuth'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 describe('Authentication System Integration Tests', () => {
-  let authService: SupabaseAuthService
+  let authService: SupabaseAuthService;
+  let supabase: any; // Declared here to be accessible in all blocks
   
   // Test user accounts as requested by user
   const testUser1 = {
@@ -21,8 +22,10 @@ describe('Authentication System Integration Tests', () => {
 
   beforeAll(async () => {
     authService = new SupabaseAuthService()
+    supabase = await getSupabaseClient(); // Assign supabase here
     
-    if (supabase) {
+    const currentSupabase = await getSupabaseClient();
+    if (currentSupabase) {
       try {
         await supabase.auth.signOut()
         console.log('🧹 Cleaned up existing sessions')
@@ -33,7 +36,9 @@ describe('Authentication System Integration Tests', () => {
   })
 
   afterAll(async () => {
-    if (supabase) {
+    supabase = await getSupabaseClient(); // Assign supabase here
+    const currentSupabase = await getSupabaseClient();
+    if (currentSupabase) {
       try {
         await supabase.auth.signOut()
         console.log('🧹 Final cleanup completed')
@@ -207,7 +212,9 @@ describe('Authentication System Integration Tests', () => {
       console.log('✅ Invalid username login properly rejected')
       
       // Test duplicate username prevention (if service is available)
-      if (supabase) {
+      
+    const currentSupabase = await getSupabaseClient();
+    if (currentSupabase) {
         const duplicateResult = await authService.register(
           testUser1.username,
           'different@email.com',

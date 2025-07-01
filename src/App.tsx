@@ -16,22 +16,7 @@ function App() {
 
   const element = useRoutes(appRoutes)
   
-  // Add global cleanup functions for duplicate tasks
-  if (typeof window !== 'undefined') {
-    // Define the window extensions
-    const windowExtended = window as typeof window & {
-      cleanupDuplicates: typeof runDuplicateCleanup
-      runImmediateCleanup: typeof runImmediateCleanup
-      runCompleteReset: typeof runCompleteReset
-      runSmartCleanup: typeof runSmartCleanup
-    }
-    
-    // Assign all the cleanup functions
-    windowExtended.cleanupDuplicates = runDuplicateCleanup
-    windowExtended.runImmediateCleanup = runImmediateCleanup
-    windowExtended.runCompleteReset = runCompleteReset
-    windowExtended.runSmartCleanup = runSmartCleanup
-  }
+  
 
   return (
     <AccessibilityProvider>
