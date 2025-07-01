@@ -81,8 +81,8 @@ export function usePerformanceMonitoring(config: PerformanceConfig = {}) {
     
     localStorage.setItem('performance-metrics', JSON.stringify(metrics))
 
-    // Send to analytics endpoint if available
-    if (typeof fetch !== 'undefined') {
+    // Send to analytics endpoint if available (disabled in development)
+    if (typeof fetch !== 'undefined' && !window.location.hostname.includes('localhost')) {
       fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

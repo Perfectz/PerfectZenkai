@@ -53,6 +53,7 @@ export function todosAreEquivalent(todo1: Todo, todo2: Todo): boolean {
  */
 export function removeDuplicateContent(todos: Todo[]): Todo[] {
   const filtered: Todo[] = []
+  let duplicateCount = 0
   
   for (const todo of todos) {
     const isDuplicate = filtered.some(existing => 
@@ -62,8 +63,19 @@ export function removeDuplicateContent(todos: Todo[]): Todo[] {
     if (!isDuplicate) {
       filtered.push(todo)
     } else {
-      console.warn('🔄 Removed duplicate todo content:', { id: todo.id, summary: todo.summary })
+      duplicateCount++
+      // Only log the first few duplicates to avoid spam
+      if (duplicateCount <= 3) {
+        console.warn('🔄 Removed duplicate todo content:', { id: todo.id, summary: todo.summary })
+      } else if (duplicateCount === 4) {
+        console.warn(`🔄 ... and ${todos.length - filtered.length - 3} more duplicates removed`)
+      }
     }
+  }
+  
+  // Summary log if we had duplicates
+  if (duplicateCount > 0) {
+    console.log(`✅ Deduplication complete: ${filtered.length} unique todos, ${duplicateCount} duplicates removed`)
   }
   
   return filtered

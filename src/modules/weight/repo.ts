@@ -565,6 +565,11 @@ export const supabaseWeightGoalRepo = {
       if (error.code === 'PGRST116') {
         return null // No active goal found
       }
+      // Handle 406 Not Acceptable (table might not exist or have wrong structure)
+      if (error.code === '406') {
+        console.warn('Weight goals table not accessible, using local storage')
+        return null
+      }
       throw error
     }
 

@@ -46,10 +46,13 @@ export default function ForceInstallButton() {
       // Force registration check
       if ('serviceWorker' in navigator) {
         try {
-          const registration = await navigator.serviceWorker.register('/sw.js')
+          // Use dev-dist path in development, default path in production
+          const swPath = import.meta.env.DEV ? '/dev-dist/sw.js' : '/sw.js'
+          const registration = await navigator.serviceWorker.register(swPath)
           console.log('Service worker registered:', registration)
         } catch (error) {
-          console.error('Service worker registration failed:', error)
+          console.warn('Service worker registration failed (this is expected without a proper build):', error)
+          // Don't break the UI for development mode
         }
       }
     }
