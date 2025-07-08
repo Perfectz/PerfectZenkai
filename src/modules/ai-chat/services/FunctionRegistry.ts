@@ -150,7 +150,6 @@ export interface GetInsightsParams {
 
 export interface AnalyzeWeightProgressParams {
   timeframe?: 'week' | 'month' | 'quarter' | 'year' | 'all'
-  includeGoals?: boolean
 }
 
 export interface RecommendWeightGoalParams {
@@ -793,10 +792,7 @@ export const AVAILABLE_FUNCTIONS = {
           enum: ['week', 'month', 'quarter', 'year', 'all'],
           description: 'Time period to analyze'
         },
-        includeGoals: { 
-          type: 'boolean',
-          description: 'Whether to include goal progress analysis'
-        }
+
       },
       required: ['timeframe']
     }
@@ -1259,7 +1255,7 @@ You can try again or contact support if the issue persists.`,
   async clearAllTasks(): Promise<FunctionCallResult> {
     try {
       const { useTasksStore } = await import('@/modules/tasks/store')
-      const { hybridTasksRepo } = await import('@/modules/tasks/repo')
+      const { simpleTodoRepo } = await import('@/modules/tasks/repositories/SimpleTodoRepo')
       const { useAuthStore } = await import('@/modules/auth')
       
       const user = useAuthStore.getState().user
@@ -1272,7 +1268,7 @@ You can try again or contact support if the issue persists.`,
       console.log(`🗑️ Clearing all ${currentCount} tasks...`)
       
       // Clear all tasks from both cloud and local
-      await hybridTasksRepo.clearAll(userId)
+              await simpleTodoRepo.clearAll()
       
       // Update the store to reflect the cleared state
       useTasksStore.setState({ todos: [] })
@@ -2184,7 +2180,7 @@ You can try again or contact support if the issue persists.`,
       // Generate insights
       const insights = await agent.generateDashboardInsights(
         filteredWeights, 
-        params.includeGoals ? (activeGoal || undefined) : undefined
+        activeGoal || undefined
       )
 
       const trendEmoji = analysis.trend === 'losing' ? '📉' : 
@@ -2687,7 +2683,7 @@ Predictions require at least 4 weeks of consistent health data. Keep tracking!`,
     }
   },
 
-  async getPersonalizedHealthRecommendations(params: { goals?: string[]; preferences?: string[]; constraints?: string[] }): Promise<FunctionCallResult> {
+  async getPersonalizedHealthRecommendations(params: { preferences?: string[]; constraints?: string[] }): Promise<FunctionCallResult> {
     try {
       const user = useAuthStore.getState().user
       const userId = user?.id
@@ -2708,7 +2704,7 @@ Predictions require at least 4 weeks of consistent health data. Keep tracking!`,
       )
 
       const healthProfile = {
-        goals: params.goals || ['general wellness'],
+        goals: ['general wellness'],
         preferences: params.preferences || [],
         constraints: params.constraints || [],
         currentMetrics: {

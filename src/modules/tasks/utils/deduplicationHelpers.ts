@@ -34,49 +34,52 @@ export function mergeLocalAndCloudTodos(localTodos: Todo[], cloudTodos: Todo[]):
 }
 
 /**
- * Check if two todos are effectively the same (same content, different timestamps)
+ * Creates a "signature" of a todo's content for easy comparison.
+ * This signature ignores volatile fields like IDs and timestamps.
  */
-export function todosAreEquivalent(todo1: Todo, todo2: Todo): boolean {
-  return (
-    todo1.summary === todo2.summary &&
-    todo1.description === todo2.description &&
-    todo1.done === todo2.done &&
-    todo1.priority === todo2.priority &&
-    todo1.category === todo2.category &&
-    todo1.dueDate === todo2.dueDate &&
-    JSON.stringify(todo1.subtasks) === JSON.stringify(todo2.subtasks)
-  )
+function getTodoContentSignature(todo: Todo): string {
+  // Sort subtasks by text to ensure consistent signature
+  const sortedSubtasks = [...todo.subtasks].sort((a, b) => a.text.localeCompare(b.text));
+  
+  return JSON.stringify({
+    summary: todo.summary,
+    description: todo.description,
+    done: todo.done,
+    priority: todo.priority,
+    category: todo.category,
+    dueDate: todo.dueDate,
+    subtasks: sortedSubtasks.map(({ text, done }) => ({ text, done })),
+  });
 }
 
 /**
- * Filter out todos that are duplicates but not exact ID matches
+ * Filter out todos that are duplicates by content, keeping the first one encountered.
+ * This is much more efficient (O(n)) than the previous O(n^2) implementation.
  */
 export function removeDuplicateContent(todos: Todo[]): Todo[] {
-  const filtered: Todo[] = []
-  let duplicateCount = 0
-  
+  const seenSignatures = new Set<string>();
+  const filtered: Todo[] = [];
+  let duplicateCount = 0;
+
   for (const todo of todos) {
-    const isDuplicate = filtered.some(existing => 
-      existing.id !== todo.id && todosAreEquivalent(existing, todo)
-    )
+    const signature = getTodoContentSignature(todo);
     
-    if (!isDuplicate) {
-      filtered.push(todo)
+    if (!seenSignatures.has(signature)) {
+      seenSignatures.add(signature);
+      filtered.push(todo);
     } else {
-      duplicateCount++
-      // Only log the first few duplicates to avoid spam
+      duplicateCount++;
       if (duplicateCount <= 3) {
-        console.warn('🔄 Removed duplicate todo content:', { id: todo.id, summary: todo.summary })
+        console.warn('🔄 Removed duplicate todo content:', { id: todo.id, summary: todo.summary });
       } else if (duplicateCount === 4) {
-        console.warn(`🔄 ... and ${todos.length - filtered.length - 3} more duplicates removed`)
+        console.warn(`🔄 ... and ${todos.length - filtered.length - 3} more duplicates removed`);
       }
     }
   }
-  
-  // Summary log if we had duplicates
+
   if (duplicateCount > 0) {
-    console.log(`✅ Deduplication complete: ${filtered.length} unique todos, ${duplicateCount} duplicates removed`)
+    console.log(`✅ Deduplication complete: ${filtered.length} unique todos, ${duplicateCount} duplicates removed`);
   }
-  
-  return filtered
+
+  return filtered;
 } 

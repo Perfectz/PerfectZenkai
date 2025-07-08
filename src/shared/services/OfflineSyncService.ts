@@ -1,4 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase-client'
+import { simpleTodoRepo } from '@/modules/tasks/repositories/SimpleTodoRepo'
+import { weightRepo } from '@/modules/weight/repo'
 
 export interface SyncOperation {
   id: string
@@ -477,19 +479,44 @@ export class OfflineSyncService {
   }
 
   private async getLocalRecord(tableName: string, localId: string): Promise<Record<string, unknown> | null> {
-    // Mock implementation - would use appropriate database
-    console.log(`Getting local record from ${tableName} with ID ${localId}`)
-    return null
+    switch (tableName) {
+      case 'todos':
+        return (await simpleTodoRepo.getTodoById(localId)) || null
+      case 'weight_entries':
+        return (await weightRepo.getWeightById(localId)) || null
+      // Add other tables as needed
+      default:
+        console.warn(`No local record implementation for table: ${tableName}`)
+        return null
+    }
   }
 
   private async updateLocalRecord(tableName: string, localId: string, data: Record<string, unknown>): Promise<void> {
-    // Mock implementation - would use appropriate database
-    console.log(`Updating local record in ${tableName} with ID ${localId}:`, data)
+    switch (tableName) {
+      case 'todos':
+        await simpleTodoRepo.updateTodo(localId, data)
+        break
+      case 'weight_entries':
+        await weightRepo.updateWeight(localId, data)
+        break
+      // Add other tables as needed
+      default:
+        console.warn(`No local update implementation for table: ${tableName}`)
+    }
   }
 
   private async applyLocalChange(tableName: string, data: Record<string, unknown>): Promise<void> {
-    // Mock implementation - would use appropriate database
-    console.log(`Applying local change to ${tableName}:`, data)
+    switch (tableName) {
+      case 'todos':
+        await simpleTodoRepo.addTodo(data as any) // Assuming addTodo can handle partial updates or full objects
+        break
+      case 'weight_entries':
+        await weightRepo.addWeight(data as any) // Assuming addWeight can handle partial updates or full objects
+        break
+      // Add other tables as needed
+      default:
+        console.warn(`No local apply change implementation for table: ${tableName}`)
+    }
   }
 
   private storeConflict(tableName: string, local: Record<string, unknown>, remote: Record<string, unknown>): void {

@@ -1,8 +1,8 @@
 import React from 'react'
 import { RouteObject } from 'react-router-dom'
 
-const TodoPage = React.lazy(() => import('./pages/TodoPage'))
+const SimpleTodoPage = React.lazy(() => import('./pages/SimpleTodoPage'))
 
 export const taskRoutes: RouteObject[] = [
-  { path: 'todo', element: <TodoPage /> },
+  { path: 'todo', element: <SimpleTodoPage /> },
 ]

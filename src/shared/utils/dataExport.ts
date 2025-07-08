@@ -1,10 +1,10 @@
 import { weightRepo } from '@/modules/weight/repo'
-import { tasksRepo } from '@/modules/tasks/repo'
+import { simpleTodoRepo } from '@/modules/tasks/repositories/SimpleTodoRepo'
 import { notesRepo } from '@/modules/notes/repo'
 import { useMealStore } from '@/modules/meals/store'
 import { useWorkoutStore } from '@/modules/workout/store'
 import { useJournalStore } from '@/modules/journal/store'
-import { useGoalsStore } from '@/modules/goals/store'
+
 import { useAuthStore } from '@/modules/auth'
 import type { WeightEntry, WeightGoal } from '@/modules/weight/types'
 import type { Todo } from '@/modules/tasks/types'
@@ -12,7 +12,7 @@ import type { Note } from '@/modules/notes/types'
 import type { MealEntry } from '@/modules/meals/types'
 import type { WorkoutEntry, Exercise, WorkoutTemplate, WorkoutGoal } from '@/modules/workout/types'
 import type { JournalEntry } from '@/modules/journal/types'
-import type { SimpleGoal } from '@/modules/goals/types'
+
 
 // Comprehensive user profile for AI analysis
 export interface UserProfile {
@@ -27,7 +27,6 @@ export interface UserProfile {
   demographics: {
     ageRange?: string
     activityLevel?: string
-    goals?: string[]
   }
 }
 
@@ -129,16 +128,7 @@ export interface PerfectZenkaiDataExport {
       }
     }
 
-    goals: {
-      entries: SimpleGoal[]
-      metadata: {
-        totalGoals: number
-        activeGoals: number
-        completedGoals: number
-        categoryBreakdown: Record<string, number>
-        averageProgress: number
-      }
-    }
+
 
     dailyStandups: {
       entries: StandupEntry[]
@@ -379,7 +369,7 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
     console.log('📥 Fetching data from all modules...')
     const [weights, tasks, notes] = await Promise.all([
       weightRepo.getAllWeights(),
-      tasksRepo.getAllTodos(),
+      simpleTodoRepo.getAllTodos(),
       notesRepo.getAllNotes(),
     ])
 
@@ -390,8 +380,6 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
     const workoutTemplates = useWorkoutStore.getState().templates
     const workoutGoals = useWorkoutStore.getState().goals
     const journalEntries = useJournalStore.getState().entries
-    const goals = useGoalsStore.getState().goals
-
     // Get weight goals (assuming they exist in weight store)
     const weightGoals: WeightGoal[] = [] // TODO: Get from weight store when available
 
@@ -423,17 +411,7 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
       } : { earliest: '', latest: '' }
     }
 
-    // Calculate goal metadata
-    const goalMetadata = {
-      totalGoals: goals.length,
-      activeGoals: goals.filter(g => g.isActive).length,
-      completedGoals: 0, // TODO: Calculate when goal completion status is available
-      categoryBreakdown: goals.reduce((acc, g) => {
-        acc[g.category] = (acc[g.category] || 0) + 1
-        return acc
-      }, {} as Record<string, number>),
-      averageProgress: 0 // TODO: Calculate when progress tracking is available
-    }
+
 
     // Calculate standup metadata
     const standupMetadata = {
@@ -481,11 +459,11 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
 
     // Calculate total records
     const totalRecords = weights.length + tasks.length + notes.length + meals.length + 
-                        workouts.length + journalEntries.length + goals.length + standupEntries.length
+                        workouts.length + journalEntries.length + standupEntries.length
 
     // Generate AI insights
     const aiInsights = generateAIInsights({
-      weights, tasks, notes, meals, workouts, journalEntries, goals, standupEntries
+      weights, tasks, notes, meals, workouts, journalEntries, standupEntries
     })
 
     // Create comprehensive export data
@@ -527,10 +505,7 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
           entries: tasks,
           metadata: taskMetadata
         },
-        goals: {
-          entries: goals,
-          metadata: goalMetadata
-        },
+
         dailyStandups: {
           entries: standupEntries,
           metadata: standupMetadata
@@ -559,7 +534,7 @@ export const exportAllData = async (): Promise<PerfectZenkaiDataExport> => {
           meals: meals.length,
           workouts: workouts.length,
           journalEntries: journalEntries.length,
-          goals: goals.length,
+
           standupEntries: standupEntries.length
         },
         validationErrors: [],
@@ -625,7 +600,7 @@ export const getDataSummary = (data: PerfectZenkaiDataExport) => {
     totalMeals: data.healthData.meals.entries.length,
     totalWorkouts: data.healthData.workouts.entries.length,
     totalJournalEntries: data.wellnessData.journal.entries.length,
-    totalGoals: data.productivityData.goals.entries.length,
+
     totalStandups: data.productivityData.dailyStandups.entries.length,
     
     // Metadata

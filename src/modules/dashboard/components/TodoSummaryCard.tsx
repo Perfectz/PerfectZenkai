@@ -1,4 +1,4 @@
-import { useTasksStore } from '@/modules/tasks/store'
+import { useSimpleTodoStore } from '@/modules/tasks/stores/SimpleTodoStore'
 import { StatusChip } from '@/shared/ui/status-chip'
 import { CheckSquare, Circle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +7,7 @@ import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMob
 
 export function TodoSummaryCard() {
   const navigate = useNavigate()
-  const { todos, isLoading } = useTasksStore()
+  const { todos, isLoading } = useSimpleTodoStore()
   
   // Mobile interactions
   const { isMobile } = useResponsiveBreakpoint()

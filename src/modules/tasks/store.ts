@@ -284,9 +284,9 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       if (!todo) throw new Error('Todo not found')
 
       const now = new Date().toISOString()
-      const updates = {
+      const updates: Partial<Todo> = {
         done: !todo.done,
-        updatedAt: now
+        updatedAt: new Date().toISOString(),
       }
 
       const updatedTodo = {
@@ -300,25 +300,21 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       }))
 
       try {
-        // Get current user for Supabase operations
-        const user = useAuthStore.getState().user
-        const userId = user?.id
-
-        // Use hybrid repository pattern instead of direct Supabase calls
+        const userId = useAuthStore.getState().user?.id
         await hybridTasksRepo.updateTodo(id, updates, userId)
-
         console.log('✅ Todo toggled successfully:', { 
           local: true, 
-          cloud: !!userId,
+          cloud: !!userId, 
           todoId: id, 
           done: updates.done 
         })
-      } catch (repositoryError) {
+      } catch (error) {
         // Rollback on error
         set(state => ({
           todos: state.todos.map(t => t.id === id ? todo : t)
         }))
-        throw repositoryError
+        console.error('Failed to toggle todo:', error)
+        throw error
       }
     } catch (error) {
       console.error('Failed to toggle todo:', error)
@@ -341,11 +337,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       return
     }
 
-    // ENHANCED: Extra safety - if we already have todos and no force reload, skip
-    if (currentState.todos.length > 0) {
-      console.log('📋 Todos already loaded, skipping duplicate load...')
-      return
-    }
+    
 
     try {
       // Set global loading lock

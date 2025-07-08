@@ -14,26 +14,32 @@ vi.mock('../../../lib/supabase-client', async () => {
 
 // Mock Dexie to prevent IndexedDB access in tests
 vi.mock('dexie', () => {
-  const mockTable = {
+  const createMockTable = () => ({
     add: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    get: vi.fn(async () => undefined),
+    get: vi.fn(async (id) => {
+      // Simulate fetching a todo by ID
+      if (id === 'todo123') {
+        return { id: 'todo123', summary: 'Test Todo', subtasks: [] };
+      }
+      return undefined;
+    }),
     where: vi.fn().mockReturnThis(),
     equals: vi.fn().mockReturnThis(),
-    toArray: vi.fn(async () => []), // Return empty array for getAllTodos
+    toArray: vi.fn(async () => []), // Default to empty array
     orderBy: vi.fn().mockReturnThis(),
     reverse: vi.fn().mockReturnThis(),
     clear: vi.fn(),
-  };
+  });
 
   return {
     __esModule: true,
     default: vi.fn(() => ({
       version: vi.fn().mockReturnThis(),
       stores: vi.fn().mockReturnThis(),
-      todos: mockTable, // Ensure todos table is mocked
-      templates: mockTable, // Mock templates table as well if needed
+      todos: createMockTable(), // Ensure todos table is mocked
+      templates: createMockTable(), // Mock templates table as well if needed
       close: vi.fn(),
     })),
   };

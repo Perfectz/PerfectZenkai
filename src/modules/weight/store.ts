@@ -392,7 +392,7 @@ export const useWeightStore = create<WeightState>((set) => ({
       console.log('✅ Active goal loaded:', { 
         hasGoal: !!activeGoal, 
         cloud: !!userId,
-        goalId: activeGoal?.id
+        goalId: activeGoal?.id || 'N/A'
       })
     } catch (error) {
       console.error('❌ Failed to load active goal:', error)

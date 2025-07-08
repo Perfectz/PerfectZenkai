@@ -390,13 +390,7 @@ export const useAuthStore = create<AuthStore>()(
             const sanitizedUserId = sanitizeUserId(user.id)
             initializeUserDatabases(sanitizedUserId)
             
-            // Initialize tasks store after auth is confirmed
-            try {
-              const { initializeTasksStore } = await import('@/modules/tasks')
-              await initializeTasksStore()
-            } catch (error) {
-              console.error('Failed to initialize tasks store:', error)
-            }
+            // Note: Simple todo system initializes automatically, no manual initialization needed
           }
         } catch (error) {
           console.error('Check auth status error:', error)
@@ -448,8 +442,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           await initializeWeightStore()
           await initializeNotesStore()
-          const { initializeTasksStore } = await import('@/modules/tasks')
-          await initializeTasksStore()
+          // Note: Simple todo system initializes automatically
         } catch (error) {
           console.error('Failed to initialize module stores in setUser:', error)
         }

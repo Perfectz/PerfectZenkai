@@ -10,7 +10,7 @@ import RecurringTaskRow from '../components/RecurringTaskRow'
 import { RecurringTaskForm } from '../components/RecurringTaskForm'
 import TaskTabs, { TaskTabType } from '../components/TaskTabs'
 import { PointSelector, EnhancedDatePicker, RichTextEditor } from '../components/rich-content'
-import { GoalSelector } from '@/modules/goals'
+
 import { Priority, Category, AnyTodo, isRecurringTodo, isRegularTodo, RecurringTodo, RecurrencePattern } from '../types'
 import {
   PRIORITIES,
@@ -24,7 +24,7 @@ export default function TodoPage() {
   const [selectedPriority, setSelectedPriority] = useState<Priority>('medium')
   const [selectedCategory, setSelectedCategory] = useState<Category>('other')
   const [selectedPoints, setSelectedPoints] = useState(5)
-  const [selectedGoal, setSelectedGoal] = useState<string | undefined>()
+
   const [dueDate, setDueDate] = useState('')
   const [dueDateTimeEnhanced, setDueDateTimeEnhanced] = useState<string | undefined>()
   const [taskDescription, setTaskDescription] = useState('')
@@ -128,7 +128,7 @@ export default function TodoPage() {
       priority: selectedPriority,
       category: selectedCategory,
       points: selectedPoints,
-      goalId: selectedGoal,
+
       dueDate: dueDate || undefined,
       dueDateTime: dueDateTimeEnhanced || undefined,
       description: taskDescription.trim() || undefined,
@@ -144,7 +144,7 @@ export default function TodoPage() {
       setDueDate('')
       setDueDateTimeEnhanced(undefined)
       setSelectedPoints(5)
-      setSelectedGoal(undefined)
+
       setShowAdvanced(false)
       setShowDescription(false)
     } catch (error) {
@@ -174,7 +174,7 @@ export default function TodoPage() {
       {/* Page Header - Mobile optimized */}
       <div className="space-y-2">
         <h1 className="text-xl sm:text-2xl font-bold text-white">Tasks</h1>
-        <p className="text-sm text-gray-400">Manage your daily tasks and goals</p>
+        <p className="text-sm text-gray-400">Manage your daily tasks</p>
       </div>
 
       {/* Overdue Tasks Alert - Mobile optimized */}
@@ -326,13 +326,7 @@ export default function TodoPage() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Goal</label>
-                  <GoalSelector 
-                    value={selectedGoal}
-                    onChange={setSelectedGoal}
-                  />
-                </div>
+
               </div>
 
               {/* Advanced options toggle - Mobile optimized */}

@@ -1,0 +1,41 @@
+{
+  "servers": {
+    "azure-mcp-full": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@latest", "server", "start"],
+      "env": {}
+    },
+    "azure-keyvault": {
+      "command": "npx", 
+      "args": ["-y", "@azure/mcp@latest", "server", "start", "--service", "keyvault"],
+      "env": {}
+    },
+    "azure-storage": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@latest", "server", "start", "--service", "storage"], 
+      "env": {}
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_c0746fcf9b339a1afdd04aafde056e6d2c01c57f"
+      }
+    },
+    "supabase-perfectzenkai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref",
+        "kslvxxoykdkstnkjgpnd"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_c0746fcf9b339a1afdd04aafde056e6d2c01c57f"
+      }
+    }
+  }
+} 

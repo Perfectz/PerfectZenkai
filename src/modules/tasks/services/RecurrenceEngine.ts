@@ -11,7 +11,7 @@ export class RecurrenceEngine {
       case 'daily': {
         const nextDaily = new Date(baseDate)
         nextDaily.setDate(nextDaily.getDate() + pattern.interval)
-        return nextDaily.toISOString()
+        return nextDaily.toISOString().split('.')[0] + 'Z'
       }
         
       case 'weekly':
@@ -20,7 +20,7 @@ export class RecurrenceEngine {
       case 'monthly': {
         const nextMonthly = new Date(baseDate)
         nextMonthly.setMonth(nextMonthly.getMonth() + pattern.interval)
-        return nextMonthly.toISOString()
+        return nextMonthly.toISOString().split('.')[0] + 'Z'
       }
         
       default:
@@ -36,7 +36,7 @@ export class RecurrenceEngine {
       // If no specific days, just add interval weeks
       const nextWeek = new Date(baseDate)
       nextWeek.setDate(nextWeek.getDate() + (7 * pattern.interval))
-      return nextWeek.toISOString()
+      return nextWeek.toISOString().split('.')[0] + 'Z'
     }
 
     // Find next occurrence in the specified days of week
@@ -50,13 +50,13 @@ export class RecurrenceEngine {
       // Next occurrence is this week
       const nextDate = new Date(baseDate)
       nextDate.setDate(nextDate.getDate() + (nextDayThisWeek - currentDayOfWeek))
-      return nextDate.toISOString()
+      return nextDate.toISOString().split('.')[0] + 'Z'
     } else {
       // Next occurrence is in next interval week
       const nextDate = new Date(baseDate)
       const daysToAdd = (7 * pattern.interval) - currentDayOfWeek + sortedDays[0]
       nextDate.setDate(nextDate.getDate() + daysToAdd)
-      return nextDate.toISOString()
+      return nextDate.toISOString().split('.')[0] + 'Z'
     }
   }
 
@@ -244,13 +244,14 @@ export class RecurrenceEngine {
    * Calculate consistency rate (simplified implementation)
    */
   private calculateConsistencyRate(completions: TodoCompletion[]): number {
-    if (completions.length === 0) return 0
+    if (completions.length < 2) return 100
     
     // Simple calculation based on completion frequency
     // In a real implementation, this would consider the expected frequency vs actual
+    const sortedCompletions = [...completions].sort((a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime());
     const totalDays = completions.length > 1 ? 
-      Math.floor((new Date(completions[0].completedAt).getTime() - 
-                  new Date(completions[completions.length - 1].completedAt).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1
+      Math.floor((new Date(sortedCompletions[sortedCompletions.length - 1].completedAt).getTime() - 
+                  new Date(sortedCompletions[0].completedAt).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1
     
     return Math.min(100, (completions.length / totalDays) * 100)
   }

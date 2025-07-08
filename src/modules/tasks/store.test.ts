@@ -250,7 +250,7 @@ describe('useTasksStore', () => {
       const updateCall = vi.mocked(hybridTasksRepo.updateTodo).mock.calls[0]
       const updates = updateCall[1]
       
-      expect(updates).not.toHaveProperty('completedAt')
+      expect(updates).not.toHaveProperty('completed_at')
       expect(updates).toHaveProperty('done', true)
       expect(updates).toHaveProperty('updatedAt')
     })

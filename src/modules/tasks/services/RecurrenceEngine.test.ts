@@ -57,7 +57,8 @@ describe('RecurrenceEngine', () => {
     test('should return true when task is due', () => {
       const task: Partial<RecurringTodo> = {
         nextDueDate: '2025-01-13T10:00:00Z',
-        status: 'active'
+        status: 'active',
+        recurrence: { type: 'daily', interval: 1 },
       }
       
       const result = engine.shouldCreateOccurrence(task as RecurringTodo, '2025-01-13T11:00:00Z')
@@ -91,7 +92,8 @@ describe('RecurrenceEngine', () => {
         currentStreak: 5,
         completions: [
           { id: '1', completedAt: '2025-01-12T10:00:00Z', scheduledFor: '2025-01-12T10:00:00Z', points: 5, streakDay: 5 }
-        ]
+        ],
+        recurrence: { type: 'daily', interval: 1 },
       }
       
       const result = engine.updateStreakOnCompletion(task as RecurringTodo, '2025-01-13T10:00:00Z')
@@ -103,7 +105,8 @@ describe('RecurrenceEngine', () => {
         currentStreak: 5,
         completions: [
           { id: '1', completedAt: '2025-01-10T10:00:00Z', scheduledFor: '2025-01-10T10:00:00Z', points: 5, streakDay: 5 }
-        ]
+        ],
+        recurrence: { type: 'daily', interval: 1 },
       }
       
       const result = engine.updateStreakOnCompletion(task as RecurringTodo, '2025-01-13T10:00:00Z')

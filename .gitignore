@@ -140,7 +140,7 @@ dist-ssr/
 coverage/
 
 # IDE
-.vscode/
+
 .idea/
 *.swp
 *.swo

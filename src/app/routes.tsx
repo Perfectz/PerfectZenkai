@@ -9,7 +9,6 @@ import NotesPage from '@/modules/notes/pages/NotesPage'
 import DashboardPage from '@/modules/dashboard/pages/DashboardPage'
 import JournalPage from '@/modules/journal/pages/JournalPage'
 import { DailyJournalPage } from '@/modules/daily-journal'
-import { GoalsPage } from '@/modules/goals'
 import { authRoutes, ProtectedRoute } from '@/modules/auth'
 import UseCaseOverviewPage from '@/components/UseCaseOverviewPage'
 
@@ -38,7 +37,6 @@ export const appRoutes: RouteObject[] = [
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'health', element: <HealthHubPage /> },
       { path: 'todo', element: <TodoPage /> },
-      { path: 'goals', element: <GoalsPage /> },
       { path: 'journal', element: <JournalPage /> },
       { path: 'daily-standup', element: <DailyJournalPage /> },
       { path: 'notes', element: <NotesPage /> },

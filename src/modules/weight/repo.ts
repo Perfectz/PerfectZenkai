@@ -559,18 +559,20 @@ export const supabaseWeightGoalRepo = {
       .select('*')
       .eq('user_id', userId)
       .eq('is_active', true)
-      .single()
+      .limit(1)
+      .maybeSingle()
 
     if (error) {
       if (error.code === 'PGRST116') {
         return null // No active goal found
       }
-      // Handle 406 Not Acceptable (table might not exist or have wrong structure)
-      if (error.code === '406') {
-        console.warn('Weight goals table not accessible, using local storage')
-        return null
-      }
+      // Log the full error for debugging 406 issues
+      console.error('Supabase getActiveGoal error:', error.message, error.code, error.details, error.hint)
       throw error
+    }
+
+    if (!data) {
+      return null // Explicitly return null if no data is found
     }
 
     return {

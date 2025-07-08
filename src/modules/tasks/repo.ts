@@ -116,7 +116,9 @@ export const supabaseTasksRepo = {
       updateData.text = updates.summary // Legacy field for compatibility
       updateData.summary = updates.summary // New field for enhanced schema
     }
-    if (updates.done !== undefined) updateData.done = updates.done
+    if (updates.done !== undefined) {
+      updateData.done = updates.done
+    }
     if (updates.priority !== undefined) updateData.priority = updates.priority
     if (updates.category !== undefined) updateData.category = updates.category
     if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate
@@ -205,7 +207,7 @@ export const supabaseTasksRepo = {
       subtasks: subtasksByTodo[todo.id] || [],
       completedAt: undefined, // Not in current schema
       createdAt: todo.created_at ?? new Date().toISOString(),
-      updatedAt: todo.updated_at ?? new Date().toISOString(),
+      updatedAt: todo.updatedAt ?? new Date().toISOString(),
     }))
   },
 
@@ -276,21 +278,26 @@ export const supabaseTasksRepo = {
 // Original IndexedDB repository (kept for offline functionality)
 export const tasksRepo = {
   // Todo methods
-  async addTodo(todo: Omit<Todo, 'id' | 'updatedAt'>): Promise<Todo> {
+  async addTodo(todo: Todo): Promise<Todo> {
     const database = getDatabase()
     const now = new Date().toISOString()
-    const newTodo: Todo = {
-      id: uuidv4(),
-      updatedAt: now,
+    const todoWithTimestamps: Todo = {
       ...todo,
-      // Set defaults for required fields if not provided
+      id: todo.id || uuidv4(), // Use existing ID or generate new one
+      updatedAt: now,
+      createdAt: todo.createdAt || now,
+      // Ensure defaults for required fields if not provided
       subtasks: todo.subtasks || [],
       priority: todo.priority || 'medium',
       category: todo.category || 'other',
+      done: todo.done || false,
+      summary: todo.summary || '',
+      descriptionFormat: todo.descriptionFormat || 'plaintext',
+      points: todo.points || 5,
     }
 
-    await database.todos.add(newTodo)
-    return newTodo
+    await database.todos.put(todoWithTimestamps) // Use put to insert or update
+    return todoWithTimestamps
   },
 
   async updateTodo(id: string, updates: Partial<Todo>): Promise<void> {
@@ -308,9 +315,9 @@ export const tasksRepo = {
   },
 
   async getAllTodos(userId?: string): Promise<Todo[]> {
-    try {
-      const supabase = await getSupabaseClient()
-      if (supabase && userId) {
+    const supabase = await getSupabaseClient()
+    if (supabase && userId) {
+      try {
         const { data: todos, error } = await supabase
           .from('todos')
           .select('*')
@@ -325,19 +332,19 @@ export const tasksRepo = {
           description: '', // Default empty description for now
           descriptionFormat: 'plaintext',
           done: todo.done ?? false,
-                  priority: (todo.priority as Priority) ?? 'medium',
-        category: (todo.category as Category) ?? 'other',
+          priority: (todo.priority as Priority) ?? 'medium',
+          category: (todo.category as Category) ?? 'other',
           points: 5, // Default points
           dueDate: todo.due_date ?? undefined,
           dueDateTime: undefined, // Not in current schema
           subtasks: [], // Will need to be fetched separately
           completedAt: undefined, // Not in current schema
           createdAt: todo.created_at ?? new Date().toISOString(),
-          updatedAt: todo.updated_at ?? new Date().toISOString(),
+          updatedAt: todo.updatedAt ?? new Date().toISOString(),
         }))
+      } catch (error) {
+        console.warn('Supabase fetch failed, using local storage:', error)
       }
-    } catch (error) {
-      console.warn('Supabase fetch failed, using local storage:', error)
     }
     
     // Fallback to local storage - use IndexedDB directly instead of calling self
@@ -655,13 +662,13 @@ export const hybridTasksRepo = {
     const supabase = await getSupabaseClient()
     if (!supabase || !userId) {
       // Fallback to local storage only (offline mode)
-      await tasksRepo.addSubtask(todoId, text)
       const newSubtask: Subtask = {
         id: uuidv4(), // Generate a new ID for local-only subtask
         text,
         done: false,
         createdAt: new Date().toISOString(),
       }
+      await tasksRepo.addSubtask(todoId, newSubtask.text) // Pass only text, ID is generated inside tasksRepo.addSubtask
       console.log('📱 Subtask saved locally only (offline):', { todoId, text })
       return newSubtask
     }
@@ -670,7 +677,12 @@ export const hybridTasksRepo = {
     const result = await supabaseTasksRepo.addSubtask(todoId, text)
     
     // ALSO save to local IndexedDB with the SAME ID for offline access
-    await tasksRepo.addSubtask(todoId, text) // tasksRepo.addSubtask generates its own ID, need to ensure it uses the cloud ID
+    // Fetch the todo from local repo, add the subtask with the cloud-generated ID
+    const localTodo = await tasksRepo.getTodoById(todoId)
+    if (localTodo) {
+      const updatedSubtasks = [...localTodo.subtasks, result]
+      await tasksRepo.updateTodo(todoId, { subtasks: updatedSubtasks })
+    }
     
     console.log('✅ Subtask saved to cloud with ID synced locally:', { todoId, text })
     return result
@@ -696,6 +708,7 @@ export const hybridTasksRepo = {
       console.log('✅ Subtask updated in cloud:', { todoId, subtaskId, updates })
     } catch (error) {
       console.warn('Supabase subtask update failed:', error)
+      // If Supabase update fails, still update local storage
     }
     
     // Always update local storage
@@ -728,6 +741,7 @@ export const hybridTasksRepo = {
       console.log('✅ Subtask deleted from cloud:', { todoId, subtaskId })
     } catch (error) {
       console.warn('Supabase subtask delete failed:', error)
+      // If Supabase delete fails, still delete from local storage
     }
     
     // Always delete from local storage

@@ -3,14 +3,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { SupabaseAuthService } from '../services/supabaseAuth'
 
 // Mock the supabase import at the top level for proper hoisting
-vi.mock('@/lib/supabase-client', async () => {
-  const mod = await vi.importActual('@/lib/supabase-client');
-  return {
-    ...mod,
-    getSupabaseClient: vi.fn(),
-  };
-});
-  supabase: {
+import { getSupabaseClient } from '@/lib/supabase-client';
+
+vi.mock('@/lib/supabase-client', () => ({
+  getSupabaseClient: vi.fn(() => ({
     auth: {
       signUp: vi.fn(),
       signInWithPassword: vi.fn(),
@@ -27,8 +23,8 @@ vi.mock('@/lib/supabase-client', async () => {
       })),
       insert: vi.fn(),
     })),
-  },
-}))
+  })),
+}));
 
 describe('SupabaseAuthService', () => {
   let authService: SupabaseAuthService
@@ -53,7 +49,7 @@ describe('SupabaseAuthService', () => {
     vi.clearAllMocks()
     
     // Get the mocked supabase client
-    const { supabase } = await import('@/lib/supabase')
+    const supabase = getSupabaseClient();
     
     // Reset all mocks to ensure clean state
     vi.mocked(supabase!.auth.signUp).mockReset()
@@ -69,7 +65,7 @@ describe('SupabaseAuthService', () => {
 
   describe('User Registration', () => {
     it('should successfully register test user 1', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock successful username check (no existing user)
       const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null })
@@ -121,7 +117,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should successfully register test user 2', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock successful username check (no existing user)
       const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null })
@@ -165,7 +161,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should fail registration when username is already taken', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock existing username
       const mockMaybeSingle = vi.fn().mockResolvedValue({
@@ -212,7 +208,7 @@ describe('SupabaseAuthService', () => {
         })),
         insert: vi.fn(),
       }))
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       vi.mocked(supabase!.from).mockImplementation(mockFrom)
 
       // Mock auth error for weak password
@@ -237,7 +233,7 @@ describe('SupabaseAuthService', () => {
 
   describe('User Login', () => {
     it('should successfully login test user 1 with email', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock successful profile fetch
       const mockSingle = vi.fn().mockResolvedValue({
@@ -287,7 +283,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should successfully login test user 2 with email', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock successful profile fetch
       const mockSingle = vi.fn().mockResolvedValue({
@@ -333,7 +329,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should fail login with invalid credentials', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock auth error for invalid credentials
       vi.mocked(supabase!.auth.signInWithPassword).mockResolvedValue({
@@ -395,7 +391,7 @@ describe('SupabaseAuthService', () => {
         insert: vi.fn(),
       }))
 
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       vi.mocked(supabase!.from)
         .mockImplementationOnce(mockUserLookup) // First call for user lookup
         .mockImplementationOnce(mockProfileLookup) // Second call for profile lookup
@@ -443,7 +439,7 @@ describe('SupabaseAuthService', () => {
         insert: vi.fn(),
       }))
       
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       vi.mocked(supabase!.from).mockImplementation(mockFrom)
 
       const result = await authService.loginWithUsername(
@@ -461,7 +457,7 @@ describe('SupabaseAuthService', () => {
 
   describe('Session Management', () => {
     it('should get current user when session exists', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       // Mock current user session
       vi.mocked(supabase!.auth.getUser).mockResolvedValue({
@@ -499,7 +495,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should return null when no session exists', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       vi.mocked(supabase!.auth.getUser).mockResolvedValue({
         data: { user: null },
@@ -512,7 +508,7 @@ describe('SupabaseAuthService', () => {
     })
 
     it('should successfully logout', async () => {
-      const { supabase } = await import('@/lib/supabase')
+      const supabase = getSupabaseClient();
       
       vi.mocked(supabase!.auth.signOut).mockResolvedValue({ error: null } as any)
 

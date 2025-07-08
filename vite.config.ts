@@ -6,7 +6,7 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
+  base: '/',
   build: {
     // Security: Remove source maps in production
     sourcemap: process.env.NODE_ENV !== 'production',
@@ -128,8 +128,8 @@ export default defineConfig({
         background_color: '#111827',
         display: 'standalone',
         orientation: 'portrait',
-        scope: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
-        start_url: process.env.NODE_ENV === 'production' ? '/PerfectZenkai/' : '/',
+        scope: '/',
+        start_url: '/',
         icons: [
           {
             src: 'icons/logo192.png',
