@@ -42,4 +42,84 @@ Out of scope: Extensive Workout and Health agent type refactors (tracked separat
 - Re-run `npm run type-check` and `npm run lint`
 - Manual smoke test: add weight, add task, render Todo page
 
+## Test Cases (TDD - RED → GREEN → REFACTOR)
+
+### Unit & Component Tests
+- Tasks: TodoPage sorting and rendering
+  - should sort by created date by default
+  - should sort by priority when selected
+  - should not pass recurring todos into `EnhancedTodoRow`
+  - file: `src/modules/tasks/__tests__/TodoPage.sorting.test.tsx`
+
+- Tasks: RichTextEditor markdown rendering
+  - renders code blocks with syntax highlighting (hljs theme)
+  - supports remark-gfm links and lists
+  - file: `src/modules/tasks/components/rich-content/__tests__/RichTextEditor.test.tsx`
+
+- Tasks: RecurringTaskForm weekly day toggle
+  - toggles selected days via checkbox onChange
+  - validates at least one day selected for weekly
+  - file: `src/modules/tasks/components/__tests__/RecurringTaskForm.test.tsx`
+
+- Weight: WeightEntryForm conversion and submission
+  - converts lbs to kg and calls addWeight with correct payload
+  - file: `src/modules/weight/__tests__/WeightEntryForm.test.tsx`
+
+- Shared: OfflineSyncService queueOperation typing boundary
+  - accepts operation without priority/maxRetries and defaults correctly
+  - persists to queue and triggers process when online
+  - file: `src/shared/__tests__/OfflineSyncService.queue.test.ts`
+
+### E2E Tests (Playwright)
+- Add task flow
+  - open Tasks page, add one-time task, verify appears in Active list
+  - sort by priority and verify order
+  - file: `e2e/TasksFlow.e2e.ts`
+
+- Weight logging flow
+  - open Health > Weight, log weight in lbs, verify entry row shows
+  - file: `e2e/WeightFlow.e2e.ts`
+
+### Example Test Skeletons
+```ts
+// src/modules/tasks/components/rich-content/__tests__/RichTextEditor.test.tsx
+import { render, screen } from '@/test/test-utils'
+import { RichTextEditor } from '../../rich-content/RichTextEditor'
+
+test('renders code block with syntax highlighting', () => {
+  render(
+    <RichTextEditor value={'```js\nconsole.log(1)\n```'} format="markdown" onChange={() => {}} />
+  )
+  expect(screen.getByText('console.log(1)')).toBeInTheDocument()
+})
+```
+
+```ts
+// src/modules/weight/__tests__/WeightEntryForm.test.tsx
+import { render, screen, fireEvent } from '@/test/test-utils'
+import { WeightEntryForm } from '../../components/WeightEntryForm'
+
+test('submits weight converted to kg', async () => {
+  render(<WeightEntryForm />)
+  fireEvent.change(screen.getByLabelText(/weight in pounds/i), { target: { value: '220' } })
+  fireEvent.click(screen.getByRole('button', { name: /log/i }))
+  // Assert addWeight called via toast or store (mock store in real test)
+})
+```
+
+## How to Run Tests
+- Unit/Component:
+  ```bash
+  npm run test
+  npm run test:coverage
+  ```
+- E2E (ensure dev server is running):
+  ```bash
+  npm run dev:https
+  # in another terminal
+  npm run e2e:ui     # interactive
+  # or
+  npm run e2e        # headless
+  ```
+
 

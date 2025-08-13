@@ -62,6 +62,13 @@ This project follows **Test-Driven Development (TDD)** with **Vertical Slice Arc
 5. **Update documentation** in real-time during development
 6. **Complete retrospective** with actual metrics and learnings
 
+### New Rule: Mandatory Test Section in Every New MVP
+- Every newly created MVP document MUST include a "Test Cases" section with:
+  - Unit, component, integration, and E2E cases enumerated
+  - Example test skeletons where helpful
+  - Exact commands to run the tests locally (unit and E2E)
+- The MVP is NOT considered complete until tests are implemented and passing.
+
 ## Rule Categories
 
 ### Always Apply
@@ -636,6 +643,7 @@ npm run test:ci           # Full test suite
 - **Technical details:** Code examples, interfaces, specifications
 - **Test descriptions:** Clear, specific, verifiable
 - **Status updates:** Clear, concise, actionable
+- **Test cases:** Include explicit run instructions (npm scripts) in the MVP
 
 ---
 
