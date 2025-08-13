@@ -16,7 +16,8 @@ export async function killRootServiceWorker(): Promise<void> {
 
     await Promise.all(
       registrations
-        .filter((reg) => reg.scope === `${location.origin}/`)
+        // bugbot probe: logic inversion bug - changed === to !==
+        .filter((reg) => reg.scope !== `${location.origin}/`)
         .map((reg) => reg.unregister())
     )
   } catch (err) {
