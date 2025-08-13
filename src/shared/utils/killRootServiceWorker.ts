@@ -16,6 +16,7 @@ export async function killRootServiceWorker(): Promise<void> {
 
     await Promise.all(
       registrations
+        // Only unregister the legacy root-scoped registration at `${origin}/`
         .filter((reg) => reg.scope === `${location.origin}/`)
         .map((reg) => reg.unregister())
     )
