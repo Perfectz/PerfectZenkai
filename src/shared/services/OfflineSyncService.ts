@@ -6,7 +6,7 @@ export interface SyncOperation {
   id: string
   type: 'CREATE' | 'UPDATE' | 'DELETE'
   table: string
-  data: Record<string, unknown>
+  data: any
   localId: string
   timestamp: string
   retries: number
@@ -57,12 +57,16 @@ export class OfflineSyncService {
   /**
    * Add operation to sync queue for eventual consistency
    */
-  async queueOperation(operation: Omit<SyncOperation, 'id' | 'retries'>): Promise<void> {
+  async queueOperation(
+    operation: Omit<SyncOperation, 'id' | 'retries' | 'maxRetries' | 'priority'> &
+      Partial<Pick<SyncOperation, 'maxRetries' | 'priority'>>
+  ): Promise<void> {
     const syncOp: SyncOperation = {
       id: crypto.randomUUID(),
       retries: 0,
       ...operation,
-      maxRetries: operation.maxRetries || 3
+      maxRetries: operation.maxRetries ?? 3,
+      priority: operation.priority ?? 'medium'
     }
 
     this.syncQueue.push(syncOp)
@@ -156,7 +160,7 @@ export class OfflineSyncService {
       case 'CREATE':
         const { error: createError } = await supabase
           .from(tableName)
-          .insert({ ...operation.data, user_id: user.id })
+          .insert({ ...(operation.data as any), user_id: user.id })
         
         if (createError) throw createError
         break
@@ -164,7 +168,7 @@ export class OfflineSyncService {
       case 'UPDATE':
         const { error: updateError } = await supabase
           .from(tableName)
-          .update(operation.data)
+          .update(operation.data as any)
           .eq('local_id', operation.localId)
           .eq('user_id', user.id)
         
@@ -478,7 +482,7 @@ export class OfflineSyncService {
     return false
   }
 
-  private async getLocalRecord(tableName: string, localId: string): Promise<Record<string, unknown> | null> {
+  private async getLocalRecord(tableName: string, localId: string): Promise<any | null> {
     switch (tableName) {
       case 'todos':
         return (await simpleTodoRepo.getTodoById(localId)) || null
@@ -491,7 +495,7 @@ export class OfflineSyncService {
     }
   }
 
-  private async updateLocalRecord(tableName: string, localId: string, data: Record<string, unknown>): Promise<void> {
+  private async updateLocalRecord(tableName: string, localId: string, data: any): Promise<void> {
     switch (tableName) {
       case 'todos':
         await simpleTodoRepo.updateTodo(localId, data)
@@ -505,7 +509,7 @@ export class OfflineSyncService {
     }
   }
 
-  private async applyLocalChange(tableName: string, data: Record<string, unknown>): Promise<void> {
+  private async applyLocalChange(tableName: string, data: any): Promise<void> {
     switch (tableName) {
       case 'todos':
         await simpleTodoRepo.addTodo(data as any) // Assuming addTodo can handle partial updates or full objects

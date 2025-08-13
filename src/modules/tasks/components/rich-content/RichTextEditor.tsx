@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect } from 'react'
 import { Eye, Edit3, Bold, Italic, List, Link, Code } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
@@ -6,27 +6,13 @@ import { Card, CardContent } from '@/shared/ui/card'
 import { Textarea } from '@/shared/ui/textarea'
 import { DescriptionFormat } from '../../types'
 
-const ReactMarkdown = lazy(() => import('react-markdown'))
-const SyntaxHighlighter = lazy(() => import('react-syntax-highlighter'))
-const remarkGfm = lazy(() => import('remark-gfm'))
-const rehypeRaw = lazy(() => import('rehype-raw'))
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
-// You can choose a style from react-syntax-highlighter/dist/esm/styles/prism
-// For example, import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
-// For now, we'll use a simple inline style or a default if not provided
-const defaultCodeStyle = {
-  'pre[class*="language-"]': {
-    backgroundColor: '#2d2d2d',
-    color: '#ccc',
-    padding: '1em',
-    borderRadius: '0.5em',
-    overflow: 'auto',
-  },
-  'code[class*="language-"]': {
-    backgroundColor: '#2d2d2d',
-    color: '#ccc',
-  },
-}
+// Syntax highlight theme
 
 interface RichTextEditorProps {
   value?: string // Description content
@@ -102,33 +88,32 @@ export function RichTextEditor({
   const renderPreview = () => {
     if (currentFormat === 'markdown') {
       return (
-        <Suspense fallback={<div>Loading preview...</div>}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              code({ node, inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '')
-                return !inline && match ? (
-                  <SyntaxHighlighter
-                    style={defaultCodeStyle}
-                    language={match[1]}
-                    PreTag="div"
-                    {...props}
-                  >
-                    {String(children).replace(/\n$/, '')}
-                  </SyntaxHighlighter>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                )
-              },
-            }}
-          >
-            {currentValue}
-          </ReactMarkdown>
-        </Suspense>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm as any]}
+          rehypePlugins={[rehypeRaw as any]}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            code({ inline, className, children, ...props }: any) {
+              const match = /language-(\w+)/.exec(className || '')
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  style={atomOneDark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              )
+            },
+          }}
+        >
+          {currentValue}
+        </ReactMarkdown>
       )
     } else if (currentFormat === 'html') {
       return <div dangerouslySetInnerHTML={{ __html: currentValue }} />
@@ -271,33 +256,32 @@ export function RichTextPreview({
   const renderContent = () => {
     if (format === 'markdown') {
       return (
-        <Suspense fallback={<div>Loading preview...</div>}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              code({ node, inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '')
-                return !inline && match ? (
-                  <SyntaxHighlighter
-                    style={defaultCodeStyle}
-                    language={match[1]}
-                    PreTag="div"
-                    {...props}
-                  >
-                    {String(children).replace(/\n$/, '')}
-                  </SyntaxHighlighter>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                )
-              },
-            }}
-          >
-            {content}
-          </ReactMarkdown>
-        </Suspense>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm as any]}
+          rehypePlugins={[rehypeRaw as any]}
+          components={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            code({ inline, className, children, ...props }: any) {
+              const match = /language-(\w+)/.exec(className || '')
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  style={atomOneDark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              )
+            },
+          }}
+        >
+          {content}
+        </ReactMarkdown>
       )
     } else if (format === 'html') {
       return <div dangerouslySetInnerHTML={{ __html: content }} />

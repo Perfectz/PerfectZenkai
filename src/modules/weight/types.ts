@@ -2,7 +2,7 @@ export interface WeightEntry {
   id: string // UUID v4
   dateISO: string // ISO date string (YYYY-MM-DD)
   kg: number // Weight in kilograms (stored as kg for consistency, but displayed as lbs)
-  weight: number // Alias for kg to support both property names
+  weight?: number // Alias for kg to support both property names (optional for backward compatibility)
 }
 
 export interface WeightGoal {

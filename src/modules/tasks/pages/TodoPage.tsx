@@ -11,7 +11,7 @@ import { RecurringTaskForm } from '../components/RecurringTaskForm'
 import TaskTabs, { TaskTabType } from '../components/TaskTabs'
 import { PointSelector, EnhancedDatePicker, RichTextEditor } from '../components/rich-content'
 
-import { Priority, Category, AnyTodo, isRecurringTodo, isRegularTodo, RecurringTodo, RecurrencePattern } from '../types'
+import { Priority, Category, AnyTodo, isRecurringTodo, isRegularTodo } from '../types'
 import {
   PRIORITIES,
   CATEGORIES,
@@ -94,16 +94,16 @@ export default function TodoPage() {
   // Sort todos based on selected sort option
   const sortedTodos = (() => {
     switch (sortBy) {
-      case 'priority':
-        // Filter only regular todos for the existing sort function
+      case 'priority': {
         const regularTodos = filteredTodos.filter(isRegularTodo)
         const recurringTodos = filteredTodos.filter(isRecurringTodo)
         return [...sortTodosByPriority(regularTodos), ...recurringTodos]
-      case 'dueDate':
-        // Filter only regular todos for the existing sort function
+      }
+      case 'dueDate': {
         const regularTodosForDate = filteredTodos.filter(isRegularTodo)
         const recurringTodosForDate = filteredTodos.filter(isRecurringTodo)
         return [...sortTodosByDueDate(regularTodosForDate), ...recurringTodosForDate]
+      }
       case 'points':
         return [...filteredTodos].sort((a, b) => (b.points || 5) - (a.points || 5))
       default:
@@ -561,8 +561,8 @@ export default function TodoPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {incompleteTodos.map((todo) => (
-                      <EnhancedTodoRow key={todo.id} todo={todo as any} />
+                    {incompleteTodos.filter(isRegularTodo).map((todo) => (
+                      <EnhancedTodoRow key={todo.id} todo={todo} />
                     ))}
                   </CardContent>
                 </Card>
@@ -580,8 +580,8 @@ export default function TodoPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {completedTodos.map((todo) => (
-                      <EnhancedTodoRow key={todo.id} todo={todo as any} />
+                    {completedTodos.filter(isRegularTodo).map((todo) => (
+                      <EnhancedTodoRow key={todo.id} todo={todo} />
                     ))}
                   </CardContent>
                 </Card>
@@ -622,8 +622,8 @@ export default function TodoPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {incompleteTodos.map((todo) => (
-                      <EnhancedTodoRow key={todo.id} todo={todo as any} />
+                    {incompleteTodos.filter(isRegularTodo).map((todo) => (
+                      <EnhancedTodoRow key={todo.id} todo={todo} />
                     ))}
                   </CardContent>
                 </Card>
@@ -641,8 +641,8 @@ export default function TodoPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {completedTodos.map((todo) => (
-                      <EnhancedTodoRow key={todo.id} todo={todo as any} />
+                    {completedTodos.filter(isRegularTodo).map((todo) => (
+                      <EnhancedTodoRow key={todo.id} todo={todo} />
                     ))}
                   </CardContent>
                 </Card>

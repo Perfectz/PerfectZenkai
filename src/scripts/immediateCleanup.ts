@@ -3,7 +3,7 @@
 
 import { getDatabase } from '@/modules/tasks/repo'
 import { useAuthStore } from '@/modules/auth'
-import { getSupabaseClientSync } from '@/lib/supabase-client'
+import { getSupabaseClient } from '@/lib/supabase-client'
 import type { Todo } from '@/modules/tasks/types'
 
 export async function runImmediateCleanup() {
@@ -80,7 +80,7 @@ export async function runCompleteReset() {
   
   // 1. Clear cloud data (Supabase)
   try {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (supabase) {
       const { error } = await supabase
         .from('todos')
@@ -128,7 +128,7 @@ export async function runSmartCleanup() {
   // Get cloud tasks
   let cloudTasks: Todo[] = []
   try {
-    const supabase = getSupabaseClientSync()
+    const supabase = await getSupabaseClient()
     if (supabase) {
       const { data, error } = await supabase
         .from('todos')
@@ -190,7 +190,7 @@ export async function runSmartCleanup() {
   // Delete duplicates from cloud
   if (duplicatesToDelete.length > 0) {
     try {
-      const supabase = getSupabaseClientSync()
+      const supabase = await getSupabaseClient()
       if (supabase) {
         const { error } = await supabase
           .from('todos')

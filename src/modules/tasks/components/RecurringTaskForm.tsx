@@ -306,7 +306,7 @@ export function RecurringTaskForm({ onSubmit, onCancel, isLoading = false }: Rec
                         <Checkbox
                           id={`day-${day.value}`}
                           checked={selectedDays.includes(day.value)}
-                          onCheckedChange={() => handleDayToggle(day.value)}
+                          onChange={() => handleDayToggle(day.value)}
                           aria-labelledby={`day-label-${day.value}`}
                         />
                         <Label 
