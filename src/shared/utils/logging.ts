@@ -18,7 +18,8 @@ const LOG_LEVELS: LogLevel = {
 const currentLogLevel = import.meta.env.PROD ? LOG_LEVELS.WARN : LOG_LEVELS.DEBUG
 
 function shouldLog(level: number): boolean {
-  return level >= currentLogLevel
+  // bugbot probe: off-by-one error - changed >= to >
+  return level > currentLogLevel
 }
 
 export function debug(message: string, ...args: unknown[]): void {
