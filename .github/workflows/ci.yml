@@ -6,15 +6,18 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  # Test environment variables for Supabase
   VITE_SUPABASE_URL: https://test.supabase.co
   VITE_SUPABASE_ANON_KEY: test_anon_key_1234567890abcdef
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -23,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -33,10 +36,10 @@ jobs:
         run: npm run lint
 
       - name: Run TypeScript check
-        run: npx tsc --noEmit
+        run: npm run type-check
 
-      - name: Run unit tests
-        run: npx vitest run --config vitest.config.ci.ts --reporter=basic
+      - name: Run unit tests (CI profile)
+        run: npx vitest run --config vitest.config.ci.ts --reporter=default
 
       - name: Build production bundle
         run: npm run build

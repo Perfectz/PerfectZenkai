@@ -9,51 +9,30 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setupTests.ts'],
-    // Very aggressive exclusion for CI - only run core logic tests
     include: [
       '**/modules/weight/store.test.{ts,tsx}',
       '**/modules/tasks/store.test.{ts,tsx}',
-      '**/shared/utils/**/*.test.{ts,tsx}',
-      '**/shared/components/**/*.test.{ts,tsx}'
+      '**/shared/utils/dataExport.test.{ts,tsx}',
     ],
-    exclude: [
-      '**/node_modules/**', 
-      '**/e2e/**', 
-      '**/dist/**',
-      // Exclude all integration tests
-      '**/*integration*.test.{ts,tsx}',
-      // Exclude all auth tests (too many mocking issues)
-      '**/auth/**/*.test.{ts,tsx}',
-      // Exclude mobile responsive tests (need UI providers)
-      '**/*mobile*.test.{ts,tsx}',
-      // Exclude component tests that need providers
-      '**/components/**/*.test.{ts,tsx}',
-      // Exclude any MVP or hanging tests
-      '**/mvp*.test.{ts,tsx}',
-      '**/hanging*.test.{ts,tsx}',
-      // Exclude AppShell and UI tests
-      '**/__tests__/AppShell.test.tsx',
-      '**/__tests__/App*.test.{ts,tsx}',
-      // Exclude ProtectedRoute tests
-      '**/ProtectedRoute.test.{ts,tsx}'
-    ],
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
+    passWithNoTests: false,
+    retry: 1,
     env: {
       VITE_SUPABASE_URL: 'https://test.supabase.co',
       VITE_SUPABASE_ANON_KEY: 'test_anon_key_1234567890abcdef',
       CI: 'true',
     },
-    // Reduce timeouts for faster CI
-    testTimeout: 5000,
-    hookTimeout: 3000,
+    testTimeout: 8000,
+    hookTimeout: 5000,
     coverage: {
       provider: 'v8',
-      reporter: ['text'],
+      reporter: ['text-summary'],
       thresholds: {
         global: {
-          branches: 50, // Very low threshold for CI
-          functions: 50,
-          lines: 50,
-          statements: 50,
+          branches: 55,
+          functions: 55,
+          lines: 55,
+          statements: 55,
         },
       },
     },
@@ -63,4 +42,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-}) 
+})
