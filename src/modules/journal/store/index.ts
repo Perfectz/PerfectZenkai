@@ -1,17 +1,15 @@
 import { create } from 'zustand'
-import { getSupabaseClient } from '@/lib/supabase-client'
 import { offlineSyncService } from '@/shared/services/OfflineSyncService'
+import { useAuthStore } from '@/modules/auth'
 import { 
   JournalEntry, 
-  JournalEntryRow,
   MorningEntry, 
   EveningEntry, 
   JournalAnalytics, 
   JournalFormState 
 } from '../types'
+import { hybridJournalRepo, initializeJournalDatabase } from '../repo'
 import { 
-  transformEntryToRow, 
-  transformRowToEntry, 
   getCurrentDateString, 
 } from '../utils/journalHelpers'
 import { calculateJournalAnalytics } from '../utils/analyticsCalculations'
@@ -69,20 +67,12 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) {
-          throw new Error('Supabase client not available')
+        const userId = useAuthStore.getState().user?.id
+        if (userId) {
+          initializeJournalDatabase(userId)
         }
 
-        // RLS is now enabled, so user_id filtering is handled automatically by the database
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .select('*')
-          .order('entry_date', { ascending: false })
-
-        if (error) throw error
-        
-        const entries = (data || []).map((row: JournalEntryRow) => transformRowToEntry(row))
+        const entries = await hybridJournalRepo.getAllEntries(userId)
         set({ entries, isLoading: false })
         return // Success, exit function
       } catch (error) {
@@ -123,29 +113,8 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) {
-          throw new Error('Supabase client not available')
-        }
-
-        const rowData = transformEntryToRow(entry)
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .insert([{
-            user_id: '', // TODO: Get from auth context
-            entry_date: rowData.entry_date || new Date().toISOString().split('T')[0],
-            entry_type: rowData.entry_type || 'both',
-            morning_entry: rowData.morning_entry,
-            evening_entry: rowData.evening_entry,
-            created_at: rowData.created_at,
-            updated_at: rowData.updated_at,
-          }])
-          .select()
-          .single()
-
-        if (error) throw error
-        
-        const newEntry = transformRowToEntry(data as JournalEntryRow)
+        const userId = useAuthStore.getState().user?.id
+        const newEntry = await hybridJournalRepo.addEntry(entry, userId)
         const { entries } = get()
         const updatedEntries = [newEntry, ...entries].sort((a, b) => 
           new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
@@ -185,28 +154,8 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) {
-          throw new Error('Supabase client not available')
-        }
-
-        const rowData = transformEntryToRow(updates)
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .update({
-            entry_date: rowData.entry_date,
-            entry_type: rowData.entry_type,
-            morning_entry: rowData.morning_entry,
-            evening_entry: rowData.evening_entry,
-            updated_at: rowData.updated_at,
-          })
-          .eq('id', id)
-          .select()
-          .single()
-
-        if (error) throw error
-        
-        const updatedEntry = transformRowToEntry(data as JournalEntryRow)
+        const userId = useAuthStore.getState().user?.id
+        const updatedEntry = await hybridJournalRepo.updateEntry(id, updates, userId)
         const { entries } = get()
         const updatedEntries = entries.map(entry => 
           entry.id === id ? updatedEntry : entry
@@ -246,17 +195,8 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) {
-          throw new Error('Supabase client not available')
-        }
-
-        const { error } = await supabase
-          .from('journal_entries')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        await hybridJournalRepo.deleteEntry(id, userId)
         
         const { entries } = get()
         const updatedEntries = entries.filter(entry => entry.id !== id)

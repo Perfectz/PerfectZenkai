@@ -91,10 +91,11 @@ export interface JournalFormState {
 // Database row type (matches Supabase schema)
 export interface JournalEntryRow {
   id: string;
+  user_id?: string;
   entry_date: string;
   entry_type: JournalEntryType;
-  morning_entry: MorningEntry | null;
-  evening_entry: EveningEntry | null;
-  created_at: string;
-  updated_at: string;
+  morning_entry?: MorningEntry | null;
+  evening_entry?: EveningEntry | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 } 

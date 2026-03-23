@@ -11,7 +11,9 @@ import { useTouchFeedback, useResponsiveBreakpoint } from '@/shared/hooks/useMob
 import { FoodAnalysisAgent } from '../services/FoodAnalysisAgent'
 import { keyVaultService } from '@/services/keyVaultService'
 
-const PhotoUpload = lazy(() => import('./PhotoUpload'))
+const PhotoUpload = lazy(() =>
+  import('./PhotoUpload').then((module) => ({ default: module.PhotoUpload }))
+)
 
 export function MealEntryForm() {
   const [mealType, setMealType] = useState<MealType>(() => {

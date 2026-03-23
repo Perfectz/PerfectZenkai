@@ -2,10 +2,13 @@
 // HYBRID: Uses OpenAI API directly in dev mode, Azure Functions in production
 
 import { 
-  AVAILABLE_FUNCTIONS, 
-  FUNCTION_IMPLEMENTATIONS, 
-  FunctionCallResult 
-} from './FunctionRegistry'
+  getCapabilitySystemPrompt,
+} from '@/app/module-system/capabilityBinder'
+import {
+  getBoundFunctionDefinitions,
+  getBoundFunctionImplementations,
+  type FunctionCallResult,
+} from './manifestFunctionBridge'
 import type { 
   ChatMessage, 
   StreamingChatResponse 
@@ -85,7 +88,7 @@ export class AiChatService {
       body: JSON.stringify({
         model: this.config.model,
         messages: this.buildMessageHistory(),
-        functions: Object.values(AVAILABLE_FUNCTIONS),
+        functions: getBoundFunctionDefinitions(),
         function_call: 'auto',
         temperature: this.config.temperature,
         max_tokens: this.config.maxTokens,
@@ -127,7 +130,7 @@ export class AiChatService {
       },
       body: JSON.stringify({
         messages: this.buildMessageHistory(),
-        functions: Object.values(AVAILABLE_FUNCTIONS),
+        functions: getBoundFunctionDefinitions(),
         function_call: 'auto',
         temperature: this.config.temperature,
         max_tokens: this.config.maxTokens,
@@ -284,7 +287,9 @@ export class AiChatService {
       const args = JSON.parse(functionCall.arguments || '{}')
       
       // Execute the function
-      const implementation = FUNCTION_IMPLEMENTATIONS[functionCall.name as keyof typeof FUNCTION_IMPLEMENTATIONS]
+      const implementation = getBoundFunctionImplementations()[
+        functionCall.name as keyof ReturnType<typeof getBoundFunctionImplementations>
+      ]
       if (!implementation) {
         throw new Error(`Function '${functionCall.name}' not implemented`)
       }
@@ -349,6 +354,9 @@ You can help users by:
 - Tracking their weight progress (log weights, view history)
 - Providing fitness and nutrition guidance
 - Analyzing their progress and setting goals
+
+Enabled module capabilities:
+${getCapabilitySystemPrompt()}
 
 When users ask you to perform actions, use the available functions to interact with their data directly. Always confirm what actions you've taken and provide helpful insights about their progress.
 

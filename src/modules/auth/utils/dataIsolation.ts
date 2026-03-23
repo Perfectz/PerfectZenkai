@@ -1,19 +1,23 @@
 import { initializeWeightDatabase } from '@/modules/weight/repo'
 import { initializeTasksDatabase } from '@/modules/tasks/repo'
 import { initializeNotesDatabase } from '@/modules/notes/repo'
+import { initializeJournalDatabase } from '@/modules/journal/repo'
+import { initializeWorkoutDatabase } from '@/modules/workout/repo'
 
 /**
  * Initialize all user-specific databases for data isolation
  * This ensures each user has their own separate data storage
  */
-export const initializeUserDatabases = (userId: string) => {
+export const initializeUserDatabases = async (userId: string) => {
   console.log(`Initializing databases for user: ${userId}`)
 
   try {
     // Initialize all module databases with user-specific names
-    initializeWeightDatabase(userId)
+    await initializeWeightDatabase(userId)
     initializeTasksDatabase(userId)
     initializeNotesDatabase(userId)
+    initializeJournalDatabase(userId)
+    await initializeWorkoutDatabase(userId)
 
     console.log('User databases initialized successfully')
   } catch (error) {
@@ -35,6 +39,8 @@ export const clearUserDatabases = async (userId: string) => {
       `WeightDatabase_${userId}`,
       `TasksDatabase_${userId}`,
       `NotesDatabase_${userId}`,
+      `JournalDatabase_${userId}`,
+      `WorkoutDatabase_${userId}`,
     ]
 
     // Delete user-specific databases

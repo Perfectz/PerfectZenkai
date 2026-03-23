@@ -2,8 +2,10 @@ import { create } from 'zustand'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { hybridTasksRepo, tasksRepo, initializeTasksDatabase } from './repo'
 import { useAuthStore } from '@/modules/auth'
-import { getSupabaseClient } from '@/lib/supabase-client'
+import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 import { offlineSyncService } from '@/shared/services/OfflineSyncService'
+
+type TodoUpdate = Database['public']['Tables']['todos']['Update']
 
 // Global loading lock to prevent race conditions across multiple components
 const globalLoadingLock = {
@@ -217,36 +219,36 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       }))
 
       // Prepare database update object
-      const dbUpdate: Record<string, unknown> = {
+      const dbUpdate: TodoUpdate = {
         updated_at: now
       }
 
       // Map frontend fields to database columns
       switch (field) {
         case 'summary':
-          dbUpdate.summary = value
+          dbUpdate.summary = typeof value === 'string' ? value : String(value)
           break
         case 'description':
-          dbUpdate.description = value
+          dbUpdate.description = typeof value === 'string' ? value : String(value)
           break
         case 'descriptionFormat':
-          dbUpdate.description_format = value
+          dbUpdate.description_format = typeof value === 'string' ? value : String(value)
           break
         case 'points':
-          dbUpdate.points = value
+          dbUpdate.points = typeof value === 'number' ? value : Number(value)
           break
         case 'priority':
-          dbUpdate.priority = value
+          dbUpdate.priority = typeof value === 'string' ? value : String(value)
           break
         case 'category':
-          dbUpdate.category = value
+          dbUpdate.category = typeof value === 'string' ? value : String(value)
           break
         case 'dueDateTime':
-          dbUpdate.due_date_time = value
+          dbUpdate.due_date_time = typeof value === 'string' ? value : String(value)
           break
         case 'done':
-          dbUpdate.done = value
-          if (value) {
+          dbUpdate.done = Boolean(value)
+          if (dbUpdate.done) {
             dbUpdate.completed_at = now
           } else {
             dbUpdate.completed_at = null
@@ -672,7 +674,10 @@ export const useTasksStore = create<TasksState>((set, get) => ({
         result
       })
 
-      return result
+      return {
+        cleaned: result.removed,
+        remaining: result.remaining,
+      }
     } catch (error) {
       console.error('❌ Failed to clean duplicates:', error)
       set({

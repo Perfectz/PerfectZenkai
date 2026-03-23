@@ -1,16 +1,12 @@
 // src/app/routes.tsx
 
 import React, { lazy, Suspense } from 'react'
-import { RouteObject } from 'react-router-dom'
+import { Navigate, RouteObject } from 'react-router-dom'
 import AppLayout from './AppLayout'
-import HealthHubPage from '@/modules/health/pages/HealthHubPage'
-import TodoPage from '@/modules/tasks/pages/TodoPage'
-import NotesPage from '@/modules/notes/pages/NotesPage'
-import DashboardPage from '@/modules/dashboard/pages/DashboardPage'
-import JournalPage from '@/modules/journal/pages/JournalPage'
-import { DailyJournalPage } from '@/modules/daily-journal'
 import { authRoutes, ProtectedRoute } from '@/modules/auth'
+import AdminPage from '@/modules/auth/pages/AdminPage'
 import UseCaseOverviewPage from '@/components/UseCaseOverviewPage'
+import { getProtectedModuleRoutes } from './module-system/registry'
 
 const ChatPage = lazy(() => import('@/modules/ai-chat/pages/ChatPage').then(module => ({ default: module.ChatPage })))
 
@@ -33,13 +29,16 @@ export const appRoutes: RouteObject[] = [
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'health', element: <HealthHubPage /> },
-      { path: 'todo', element: <TodoPage /> },
-      { path: 'journal', element: <JournalPage /> },
-      { path: 'daily-standup', element: <DailyJournalPage /> },
-      { path: 'notes', element: <NotesPage /> },
+      ...getProtectedModuleRoutes(),
+      { path: 'daily-standup', element: <Navigate to="/journal" replace /> },
+      {
+        path: 'admin',
+        element: (
+          <ProtectedRoute requiredRoles="admin">
+            <AdminPage />
+          </ProtectedRoute>
+        ),
+      },
       { 
         path: 'chat', 
         element: (

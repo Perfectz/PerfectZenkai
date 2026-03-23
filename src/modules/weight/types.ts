@@ -37,6 +37,8 @@ export interface WeightTrendAnalysis {
   totalChange: number
   streakDays: number
   volatility: number // Added for enhanced analytics
+  weeklyChange: number
+  pattern: 'steady' | 'volatile' | 'plateau'
 }
 
 export interface WeightStatistics {
@@ -102,5 +104,5 @@ export interface WeightInsight {
   description: string
   importance: 'low' | 'medium' | 'high'
   generatedAt: string
-  data: Record<string, unknown>
+  data: unknown
 }

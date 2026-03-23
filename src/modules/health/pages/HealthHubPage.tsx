@@ -112,43 +112,47 @@ export default function HealthHubPage() {
   const isLoading = isWeightLoading || isMealLoading || isWorkoutLoading
 
   return (
-    <div className="container mx-auto px-4 pb-24 pt-4">
+    <div className="app-page space-y-6 pb-6 pt-2">
       {/* Unified Diet Hub Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+      <div className="page-header">
+        <div className="min-w-0">
+          <div className="mb-2 inline-flex rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-200">
+            Unified tracking
+          </div>
           <div>
             <h1 className="cyber-title gradient-text-ki mb-2">HEALTH HUB</h1>
-            <p className="font-mono text-sm text-gray-400">
+            <p className="max-w-3xl font-mono text-sm text-gray-400">
               Unified health tracking • {weights.length} weight entries • {meals.length} meals • {workouts.length} workouts
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowGoalForm(!showGoalForm)}
-              className="flex items-center gap-2 touch-target mobile-button"
-              aria-label={activeGoal ? 'Edit weight goal' : 'Set weight goal'}
-            >
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">{activeGoal ? 'Edit Goal' : 'Set Goal'}</span>
-              <span className="sm:hidden">{activeGoal ? 'Edit' : 'Goal'}</span>
-            </Button>
-          </div>
+        </div>
+        <div className="flex w-full gap-2 sm:w-auto sm:justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowGoalForm(!showGoalForm)}
+            className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl border-white/10 bg-slate-900/70 px-4 sm:flex-none"
+            aria-label={activeGoal ? 'Edit weight goal' : 'Set weight goal'}
+          >
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">{activeGoal ? 'Edit Goal' : 'Set Goal'}</span>
+            <span className="sm:hidden">{activeGoal ? 'Edit' : 'Goal'}</span>
+          </Button>
         </div>
       </div>
 
       {/* Tab Navigation - Mobile optimized */}
-      <Card className="cyber-card mb-6 mobile-card">
+      <Card className="cyber-card mobile-card overflow-hidden">
         <CardContent className="p-0">
-          <div className="flex" role="tablist" aria-label="Health tracking categories">
+          <div className="panel-scroll-x px-2 py-2" role="tablist" aria-label="Health tracking categories">
+            <div className="flex min-w-max gap-2 sm:min-w-0 sm:gap-3">
             <Button
               variant={activeTab === 'weight' ? 'cyber-ki' : 'ghost'}
               className={`
-                flex-1 rounded-none border-0 h-12 touch-target-comfortable mobile-tab
+                min-h-[48px] min-w-[9rem] rounded-xl border px-4 touch-target-comfortable mobile-tab sm:flex-1 sm:min-w-0
                 ${activeTab === 'weight' 
-                  ? 'bg-gradient-to-r from-ki-green/20 to-ki-green/10 text-ki-green border-b-2 border-ki-green' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  ? 'border-ki-green/40 bg-gradient-to-r from-ki-green/20 to-ki-green/10 text-ki-green' 
+                  : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }
               `}
               onClick={() => handleTabChange('weight')}
@@ -163,10 +167,10 @@ export default function HealthHubPage() {
             <Button
               variant={activeTab === 'meals' ? 'cyber-ki' : 'ghost'}
               className={`
-                flex-1 rounded-none border-0 h-12 touch-target-comfortable mobile-tab
+                min-h-[48px] min-w-[9rem] rounded-xl border px-4 touch-target-comfortable mobile-tab sm:flex-1 sm:min-w-0
                 ${activeTab === 'meals' 
-                  ? 'bg-gradient-to-r from-plasma-cyan/20 to-plasma-cyan/10 text-plasma-cyan border-b-2 border-plasma-cyan' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  ? 'border-plasma-cyan/40 bg-gradient-to-r from-plasma-cyan/20 to-plasma-cyan/10 text-plasma-cyan' 
+                  : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }
               `}
               onClick={() => handleTabChange('meals')}
@@ -181,10 +185,10 @@ export default function HealthHubPage() {
             <Button
               variant={activeTab === 'workout' ? 'cyber-ki' : 'ghost'}
               className={`
-                flex-1 rounded-none border-0 h-12 touch-target-comfortable mobile-tab
+                min-h-[48px] min-w-[9rem] rounded-xl border px-4 touch-target-comfortable mobile-tab sm:flex-1 sm:min-w-0
                 ${activeTab === 'workout' 
-                  ? 'bg-gradient-to-r from-ki-green/20 to-ki-green/10 text-ki-green border-b-2 border-ki-green' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  ? 'border-ki-green/40 bg-gradient-to-r from-ki-green/20 to-ki-green/10 text-ki-green' 
+                  : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }
               `}
               onClick={() => handleTabChange('workout')}
@@ -196,15 +200,16 @@ export default function HealthHubPage() {
               <Dumbbell className="mr-1 sm:mr-2 h-4 w-4" />
               <span className="text-sm sm:text-base">Workout</span>
             </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Unified Analytics Header - Visible on both tabs */}
-      <div className="mb-6">
+      <div>
         <Card className="cyber-card">
           <CardContent className="p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3 sm:gap-4">
               <div>
                 <div className="gradient-text-ki metric-display text-lg font-bold">
                   {weights.length + meals.length + workouts.length}
@@ -226,7 +231,7 @@ export default function HealthHubPage() {
               </div>
               <div>
                 <div className="gradient-text-magenta metric-display text-lg font-bold">
-                  <TrendingUp className="inline h-4 w-4 mr-1" />
+                  <TrendingUp className="mr-1 inline h-4 w-4" />
                   {activeTab === 'weight' ? 'Progress' : activeTab === 'meals' ? 'Nutrition' : 'Fitness'}
                 </div>
                 <div className="font-mono text-xs text-gray-400">

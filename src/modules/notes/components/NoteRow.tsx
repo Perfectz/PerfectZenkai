@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/shared/ui/card'
 import { Edit, Calendar } from 'lucide-react'
 import { Note } from '../types'
 import { useNotesStore } from '../store'
+import { Input } from '@/shared/ui/input'
+import { Textarea } from '@/shared/ui/textarea'
+import { Button } from '@/shared/ui/button'
 
 interface NoteRowProps {
   note: Note
@@ -65,36 +68,36 @@ export function NoteRow({ note }: NoteRowProps) {
 
   if (isEditing) {
     return (
-      <Card className="border bg-card">
+      <Card className="cyber-card border-white/10 bg-slate-900/70">
         <CardContent className="p-4">
-          <input
-            type="text"
+          <Input
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="mb-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+            className="mb-3 h-11 rounded-xl border-white/10 bg-slate-950/80 text-white placeholder:text-slate-500"
             placeholder="Note title..."
           />
-          <textarea
+          <Textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="mb-3 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="mb-3 min-h-[140px] rounded-xl border-white/10 bg-slate-950/80 text-white placeholder:text-slate-500"
             rows={4}
             placeholder="Note content..."
           />
-          <div className="flex justify-end gap-2">
-            <button
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
               onClick={handleCancel}
-              className="rounded-md border border-input px-3 py-1 text-sm transition-colors hover:bg-muted"
+              variant="outline"
+              className="min-h-[42px] rounded-xl"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleEdit}
               disabled={!editTitle.trim()}
-              className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="min-h-[42px] rounded-xl"
             >
               Save
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -104,8 +107,8 @@ export function NoteRow({ note }: NoteRowProps) {
   return (
     <Card
       {...swipeHandlers}
-      className={`cursor-pointer transition-all duration-150 ${
-        isPressed ? 'scale-95 bg-muted' : 'hover:bg-muted/50'
+      className={`cursor-pointer border-white/10 bg-slate-900/70 transition-all duration-150 ${
+        isPressed ? 'scale-[0.99] bg-slate-800' : 'hover:bg-slate-800/70'
       }`}
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
@@ -114,26 +117,27 @@ export function NoteRow({ note }: NoteRowProps) {
       onMouseLeave={() => setIsPressed(false)}
       onClick={() => setIsEditing(true)}
     >
-      <CardContent className="px-4 py-3">
-        <div className="flex items-start justify-between">
-          <div className="mr-3 min-w-0 flex-1">
-            <h3 className="mb-1 truncate text-sm font-medium">{note.title}</h3>
+      <CardContent className="px-4 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <h3 className="mb-1 truncate text-base font-medium text-white">{note.title}</h3>
             {note.content && (
-              <p className="line-clamp-2 text-sm text-muted-foreground">
+              <p className="line-clamp-3 text-sm text-slate-400">
                 {note.content}
               </p>
             )}
-            <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
               <Calendar className="h-3 w-3" />
               <span>{formatDate(note.updatedAt)}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Edit className="h-4 w-4 text-muted-foreground" />
-            <div className="text-xs text-muted-foreground opacity-50">
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+            <div className="text-xs text-slate-500 sm:hidden">Tap to edit</div>
+            <div className="hidden text-xs text-slate-500 opacity-70 sm:block">
               Swipe to delete
             </div>
+            <Edit className="h-4 w-4 text-slate-400" />
           </div>
         </div>
       </CardContent>

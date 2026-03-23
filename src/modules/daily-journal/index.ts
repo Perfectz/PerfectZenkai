@@ -1,4 +1,4 @@
 // src/modules/daily-journal/index.ts
 
-// Pages
+// Legacy compatibility export.
 export { DailyJournalPage } from './pages/DailyJournalPage' 

@@ -1,8 +1,10 @@
 import type {
   Exercise,
+  ExerciseCategory,
   ExerciseHistory,
   CoachingAdvice,
   InjuryModification,
+  FormGuidance,
   RealtimeCoaching,
   RecoveryRecommendation,
   IFitnessCoachingEngine
@@ -122,7 +124,7 @@ export class FitnessCoachingEngine implements IFitnessCoachingEngine {
   async suggestModifications(exercise: Exercise, injuryType: string): Promise<InjuryModification> {
     await new Promise(resolve => setTimeout(resolve, 10))
     
-    const modifications = this.getInjuryModifications(exercise.name, injuryType)
+    const modifications = this.getInjuryModificationsForExercise(exercise.name, [injuryType])
     
     return {
       originalExercise: exercise.name,
@@ -270,11 +272,10 @@ export class FitnessCoachingEngine implements IFitnessCoachingEngine {
     modifications: string[]
     precautions: string[]
   } {
-    // Create mock Exercise objects for alternatives
-    const createMockExercise = (name: string, category: string): Exercise => ({
+    const createMockExercise = (name: string, category: ExerciseCategory): Exercise => ({
       id: `mock-${name.toLowerCase().replace(/\s+/g, '-')}`,
       name,
-      category: category as any,
+      category,
       primaryMuscles: ['chest'],
       equipment: 'bodyweight',
       difficulty: 'beginner',
@@ -346,6 +347,39 @@ export class FitnessCoachingEngine implements IFitnessCoachingEngine {
       'Week 7+: Slowly progress weight/intensity as tolerated',
       'Return to full exercise only when completely pain-free'
     ]
+  }
+
+  private generateProgressionSuggestions(exercise: Exercise, history: ExerciseHistory): string[] {
+    const suggestions: string[] = []
+
+    if (history.progressTrend === 'improving') {
+      suggestions.push(`Increase ${exercise.name} volume by 5-10% next session`)
+    }
+    if (history.progressTrend === 'plateau') {
+      suggestions.push(`Adjust rep range or tempo for ${exercise.name}`)
+    }
+    if (history.totalSessions < 3) {
+      suggestions.push('Build consistency before adding more load')
+    }
+
+    return suggestions.length > 0
+      ? suggestions
+      : ['Maintain current workload until technique remains stable across sessions']
+  }
+
+  private generateModifications(exercise: Exercise, history: ExerciseHistory): string[] {
+    const modifications: string[] = []
+
+    if (history.formIssues.length > 0) {
+      modifications.push(`Reduce load on ${exercise.name} while fixing form issues`)
+    }
+    if (exercise.difficulty === 'advanced') {
+      modifications.push('Use an easier variation if fatigue starts to affect control')
+    }
+
+    return modifications.length > 0
+      ? modifications
+      : ['No modifications needed right now']
   }
   
   private requiresClearance(injuryType: string): boolean {

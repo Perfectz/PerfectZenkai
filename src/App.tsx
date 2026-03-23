@@ -2,6 +2,7 @@ import { useRoutes } from 'react-router-dom'
 import { appRoutes } from './app/routes'
 import { usePerformanceMonitoring } from '@/shared/hooks/usePerformanceMonitoring'
 import { AccessibilityProvider } from '@/shared/components/AccessibilityProvider'
+import AppLifecycleManager from '@/app/module-system/AppLifecycleManager'
 import '@/scripts/cleanupDuplicates'
 import { runDuplicateCleanup } from './scripts/cleanupDuplicates'
 import { runImmediateCleanup, runCompleteReset, runSmartCleanup } from './scripts/immediateCleanup'
@@ -20,6 +21,7 @@ function App() {
 
   return (
     <AccessibilityProvider>
+      <AppLifecycleManager />
       {element}
     </AccessibilityProvider>
   )

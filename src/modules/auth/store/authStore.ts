@@ -2,9 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AuthState, User } from '../types/auth'
 import { supabaseAuth } from '../services/supabaseAuth'
+import { localAuthService } from '../services/localAuth'
 import { offlineSyncService } from '@/shared/services/OfflineSyncService'
-import { initializeWeightStore } from '@/modules/weight'
-import { initializeNotesStore } from '@/modules/notes'
 import { ttsService } from '@/modules/ai-chat/services/TextToSpeechService'
 
 interface LoginCredentials {
@@ -86,26 +85,6 @@ const withRetry = async <T>(
   throw lastError!
 }
 
-// Helper function to sanitize user IDs for use in paths or keys
-const sanitizeUserId = (userId: string): string => {
-  // Replace non-alphanumeric characters with underscores
-  return userId.replace(/[^a-zA-Z0-9]/g, '_')
-}
-
-// Helper function to initialize user-specific databases
-const initializeUserDatabases = (sanitizedUserId: string) => {
-  // This function would contain logic to initialize or switch to user-specific databases
-  // For now, it's a placeholder to demonstrate the concept.
-  console.log(`Initializing databases for user: ${sanitizedUserId}`)
-  // Example: initializeWeightStore(sanitizedUserId), initializeNotesStore(sanitizedUserId)
-}
-
-// Helper function to clear user-specific databases
-const clearUserDatabases = async (sanitizedUserId: string) => {
-  console.log(`Clearing databases for user: ${sanitizedUserId}`)
-  // Example: await clearWeightStore(sanitizedUserId), await clearNotesStore(sanitizedUserId)
-}
-
 // Global flag to track if auth state change has provided user info
 let authStateChangeProvidedUser = false
 
@@ -131,6 +110,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           let user: User | null = null
           let token: string = ''
+          let lastAuthError: string | null = null
 
           try {
             const { user: supabaseUser, error } =
@@ -141,15 +121,27 @@ export const useAuthStore = create<AuthStore>()(
 
             if (error) {
               console.error('❌ Supabase login error:', error)
-              throw new Error(error.message)
+              lastAuthError = error.message
+            } else {
+              user = supabaseUser
+              token = supabaseUser?.id || ''
             }
-
-            user = supabaseUser
-            token = user?.id || ''
           } catch (supabaseError) {
             console.error('❌ Supabase login failed:', supabaseError)
-            const errorMessage = supabaseError instanceof Error ? supabaseError.message : 'Authentication failed'
-            throw new Error(`Authentication failed: ${errorMessage}`)
+            lastAuthError = supabaseError instanceof Error ? supabaseError.message : 'Authentication failed'
+          }
+
+          if (!user) {
+            try {
+              const localSession = await localAuthService.login(credentials)
+              user = localSession.user
+              token = localSession.token
+              console.log('✅ Local revival-mode login successful')
+            } catch (localError) {
+              console.error('❌ Local login failed:', localError)
+              const localErrorMessage = localError instanceof Error ? localError.message : 'Local authentication failed'
+              throw new Error(lastAuthError ? `${lastAuthError}. Local fallback: ${localErrorMessage}` : localErrorMessage)
+            }
           }
 
           console.log('🔍 Login result:', { user, token })
@@ -170,12 +162,10 @@ export const useAuthStore = create<AuthStore>()(
             retryCount: 0, // Reset retry count on success
           })
 
-          // Initialize user-specific databases for data isolation
-          const sanitizedUserId = sanitizeUserId(user.id)
-          initializeUserDatabases(sanitizedUserId)
-
           // Trigger full sync after successful login
-          offlineSyncService.fullSync()
+          if (user.authProvider === 'supabase') {
+            offlineSyncService.fullSync()
+          }
 
           console.log('🎉 Login process completed successfully')
         } catch (error) {
@@ -207,12 +197,11 @@ export const useAuthStore = create<AuthStore>()(
             data.password
           )
 
-          if (error) {
-            throw new Error(error.message)
-          }
-
-          if (!user) {
-            throw new Error('Registration failed')
+          if (error || !user) {
+            console.warn('⚠️ Supabase registration unavailable, switching to local revival-mode auth')
+            await localAuthService.register(data)
+          } else {
+            console.log('✅ Supabase registration completed:', user.username || user.name)
           }
 
           // For registration, we'll just set loading to false and not authenticate
@@ -243,18 +232,9 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true })
 
         try {
-          // Clear user-specific databases if user exists
-          if (state.user?.id) {
-            try {
-              const sanitizedUserId = sanitizeUserId(state.user.id)
-              await clearUserDatabases(sanitizedUserId)
-            } catch (error) {
-              console.error('Error clearing user databases:', error)
-            }
-          }
-
           // Logout from appropriate service
           await supabaseAuth.logout()
+          localAuthService.logout()
 
           // Clear local state
           set({
@@ -329,6 +309,19 @@ export const useAuthStore = create<AuthStore>()(
           let token: string = ''
 
           console.log('🔍 Checking Supabase auth status...')
+
+          const localSession = localAuthService.getCurrentUser()
+          if (localSession) {
+            console.log('✅ Local revival-mode session restored:', localSession.user.username)
+            set({
+              isAuthenticated: true,
+              user: localSession.user,
+              token: localSession.token,
+              isCheckingAuth: false,
+              retryCount: 0,
+            })
+            return
+          }
           
           // If auth state change already provided user, skip the potentially hanging Supabase call
           const state = get()
@@ -384,14 +377,6 @@ export const useAuthStore = create<AuthStore>()(
             isCheckingAuth: false,
             retryCount: 0,
           })
-
-          // Initialize user databases if user exists and is authenticated
-          if (user?.id) {
-            const sanitizedUserId = sanitizeUserId(user.id)
-            initializeUserDatabases(sanitizedUserId)
-            
-            // Note: Simple todo system initializes automatically, no manual initialization needed
-          }
         } catch (error) {
           console.error('Check auth status error:', error)
           
@@ -433,19 +418,6 @@ export const useAuthStore = create<AuthStore>()(
           error: null,
           retryCount: 0,
         })
-
-        // Initialize user-specific databases
-        const sanitizedUserId = sanitizeUserId(user.id)
-        initializeUserDatabases(sanitizedUserId)
-        
-        // Initialize module stores after user is set
-        try {
-          await initializeWeightStore()
-          await initializeNotesStore()
-          // Note: Simple todo system initializes automatically
-        } catch (error) {
-          console.error('Failed to initialize module stores in setUser:', error)
-        }
       },
 
       // MVP-10: Force logout from all auth services
@@ -459,6 +431,8 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           console.error('❌ Supabase logout failed:', error)
         }
+
+        localAuthService.logout()
 
         
 
@@ -529,12 +503,16 @@ supabaseAuth.onAuthStateChange(async (user) => {
   
   try {
     const store = useAuthStore.getState()
+
+    if (store.user?.authProvider === 'local') {
+      return
+    }
     
     if (user && !store.isAuthenticated) {
       console.log('🔄 Auth state change: user logged in')
       authStateChangeProvidedUser = true
       await store.setUser(user, user.id)
-    } else if (!user && store.isAuthenticated) {
+    } else if (!user && store.isAuthenticated && store.user?.authProvider === 'supabase') {
       console.log('🔄 Auth state change: user logged out')
       authStateChangeProvidedUser = false
       await store.logout()

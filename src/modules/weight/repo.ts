@@ -1,27 +1,12 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
-import { getSupabaseClient } from '@/lib/supabase-client'
+import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 
-// Supabase database row interfaces
-interface SupabaseWeightEntry {
-  id: string
-  date_iso: string
-  kg: number
-  user_id: string
-  created_at?: string
-  updated_at?: string
-}
-
-interface SupabaseWeightGoal {
-  id: string
-  goal_type: 'lose' | 'gain' | 'maintain'
-  target_weight: number
-  target_date: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
+type WeightEntryRow = Database['public']['Tables']['weight_entries']['Row']
+type WeightEntryUpdate = Database['public']['Tables']['weight_entries']['Update']
+type WeightGoalRow = Database['public']['Tables']['weight_goals']['Row']
+type WeightGoalUpdate = Database['public']['Tables']['weight_goals']['Update']
 
 class WeightDatabase extends Dexie {
   weights!: Table<WeightEntry>
@@ -175,7 +160,7 @@ export const supabaseWeightRepo = {
 
     if (error) throw error
 
-    return (data || []).map((item: SupabaseWeightEntry) => ({
+    return (data || []).map((item: WeightEntryRow) => ({
       id: item.id,
       dateISO: item.date_iso ?? '',
       kg: item.kg ?? 0,
@@ -212,7 +197,7 @@ export const supabaseWeightRepo = {
     const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
-    const updateData: Record<string, unknown> = {}
+    const updateData: WeightEntryUpdate = {}
     if (updates.dateISO !== undefined) updateData.date_iso = updates.dateISO
     if (updates.kg !== undefined) updateData.kg = updates.kg
 
@@ -525,7 +510,7 @@ export const supabaseWeightGoalRepo = {
     const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
-    const updateData: Record<string, unknown> = {}
+    const updateData: WeightGoalUpdate = {}
     if (goal.goalType !== undefined) updateData.goal_type = goal.goalType
     if (goal.targetWeight !== undefined) updateData.target_weight = goal.targetWeight
     if (goal.targetDate !== undefined) updateData.target_date = goal.targetDate
@@ -610,7 +595,7 @@ export const supabaseWeightGoalRepo = {
 
     if (error) throw error
 
-    return (data || []).map((item: SupabaseWeightGoal) => ({
+    return (data || []).map((item: WeightGoalRow) => ({
       id: item.id,
       goalType: item.goal_type,
       targetWeight: item.target_weight ?? 0,

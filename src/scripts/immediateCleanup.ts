@@ -6,6 +6,22 @@ import { useAuthStore } from '@/modules/auth'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import type { Todo } from '@/modules/tasks/types'
 
+const normalizePriority = (priority: string | null | undefined): Todo['priority'] => {
+  if (priority === 'low' || priority === 'medium' || priority === 'high') {
+    return priority
+  }
+
+  return 'medium'
+}
+
+const normalizeCategory = (category: string | null | undefined): Todo['category'] => {
+  if (category === 'work' || category === 'personal' || category === 'health' || category === 'learning' || category === 'other') {
+    return category
+  }
+
+  return 'other'
+}
+
 export async function runImmediateCleanup() {
   console.log('🧹 Starting immediate duplicate cleanup...')
   
@@ -145,13 +161,13 @@ export async function runSmartCleanup() {
         description: item.description || '',
         descriptionFormat: 'plaintext',
         done: item.done || false,
-        priority: item.priority || 'medium',
-        category: item.category || 'other',
+        priority: normalizePriority(item.priority),
+        category: normalizeCategory(item.category),
         points: item.points || 5,
-        dueDate: item.due_date,
+        dueDate: item.due_date ?? undefined,
         subtasks: [],
-        createdAt: item.created_at,
-        updatedAt: item.updated_at || item.created_at,
+        createdAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.updated_at || item.created_at || new Date().toISOString(),
       }))
       
       console.log(`☁️  Found ${cloudTasks.length} cloud tasks`)

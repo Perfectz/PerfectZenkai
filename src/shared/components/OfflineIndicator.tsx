@@ -125,7 +125,7 @@ export function OfflineIndicator() {
     return (
       <Badge
         variant="outline"
-        className={`fixed bottom-4 left-4 z-50 cursor-pointer transition-all hover:scale-105 ${getStatusColor()}`}
+        className={`fixed right-4 top-[calc(var(--app-top-bar-height)+0.75rem)] z-50 cursor-pointer transition-all hover:scale-105 sm:left-6 sm:right-auto sm:top-auto sm:bottom-6 ${getStatusColor()}`}
         onClick={() => setExpanded(true)}
       >
         <div className="flex items-center gap-1.5">
@@ -137,7 +137,7 @@ export function OfflineIndicator() {
   }
 
   return (
-    <Card className="fixed bottom-4 left-4 z-50 w-72 cyber-card animate-in slide-in-from-bottom-2">
+    <Card className="fixed right-4 top-[calc(var(--app-top-bar-height)+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] cyber-card animate-in slide-in-from-bottom-2 sm:left-6 sm:right-auto sm:top-auto sm:bottom-6 sm:w-72">
       <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">

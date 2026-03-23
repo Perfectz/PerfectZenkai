@@ -135,6 +135,10 @@ dist-ssr/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.playwright-cli/
+
+# Test/debug output
+output/
 
 # Vitest
 coverage/

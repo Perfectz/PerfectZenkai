@@ -6,11 +6,11 @@ import { getSupabaseClient } from '@/lib/supabase-client'
 // Supabase database row interface
 interface SupabaseNote {
   id: string
-  title: string
-  content: string
+  title?: string | null
+  content?: string | null
   user_id: string
-  created_at: string
-  updated_at: string
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 class NotesDatabase extends Dexie {
@@ -204,49 +204,88 @@ export const notesRepo = {
 // Hybrid repository that uses Supabase when available, falls back to IndexedDB
 export const hybridNotesRepo = {
   async addNote(note: Omit<Note, 'id'>, userId?: string): Promise<Note> {
-    if (!userId) {
-      return await notesRepo.addNote(note)
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        const result = await supabaseNotesRepo.addNote(note, userId)
+        await notesRepo.addNote(note)
+        return result
+      }
+    } catch (error) {
+      console.warn('Supabase note save failed, using local storage:', error)
     }
-    const result = await supabaseNotesRepo.addNote(note, userId)
-    await notesRepo.addNote(note) // Always save to local for offline access
-    return result
+
+    return notesRepo.addNote(note)
   },
 
   async updateNote(id: string, updates: Partial<Omit<Note, 'id'>>, userId?: string): Promise<void> {
-    if (!userId) {
-      return await notesRepo.updateNote(id, updates)
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        await supabaseNotesRepo.updateNote(id, updates)
+      }
+    } catch (error) {
+      console.warn('Supabase note update failed, using local storage:', error)
     }
-    await supabaseNotesRepo.updateNote(id, updates)
-    await notesRepo.updateNote(id, updates) // Always update local for offline access
+
+    await notesRepo.updateNote(id, updates)
   },
 
   async deleteNote(id: string, userId?: string): Promise<void> {
-    if (!userId) {
-      return await notesRepo.deleteNote(id)
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        await supabaseNotesRepo.deleteNote(id)
+      }
+    } catch (error) {
+      console.warn('Supabase note delete failed, continuing with local storage:', error)
     }
-    await supabaseNotesRepo.deleteNote(id)
-    await notesRepo.deleteNote(id) // Always delete from local
+
+    await notesRepo.deleteNote(id)
   },
 
   async getAllNotes(userId?: string): Promise<Note[]> {
-    if (!userId) {
-      return await notesRepo.getAllNotes()
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        return await supabaseNotesRepo.getAllNotes(userId)
+      }
+    } catch (error) {
+      console.warn('Supabase notes fetch failed, using local storage:', error)
     }
-    return await supabaseNotesRepo.getAllNotes(userId)
+
+    return notesRepo.getAllNotes()
   },
 
   async getNoteById(id: string, userId?: string): Promise<Note | undefined> {
-    if (!userId) {
-      return await notesRepo.getNoteById(id)
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        return await supabaseNotesRepo.getNoteById(id)
+      }
+    } catch (error) {
+      console.warn('Supabase note fetch failed, using local storage:', error)
     }
-    return await supabaseNotesRepo.getNoteById(id)
+
+    return notesRepo.getNoteById(id)
   },
 
   async clearAll(userId?: string): Promise<void> {
-    if (!userId) {
-      return await notesRepo.clearAll()
+    const supabase = await getSupabaseClient()
+
+    try {
+      if (supabase && userId) {
+        await supabaseNotesRepo.clearAll(userId)
+      }
+    } catch (error) {
+      console.warn('Supabase notes clear failed, continuing with local storage:', error)
     }
-    await supabaseNotesRepo.clearAll(userId)
-    await notesRepo.clearAll() // Always clear local
+
+    await notesRepo.clearAll()
   },
 }

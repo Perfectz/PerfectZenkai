@@ -1,9 +1,9 @@
 
 import { create } from 'zustand'
-import { getSupabaseClient } from '@/lib/supabase-client'
 import { offlineSyncService } from '@/shared/services/OfflineSyncService'
+import { useAuthStore } from '@/modules/auth'
+import { hybridWorkoutRepo, initializeWorkoutDatabase } from '../repo'
 
-// Use non-null assertion since supabase should be available in this context
 import { 
   WorkoutEntry, 
   Exercise, 
@@ -68,15 +68,13 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_entries')
-          .select('*')
-          .order('created_at', { ascending: false })
+        const userId = useAuthStore.getState().user?.id
+        if (userId) {
+          await initializeWorkoutDatabase(userId)
+        }
 
-        if (error) throw error
-        set({ workouts: data || [], isLoading: false })
+        const workouts = await hybridWorkoutRepo.getAllWorkouts(userId)
+        set({ workouts, isLoading: false })
         return // Success, exit function
       } catch (error) {
         console.error(`❌ Failed to load workouts (attempt ${i + 1}/${MAX_RETRIES}):`, error)
@@ -98,29 +96,12 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .order('name')
+        const userId = useAuthStore.getState().user?.id
+        if (userId) {
+          await initializeWorkoutDatabase(userId)
+        }
 
-        if (error) throw error
-        
-        // Map snake_case fields to camelCase for the store
-        const mappedData = (data || []).map(item => ({
-          id: item.id,
-          name: item.name,
-          type: item.type,
-          category: item.category,
-          description: item.description,
-          instructions: item.instructions,
-          muscleGroups: item.muscle_groups, // snake_case to camelCase
-          equipment: item.equipment,
-          isCustom: item.is_custom, // snake_case to camelCase
-          createdAt: item.created_at,
-          updatedAt: item.updated_at,
-        }))
+        const mappedData = await hybridWorkoutRepo.getAllExercises(userId)
         
         set({ exercises: mappedData, isLoading: false })
         return // Success, exit function
@@ -144,15 +125,13 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_templates')
-          .select('*')
-          .order('name')
+        const userId = useAuthStore.getState().user?.id
+        if (userId) {
+          await initializeWorkoutDatabase(userId)
+        }
 
-        if (error) throw error
-        set({ templates: data || [], isLoading: false })
+        const templates = await hybridWorkoutRepo.getAllTemplates(userId)
+        set({ templates, isLoading: false })
         return // Success, exit function
       } catch (error) {
         console.error(`❌ Failed to load templates (attempt ${i + 1}/${MAX_RETRIES}):`, error)
@@ -287,15 +266,13 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_goals')
-          .select('*')
-          .order('created_at', { ascending: false })
+        const userId = useAuthStore.getState().user?.id
+        if (userId) {
+          await initializeWorkoutDatabase(userId)
+        }
 
-        if (error) throw error
-        set({ goals: data || [], isLoading: false })
+        const goals = await hybridWorkoutRepo.getAllGoals(userId)
+        set({ goals, isLoading: false })
         return // Success, exit function
       } catch (error) {
         console.error(`❌ Failed to load goals (attempt ${i + 1}/${MAX_RETRIES}):`, error)
@@ -324,24 +301,15 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
           workoutData.intensity
         )
 
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_entries')
-          .insert([{
-            ...workoutData,
-            calories,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const mappedWorkout = await hybridWorkoutRepo.addWorkout({
+          ...workoutData,
+          calories,
+        }, userId)
 
         const { workouts } = get()
         set({ 
-          workouts: [data, ...workouts],
+          workouts: [mappedWorkout, ...workouts],
           isLoading: false 
         })
 
@@ -351,8 +319,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         offlineSyncService.queueOperation({
           type: 'CREATE',
           table: 'workout_entries',
-          data: data,
-          localId: data.id,
+          data: mappedWorkout,
+          localId: mappedWorkout.id,
           timestamp: new Date().toISOString(),
         })
         return // Success, exit function
@@ -376,23 +344,12 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_entries')
-          .update({
-            ...updates,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id)
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const mappedWorkout = await hybridWorkoutRepo.updateWorkout(id, updates, userId)
 
         const { workouts } = get()
         set({
-          workouts: workouts.map(w => w.id === id ? data : w),
+          workouts: workouts.map(w => w.id === id ? mappedWorkout : w),
           isLoading: false
         })
 
@@ -402,8 +359,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         offlineSyncService.queueOperation({
           type: 'UPDATE',
           table: 'workout_entries',
-          data: data,
-          localId: data.id,
+          data: mappedWorkout,
+          localId: mappedWorkout.id,
           timestamp: new Date().toISOString(),
         })
         return // Success, exit function
@@ -427,14 +384,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { error } = await supabase
-          .from('workout_entries')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        await hybridWorkoutRepo.deleteWorkout(id, userId)
 
         const { workouts } = get()
         set({
@@ -487,30 +438,17 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
           updated_at: new Date().toISOString()
         }
 
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('exercises')
-          .insert([dbData])
-          .select()
-          .single()
-
-        if (error) throw error
-
-        // Map snake_case fields back to camelCase for the store
-        const mappedData = {
-          id: data.id,
-          name: data.name,
-          type: data.type,
-          category: data.category,
-          description: data.description,
-          instructions: data.instructions,
-          muscleGroups: data.muscle_groups, // snake_case to camelCase
-          equipment: data.equipment,
-          isCustom: data.is_custom, // snake_case to camelCase
-          createdAt: data.created_at,
-          updatedAt: data.updated_at,
-        }
+        const userId = useAuthStore.getState().user?.id
+        const mappedData = await hybridWorkoutRepo.addExercise({
+          name: dbData.name,
+          type: dbData.type,
+          category: dbData.category,
+          description: dbData.description,
+          instructions: dbData.instructions,
+          muscleGroups: dbData.muscle_groups,
+          equipment: dbData.equipment,
+          isCustom: dbData.is_custom,
+        }, userId)
 
         const { exercises } = get()
         set({ 
@@ -560,31 +498,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         if (updates.equipment !== undefined) dbUpdates.equipment = updates.equipment
         if (updates.isCustom !== undefined) dbUpdates.is_custom = updates.isCustom
 
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('exercises')
-          .update(dbUpdates)
-          .eq('id', id)
-          .select()
-          .single()
-
-        if (error) throw error
-
-        // Map snake_case fields back to camelCase for the store
-        const mappedData = {
-          id: data.id,
-          name: data.name,
-          type: data.type,
-          category: data.category,
-          description: data.description,
-          instructions: data.instructions,
-          muscleGroups: data.muscle_groups, // snake_case to camelCase
-          equipment: data.equipment,
-          isCustom: data.is_custom, // snake_case to camelCase
-          createdAt: data.created_at,
-          updatedAt: data.updated_at,
-        }
+        const userId = useAuthStore.getState().user?.id
+        const mappedData = await hybridWorkoutRepo.updateExercise(id, updates, userId)
 
         const { exercises } = get()
         set({
@@ -620,14 +535,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { error } = await supabase
-          .from('exercises')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        await hybridWorkoutRepo.deleteExercise(id, userId)
 
         const { exercises } = get()
         set({
@@ -663,31 +572,20 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_templates')
-          .insert([{
-            ...templateData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const mappedTemplate = await hybridWorkoutRepo.addTemplate(templateData, userId)
 
         const { templates } = get()
         set({ 
-          templates: [...templates, data],
+          templates: [...templates, mappedTemplate],
           isLoading: false 
         })
 
         offlineSyncService.queueOperation({
           type: 'CREATE',
           table: 'workout_templates',
-          data: data,
-          localId: data.id,
+          data: mappedTemplate,
+          localId: mappedTemplate.id,
           timestamp: new Date().toISOString(),
         })
         return // Success, exit function
@@ -711,31 +609,20 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_templates')
-          .update({
-            ...updates,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id)
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const mappedTemplate = await hybridWorkoutRepo.updateTemplate(id, updates, userId)
 
         const { templates } = get()
         set({
-          templates: templates.map(t => t.id === id ? data : t),
+          templates: templates.map(t => t.id === id ? mappedTemplate : t),
           isLoading: false
         })
 
         offlineSyncService.queueOperation({
           type: 'UPDATE',
           table: 'workout_templates',
-          data: data,
-          localId: data.id,
+          data: mappedTemplate,
+          localId: mappedTemplate.id,
           timestamp: new Date().toISOString(),
         })
         return // Success, exit function
@@ -759,14 +646,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { error } = await supabase
-          .from('workout_templates')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        await hybridWorkoutRepo.deleteTemplate(id, userId)
 
         const { templates } = get()
         set({
@@ -802,19 +683,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_goals')
-          .insert([{
-            ...goalData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const data = await hybridWorkoutRepo.addGoal(goalData, userId)
 
         const { goals } = get()
         set({ 
@@ -850,19 +720,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-          .from('workout_goals')
-          .update({
-            ...updates,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id)
-          .select()
-          .single()
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        const data = await hybridWorkoutRepo.updateGoal(id, updates, userId)
 
         const { goals } = get()
         set({
@@ -898,14 +757,8 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
 
     for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { error } = await supabase
-          .from('workout_goals')
-          .delete()
-          .eq('id', id)
-
-        if (error) throw error
+        const userId = useAuthStore.getState().user?.id
+        await hybridWorkoutRepo.deleteGoal(id, userId)
 
         const { goals } = get()
         set({
@@ -948,43 +801,14 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
         const newExercises = EXERCISE_LIBRARY.filter(e => !existingNames.has(e.name))
         
         if (newExercises.length > 0) {
-          // Map camelCase fields to snake_case for database
-          const exercisesToInsert = newExercises.map(exercise => ({
-            name: exercise.name,
-            type: exercise.type,
-            category: exercise.category,
-            description: exercise.description,
-            instructions: exercise.instructions,
-            muscle_groups: exercise.muscleGroups, // camelCase to snake_case
-            equipment: exercise.equipment,
-            is_custom: false, // camelCase to snake_case
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }))
-
-          const supabase = await getSupabaseClient()
-        if (!supabase) throw new Error('Supabase not available')
-        const { data, error } = await supabase
-            .from('exercises')
-            .insert(exercisesToInsert)
-            .select()
-
-          if (error) throw error
-
-          // Map snake_case fields back to camelCase for the store
-          const mappedData = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            category: item.category,
-            description: item.description,
-            instructions: item.instructions,
-            muscleGroups: item.muscle_groups, // snake_case to camelCase
-            equipment: item.equipment,
-            isCustom: item.is_custom, // snake_case to camelCase
-            createdAt: item.created_at,
-            updatedAt: item.updated_at,
-          }))
+          const userId = useAuthStore.getState().user?.id
+          const mappedData = await hybridWorkoutRepo.seedExercises(
+            newExercises.map(exercise => ({
+              ...exercise,
+              isCustom: false,
+            })),
+            userId
+          )
 
           set({ 
             exercises: [...exercises, ...mappedData],

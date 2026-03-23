@@ -170,16 +170,35 @@ export default function TodoPage() {
   // const pointsStats = getPointsStats()
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="app-page space-y-6 pb-6 pt-2">
       {/* Page Header - Mobile optimized */}
-      <div className="space-y-2">
-        <h1 className="text-xl sm:text-2xl font-bold text-white">Tasks</h1>
-        <p className="text-sm text-gray-400">Manage your daily tasks</p>
+      <div className="page-header">
+        <div className="space-y-2">
+          <div className="inline-flex rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-200">
+            Focus queue
+          </div>
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">Tasks</h1>
+          <p className="text-sm text-gray-400 sm:text-base">Manage one-time tasks, recurring habits, and quick templates without the mobile crowding.</p>
+        </div>
+        <div className="grid w-full grid-cols-3 gap-3 sm:w-auto sm:min-w-[20rem]">
+          <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-center">
+            <div className="text-lg font-semibold text-white">{todos.length}</div>
+            <div className="text-xs text-slate-400">Total</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-center">
+            <div className="text-lg font-semibold text-ki-green">{incompleteTodos.length}</div>
+            <div className="text-xs text-slate-400">Open</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-center">
+            <div className="text-lg font-semibold text-cyan-300">{completedTodos.length}</div>
+            <div className="text-xs text-slate-400">Done</div>
+          </div>
+        </div>
       </div>
 
       {/* Overdue Tasks Alert - Mobile optimized */}
       {overdueTodos.length > 0 && (
-        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+        <Card className="border-red-500/30 bg-red-500/10">
           <CardContent className="pt-4">
             <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
@@ -194,7 +213,7 @@ export default function TodoPage() {
 
       {/* Points Summary Dashboard - Mobile optimized */}
       {todos.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+        <Card className="cyber-card border-cyan-400/15 bg-cyan-400/5">
           <CardContent className="pt-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="grid grid-cols-3 gap-4 w-full sm:w-auto">
@@ -234,21 +253,22 @@ export default function TodoPage() {
       )}
 
       {/* Add Todo Form - Mobile optimized */}
-      <Card>
+      <Card className="cyber-card">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 text-lg text-white">
               <Plus className="h-5 w-5" />
               Add New Task
             </div>
             {/* Task Creation Mode Toggle */}
-            <div className="flex rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+            <div className="panel-scroll-x -mx-1">
+            <div className="flex min-w-max rounded-xl bg-slate-900/80 p-1">
               <button
                 onClick={() => setTaskCreationMode('one-time')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                className={`min-h-[40px] rounded-lg px-3 py-1 text-sm transition-colors ${
                   taskCreationMode === 'one-time'
-                    ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-gray-400'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-400'
                 }`}
               >
                 <Clock className="h-4 w-4 inline mr-1" />
@@ -256,15 +276,16 @@ export default function TodoPage() {
               </button>
               <button
                 onClick={() => setTaskCreationMode('recurring')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                className={`min-h-[40px] rounded-lg px-3 py-1 text-sm transition-colors ${
                   taskCreationMode === 'recurring'
-                    ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-gray-400'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-400'
                 }`}
               >
                 <Repeat className="h-4 w-4 inline mr-1" />
                 Recurring
               </button>
+            </div>
             </div>
           </CardTitle>
         </CardHeader>
@@ -280,19 +301,19 @@ export default function TodoPage() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="text-base"
+                  className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
                   autoComplete="off"
                 />
               </div>
 
               {/* Quick options - Mobile optimized grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</label>
                   <select
                     value={selectedPriority}
                     onChange={(e) => setSelectedPriority(e.target.value as Priority)}
-                    className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                    className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
                   >
                     {PRIORITIES.map((priority) => (
                       <option key={priority.value} value={priority.value}>
@@ -307,7 +328,7 @@ export default function TodoPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value as Category)}
-                    className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                    className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
                   >
                     {CATEGORIES.map((category) => (
                       <option key={category.value} value={category.value}>
@@ -356,7 +377,7 @@ export default function TodoPage() {
 
               {/* Advanced options */}
               {showAdvanced && (
-                <div className="space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="space-y-3 rounded-xl border border-white/10 bg-slate-900/60 p-3">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Due Date</label>
                     <EnhancedDatePicker
@@ -409,21 +430,21 @@ export default function TodoPage() {
       </Card>
 
       {/* Filters and Sort - Mobile optimized */}
-      <Card>
+      <Card className="cyber-card">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg text-white">
             <Filter className="h-5 w-5" />
             Filters & Sort
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</label>
               <select
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value as Priority | 'all')}
-                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
               >
                                  <option value="all">All Priorities</option>
                  {PRIORITIES.map((priority) => (
@@ -439,7 +460,7 @@ export default function TodoPage() {
                <select
                  value={filterCategory}
                  onChange={(e) => setFilterCategory(e.target.value as Category | 'all')}
-                 className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                 className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
                >
                  <option value="all">All Categories</option>
                  {CATEGORIES.map((category) => (
@@ -455,7 +476,7 @@ export default function TodoPage() {
               <select
                 value={filterPoints}
                 onChange={(e) => setFilterPoints(e.target.value as 'all' | 'low' | 'medium' | 'high')}
-                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
               >
                 <option value="all">All Points</option>
                 <option value="low">Low (1-3 pts)</option>
@@ -469,7 +490,7 @@ export default function TodoPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'created' | 'priority' | 'dueDate' | 'points')}
-                className="w-full px-2 py-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-sm text-white"
               >
                 <option value="created">Created Date</option>
                 <option value="priority">Priority</option>
@@ -490,7 +511,7 @@ export default function TodoPage() {
         <div className="space-y-4">
           {/* Templates Section - Mobile optimized */}
           {templates.length > 0 && activeTab === 'all' && (
-            <Card>
+            <Card className="cyber-card">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Star className="h-5 w-5" />
@@ -528,7 +549,7 @@ export default function TodoPage() {
             <>
               {/* Active Recurring Tasks */}
               {sortedTodos.filter(isRecurringTodo).length > 0 && (
-                <Card>
+                <Card className="cyber-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between">
                       <span className="text-lg">🔄 Recurring Tasks</span>
@@ -551,7 +572,7 @@ export default function TodoPage() {
             <>
               {/* Incomplete One-time Tasks */}
               {incompleteTodos.length > 0 && (
-                <Card>
+                <Card className="cyber-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between">
                       <span className="text-lg">⚡ Active Tasks</span>
@@ -570,7 +591,7 @@ export default function TodoPage() {
 
               {/* Completed One-time Tasks */}
               {completedTodos.length > 0 && (
-                <Card>
+                <Card className="cyber-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between">
                       <span className="text-lg">✅ Completed Tasks</span>
@@ -593,7 +614,7 @@ export default function TodoPage() {
             <>
               {/* Recurring Tasks */}
               {sortedTodos.filter(isRecurringTodo).length > 0 && (
-                <Card>
+                <Card className="cyber-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between">
                       <span className="text-lg">🔄 Recurring Tasks</span>
@@ -612,7 +633,7 @@ export default function TodoPage() {
 
               {/* Incomplete Tasks */}
               {incompleteTodos.length > 0 && (
-                <Card>
+                <Card className="cyber-card">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center justify-between">
                       <span className="text-lg">⚡ Active Tasks</span>
@@ -652,7 +673,7 @@ export default function TodoPage() {
 
           {/* Empty State */}
           {sortedTodos.length === 0 && !isLoading && (
-            <Card className="text-center py-12">
+            <Card className="cyber-card py-12 text-center">
               <CardContent>
                 <CheckSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">

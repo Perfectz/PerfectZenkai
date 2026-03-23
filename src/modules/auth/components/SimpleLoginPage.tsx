@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { localAuthService } from '../services/localAuth'
 import { Button } from '@/shared/ui/button'
 import {
   Card,
@@ -38,12 +39,14 @@ import {
 
 export default function SimpleLoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login, register, isLoading, error, clearError, isAuthenticated } =
     useAuthStore()
   const [isRegisterMode, setIsRegisterMode] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [activeInfoSection, setActiveInfoSection] = useState<string | null>(null)
+  const bootstrapAdmin = localAuthService.getBootstrapAdminCredentials()
 
   const [formData, setFormData] = useState({
     username: '',
@@ -52,13 +55,18 @@ export default function SimpleLoginPage() {
     name: '',
   })
 
+  const redirectTarget =
+    typeof location.state === 'object' && location.state && 'from' in location.state
+      ? String((location.state as { from?: string }).from || '/')
+      : '/'
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('🚀 User is authenticated, redirecting to dashboard...')
-      navigate('/', { replace: true })
+      console.log(`🚀 User is authenticated, redirecting to ${redirectTarget}...`)
+      navigate(redirectTarget, { replace: true })
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, redirectTarget])
 
   // Clear error when component mounts or mode changes
   useEffect(() => {
@@ -127,6 +135,15 @@ export default function SimpleLoginPage() {
     clearError()
   }
 
+  const fillBootstrapAdmin = () => {
+    setFormData((prev) => ({
+      ...prev,
+      username: bootstrapAdmin.username,
+      password: bootstrapAdmin.password,
+    }))
+    setIsRegisterMode(false)
+  }
+
   const InfoSection = ({ 
     id, 
     title, 
@@ -140,23 +157,23 @@ export default function SimpleLoginPage() {
   }) => {
     const isActive = activeInfoSection === id
     return (
-      <Card className="border-0 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50">
+      <Card className="overflow-hidden border border-white/10 bg-slate-900/60 shadow-[0_16px_40px_rgba(2,8,23,0.2)] backdrop-blur-sm">
         <CardHeader className="pb-3">
           <Button
             variant="ghost"
             onClick={() => setActiveInfoSection(isActive ? null : id)}
-            className="flex items-center justify-between w-full p-0 h-auto text-left"
+            className="flex h-auto w-full items-center justify-between p-0 text-left text-slate-100 hover:bg-transparent"
           >
             <div className="flex items-center gap-3">
               <Icon className="h-6 w-6 text-ki-green" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-base font-semibold text-white sm:text-lg">
                 {title}
               </h3>
             </div>
             {isActive ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
+              <ChevronUp className="h-5 w-5 text-slate-400" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
+              <ChevronDown className="h-5 w-5 text-slate-400" />
             )}
           </Button>
         </CardHeader>
@@ -170,19 +187,19 @@ export default function SimpleLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col items-start gap-8 lg:flex-row">
+    <div className="min-h-[100dvh] bg-[radial-gradient(circle_at_top,rgba(34,255,183,0.12),transparent_28%),linear-gradient(180deg,#0f172a,#111827)]">
+      <div className="mx-auto max-w-[92rem] px-4 py-4 sm:px-6 sm:py-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,28rem)] lg:items-start lg:gap-8">
           {/* App Information Section - Left Side */}
-          <div className="w-full space-y-6 lg:w-2/3">
+          <div className="order-2 w-full space-y-5 lg:order-1">
             {/* Hero Section */}
-            <div className="space-y-6 text-center lg:text-left">
-              <div className="mb-6 flex items-center justify-center gap-4 lg:justify-start">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-ki-green to-blue-500 shadow-lg">
+            <div className="space-y-5 text-left">
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-ki-green to-blue-500 shadow-lg sm:h-16 sm:w-16">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-5xl font-bold text-gray-900 dark:text-white lg:text-6xl" style={{
+                  <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl" style={{
                     textShadow: '0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)',
                     background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%)',
                     WebkitBackgroundClip: 'text',
@@ -197,24 +214,45 @@ export default function SimpleLoginPage() {
                       backgroundClip: 'text'
                     }}>Zenkai</span>
                   </h1>
-                  <p className="text-sm font-mono text-gray-700 dark:text-gray-300 mt-1 font-semibold" style={{
+                  <p className="mt-1 text-xs font-mono font-semibold text-slate-300 sm:text-sm" style={{
                     textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                   }}>
                     全快 - Complete Wellness & Productivity
                   </p>
                 </div>
               </div>
-              <p className="max-w-2xl text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="max-w-3xl text-base leading-relaxed text-slate-300 sm:text-lg lg:text-xl">
                 The ultimate AI-powered personal wellness and productivity platform. 
                 Combining cutting-edge technology with intuitive design to help you 
                 achieve your <span className="font-semibold text-ki-green">perfect state of being</span>.
               </p>
               
               {/* Achievement Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-ki-green/10 to-blue-500/10 border border-ki-green/20 rounded-full">
+              <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-ki-green/20 bg-gradient-to-r from-ki-green/10 to-blue-500/10 px-4 py-2">
                 <TrendingUp className="h-4 w-4 text-ki-green" />
                 <span className="text-sm font-semibold text-ki-green">96.6% Code Quality Achievement</span>
-                <span className="text-xs text-gray-600 dark:text-gray-400">Enterprise-Grade</span>
+                <span className="text-xs text-slate-400">Enterprise-Grade</span>
+              </div>
+
+              <div className="rounded-2xl border border-amber-300/20 bg-amber-500/10 p-4 text-left shadow-sm backdrop-blur-sm">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="text-base font-semibold text-amber-100">
+                      Revival Mode Admin Preview
+                    </h2>
+                    <p className="mt-1 text-sm text-amber-200/90">
+                      Local auth is available right now so you can revive and inspect the app before rebuilding Supabase.
+                    </p>
+                    <div className="mt-3 space-y-1 text-sm font-mono text-amber-100">
+                      <div>username: {bootstrapAdmin.username}</div>
+                      <div>password: {bootstrapAdmin.password}</div>
+                      <div>role: {bootstrapAdmin.role}</div>
+                    </div>
+                  </div>
+                  <Button type="button" variant="outline" onClick={fillBootstrapAdmin} className="min-h-[44px] border-amber-300/30 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20">
+                    Use Admin Login
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -345,8 +383,8 @@ export default function SimpleLoginPage() {
                     <ol className="text-sm text-gray-600 dark:text-gray-300 space-y-1 list-decimal list-inside">
                       <li>Create an account or use offline mode</li>
                       <li>Install as PWA for the best experience</li>
-                      <li>Start with daily standup and weight tracking</li>
-                      <li>Explore AI chat for personalized insights</li>
+                      <li>Start with health tracking, tasks, and journal check-ins</li>
+                      <li>Use notes and reflections to build your routine before enabling AI features</li>
                     </ol>
                   </div>
                   <div>
@@ -509,9 +547,9 @@ export default function SimpleLoginPage() {
             </div>
 
             {/* Quick Stats */}
-            <Card className="border-0 bg-gradient-to-r from-ki-green/5 to-blue-500/5 border border-ki-green/20">
+            <Card className="border border-ki-green/20 bg-gradient-to-r from-ki-green/5 to-blue-500/5 backdrop-blur-sm">
               <CardContent className="pt-6">
-                <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white text-center">
+                <h3 className="mb-4 text-center text-lg font-semibold text-white sm:text-xl">
                   Platform Statistics
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -537,13 +575,16 @@ export default function SimpleLoginPage() {
           </div>
 
           {/* Login/Register Card - Right Side */}
-          <div className="w-full lg:sticky lg:top-8 lg:w-1/3">
-            <Card className="shadow-lg">
+          <div className="order-1 w-full lg:sticky lg:top-6 lg:order-2">
+            <Card className="cyber-card border-white/10 bg-slate-950/88 shadow-[0_24px_70px_rgba(2,8,23,0.45)] backdrop-blur-xl">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-center text-2xl">
+                <div className="mb-2 inline-flex w-fit self-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-200">
+                  Secure sign-in
+                </div>
+                <CardTitle className="text-center text-2xl text-white">
                   {isRegisterMode ? 'Create Account' : 'Welcome back'}
                 </CardTitle>
-                <CardDescription className="text-center">
+                <CardDescription className="text-center text-slate-400">
                   {isRegisterMode
                     ? 'Sign up to start your journey'
                     : 'Sign in to access your dashboard'}
@@ -571,7 +612,7 @@ export default function SimpleLoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Username Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username" className="text-slate-200">Username</Label>
                     <Input
                       id="username"
                       name="username"
@@ -581,12 +622,13 @@ export default function SimpleLoginPage() {
                       placeholder="Enter your username"
                       required
                       disabled={isLoading || registrationSuccess}
+                      className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
                     />
                   </div>
 
                   {/* Password Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-slate-200">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -598,12 +640,13 @@ export default function SimpleLoginPage() {
                         required
                         disabled={isLoading || registrationSuccess}
                         minLength={isRegisterMode ? 6 : undefined}
+                        className="h-12 rounded-xl border-white/10 bg-slate-900/80 pr-12 text-base text-white placeholder:text-slate-500"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-1 top-1 h-10 px-3 py-2 text-slate-400 hover:bg-transparent hover:text-white"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading || registrationSuccess}
                       >
@@ -615,7 +658,7 @@ export default function SimpleLoginPage() {
                       </Button>
                     </div>
                     {isRegisterMode && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-slate-500">
                         Password must be at least 6 characters
                       </p>
                     )}
@@ -625,7 +668,7 @@ export default function SimpleLoginPage() {
                   {isRegisterMode && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="name">Full Name (optional)</Label>
+                        <Label htmlFor="name" className="text-slate-200">Full Name (optional)</Label>
                         <Input
                           id="name"
                           name="name"
@@ -634,11 +677,12 @@ export default function SimpleLoginPage() {
                           onChange={handleInputChange}
                           placeholder="Enter your full name"
                           disabled={isLoading || registrationSuccess}
+                          className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-slate-200">Email</Label>
                         <Input
                           id="email"
                           name="email"
@@ -648,6 +692,7 @@ export default function SimpleLoginPage() {
                           placeholder="Enter your email"
                           required
                           disabled={isLoading || registrationSuccess}
+                          className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
                         />
                       </div>
                     </>
@@ -663,7 +708,7 @@ export default function SimpleLoginPage() {
                       !formData.password.trim() ||
                       (isRegisterMode && !formData.email.trim())
                     }
-                    className="h-12 w-full text-base font-medium"
+                    className="h-12 w-full rounded-xl text-base font-medium"
                   >
                     {isLoading ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -704,8 +749,8 @@ export default function SimpleLoginPage() {
 
                 {/* Demo Account Info */}
                 {!isRegisterMode && (
-                  <div className="mt-4 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
-                    <p className="text-center text-sm text-blue-700 dark:text-blue-300">
+                  <div className="mt-4 rounded-xl border border-cyan-400/15 bg-cyan-400/10 p-3">
+                    <p className="text-center text-sm text-cyan-100">
                       <strong>Cross-Device Sync:</strong> Your account works on
                       any device with cloud backup via Supabase
                     </p>
@@ -713,25 +758,25 @@ export default function SimpleLoginPage() {
                 )}
 
                 {/* App Stats */}
-                <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+                <div className="border-t border-white/10 pt-4">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      <div className="text-lg font-bold text-white">
                         Cloud
                       </div>
-                      <div className="text-xs text-gray-500">Sync</div>
+                      <div className="text-xs text-slate-500">Sync</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      <div className="text-lg font-bold text-white">
                         ∞
                       </div>
-                      <div className="text-xs text-gray-500">Devices</div>
+                      <div className="text-xs text-slate-500">Devices</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      <div className="text-lg font-bold text-white">
                         Secure
                       </div>
-                      <div className="text-xs text-gray-500">Backup</div>
+                      <div className="text-xs text-slate-500">Backup</div>
                     </div>
                   </div>
                 </div>

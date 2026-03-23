@@ -4,8 +4,10 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo, Priority, Category } from '../types'
-import { getSupabaseClient } from '@/lib/supabase-client'
+import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 import { useAuthStore } from '@/modules/auth'
+
+type TodoRow = Database['public']['Tables']['todos']['Row']
 
 // Simple database class
 class SimpleTodoDatabase extends Dexie {
@@ -97,7 +99,7 @@ export const simpleTodoRepo = {
 
           if (!error && data) {
             // Convert cloud data to local format and save
-            const cloudTodos: Todo[] = data.map(item => ({
+            const cloudTodos: Todo[] = data.map((item: TodoRow) => ({
               id: item.id,
               summary: item.summary || item.text || '',
               description: item.description || '',
@@ -253,7 +255,7 @@ export const simpleTodoRepo = {
       }
 
       const db = getDatabase()
-      const cloudTodos: Todo[] = data.map(item => ({
+      const cloudTodos: Todo[] = data.map((item: TodoRow) => ({
         id: item.id,
         summary: item.summary || item.text || '',
         description: item.description || '',

@@ -380,7 +380,7 @@ export class NotesKnowledgeAgent {
   // === CROSS-MODULE INTEGRATION ===
   async convertToTasks(notes: Note[], options: TaskConversionOptions): Promise<TaskConversion> {
     const convertedTasks: any[] = [];
-    let skippedNotes: string[] = [];
+    const skippedNotes: string[] = [];
 
     for (const note of notes) {
       const actionItems = await this.extractActionItems([note]);

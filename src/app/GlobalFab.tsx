@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/ui/button'
-import { Plus, Scale, CheckSquare, UtensilsCrossed, Dumbbell, BookOpen, MessageCircle, Keyboard, Settings, Mic, MicOff } from 'lucide-react'
+import { Plus, Scale, CheckSquare, UtensilsCrossed, Dumbbell, BookOpen, Calendar, Keyboard, Settings, Mic, MicOff } from 'lucide-react'
 import { useTouchFeedback } from '@/shared/hooks/useMobileInteractions'
 import { AccessibilitySettings } from '@/shared/components/AccessibilitySettings'
 
@@ -131,18 +131,18 @@ export default function GlobalFab() {
       voiceCommands: ['add note', 'new note', 'write note', 'note', 'journal']
     },
     {
-      key: 'chat',
-      label: 'AI Chat',
-      icon: <MessageCircle className="h-4 w-4" />,
+      key: 'journal',
+      label: 'Open Journal',
+      icon: <Calendar className="h-4 w-4" />,
       action: () => {
-        navigate('/chat')
+        navigate('/journal')
         setTimeout(() => {
-          const input = document.getElementById('chat-input')
+          const input = document.getElementById('morning-focus')
           if (input) input.focus()
         }, 100)
       },
       shortcut: 'C',
-      voiceCommands: ['open chat', 'ai chat', 'chat', 'assistant', 'help']
+      voiceCommands: ['open journal', 'journal', 'check in', 'daily reflection', 'standup']
     }
   ], [navigate])
 
@@ -182,7 +182,7 @@ export default function GlobalFab() {
         speechSynthesis.speak(utterance)
       }
     } else {
-      setVoiceError(`Command "${transcript}" not recognized. Try saying "add task", "log weight", or "open chat".`)
+      setVoiceError(`Command "${transcript}" not recognized. Try saying "add task", "log weight", or "open journal".`)
     }
   }
 
@@ -365,7 +365,7 @@ export default function GlobalFab() {
 
       {/* Expanded actions menu */}
       {isExpanded && (
-        <div className="fixed bottom-32 right-4 space-y-2 z-40">
+        <div className="fixed right-4 z-40 space-y-2 bottom-[calc(var(--app-bottom-nav-height)+1rem)] sm:bottom-24 sm:right-6">
           {quickActions.map((action, index) => (
             <Button
               key={action.key}
@@ -445,7 +445,7 @@ export default function GlobalFab() {
           }
         }}
         className={`
-          fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg z-40
+          fixed right-4 z-40 h-14 w-14 rounded-full shadow-lg bottom-[calc(var(--app-bottom-nav-height)+1rem)] sm:bottom-6 sm:right-6
           bg-gradient-to-r from-hyper-magenta to-plasma-cyan 
           hover:from-hyper-magenta/90 hover:to-plasma-cyan/90
           border-0 transition-all duration-200

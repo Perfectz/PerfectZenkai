@@ -1,6 +1,5 @@
 
-import { ChatInterface } from '../components/ChatInterface'
-import { MessageCircle, ArrowLeft, Shield, AlertTriangle } from 'lucide-react'
+import { MessageCircle, ArrowLeft, AlertTriangle, BookOpen, BarChart3, CheckSquare } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
@@ -11,98 +10,75 @@ export function ChatPage() {
   // Use the showSecurityNotice variable to avoid unused variable error
   console.debug('Security notice state:', String(showSecurityNotice))
 
-  // Check if AI chat is available (API key configured securely)
-  const isAiChatAvailable = import.meta.env.VITE_AI_CHAT_ENABLED === 'true' && 
-                           import.meta.env.VITE_OPENAI_API_KEY && 
-                           import.meta.env.VITE_APP_ENV !== 'production'
-
-  if (!isAiChatAvailable) {
-    return (
-      <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              aria-label="Go back"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-amber-500" />
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                AI Chat - Security Notice
-              </h1>
-            </div>
-          </div>
-        </div>
-
-        {/* Security Notice */}
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-              </div>
-              
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                AI Chat Temporarily Disabled
-              </h2>
-              
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                For security reasons, AI chat functionality has been disabled in this public deployment. 
-                API keys cannot be safely exposed in client-side applications.
-              </p>
-              
-              <div className="space-y-3 text-sm text-gray-500 dark:text-gray-500">
-                <p>✅ All other app features are fully functional</p>
-                <p>✅ Your data remains private and secure</p>
-                <p>✅ Todo lists, weight tracking, and notes work offline</p>
-              </div>
-              
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                Continue to Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-[100dvh] flex-col bg-slate-950 text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between border-b border-white/10 bg-slate-950/90 p-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-white/5"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
-            <MessageCircle className="w-6 h-6 text-blue-500" />
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              AI Fitness Coach
+            <MessageCircle className="h-6 w-6 text-cyan-400" />
+            <h1 className="text-lg font-semibold text-white">
+              Assistant Preview
             </h1>
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Online</span>
-        </div>
       </div>
 
-      {/* Chat Interface */}
-      <div className="flex-1 overflow-hidden">
-        <ChatInterface />
+      <div className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-[0_24px_70px_rgba(2,8,23,0.45)] backdrop-blur-xl">
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10">
+              <AlertTriangle className="h-8 w-8 text-amber-300" />
+            </div>
+
+            <h2 className="mb-3 text-xl font-semibold text-white">
+              Assistant workflow is not production-ready yet
+            </h2>
+
+            <p className="mb-6 text-slate-300">
+              This legacy AI workflow depends on unfinished service code and client-side secrets. It has been
+              isolated so the rest of the app can stay stable and trustworthy.
+            </p>
+
+            <div className="mb-6 grid gap-3 text-left sm:grid-cols-3">
+              <button
+                onClick={() => navigate('/health')}
+                className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-left transition-colors hover:bg-white/5"
+              >
+                <BarChart3 className="mb-3 h-5 w-5 text-cyan-300" />
+                <div className="font-medium text-white">Health Hub</div>
+                <div className="mt-1 text-sm text-slate-400">Log weight, meals, and workouts.</div>
+              </button>
+              <button
+                onClick={() => navigate('/todo')}
+                className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-left transition-colors hover:bg-white/5"
+              >
+                <CheckSquare className="mb-3 h-5 w-5 text-ki-green" />
+                <div className="font-medium text-white">Task Queue</div>
+                <div className="mt-1 text-sm text-slate-400">Capture priorities and recurring tasks.</div>
+              </button>
+              <button
+                onClick={() => navigate('/journal')}
+                className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-left transition-colors hover:bg-white/5"
+              >
+                <BookOpen className="mb-3 h-5 w-5 text-amber-300" />
+                <div className="font-medium text-white">Journal</div>
+                <div className="mt-1 text-sm text-slate-400">Use the real morning and evening check-ins.</div>
+              </button>
+            </div>
+
+            <p className="text-sm text-slate-500">
+              Keep using the core app surfaces. Re-enable assistant features only after the server-side AI flow is rebuilt.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

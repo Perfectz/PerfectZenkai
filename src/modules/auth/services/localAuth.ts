@@ -1,4 +1,4 @@
-import { User } from '../types/auth'
+import type { AuthRole, User } from '../types/auth'
 
 interface LoginCredentials {
   username: string
@@ -17,6 +17,7 @@ interface StoredUser {
   username: string
   email?: string
   name?: string
+  role: AuthRole
   passwordHash: string
   createdAt: string
 }
@@ -24,6 +25,8 @@ interface StoredUser {
 export class LocalAuthService {
   private readonly USERS_KEY = 'zenkai_users'
   private readonly CURRENT_USER_KEY = 'zenkai_current_user'
+  private readonly BOOTSTRAP_ADMIN_USERNAME = 'admin'
+  private readonly BOOTSTRAP_ADMIN_PASSWORD = 'revive-admin-123'
 
   /**
    * Simple hash function for passwords (in production, use bcrypt or similar)
@@ -45,9 +48,41 @@ export class LocalAuthService {
   private getStoredUsers(): StoredUser[] {
     try {
       const users = localStorage.getItem(this.USERS_KEY)
-      return users ? JSON.parse(users) : []
+      const parsedUsers = users ? (JSON.parse(users) as StoredUser[]) : []
+      const normalizedUsers = parsedUsers.map((user) => ({
+        ...user,
+        role: user.role ?? 'user',
+      }))
+
+      const hasAdmin = normalizedUsers.some((user) => user.role === 'admin')
+      if (!hasAdmin) {
+        normalizedUsers.unshift({
+          id: 'local_admin_bootstrap',
+          username: this.BOOTSTRAP_ADMIN_USERNAME,
+          email: 'admin@perfectzenkai.local',
+          name: 'Revival Admin',
+          role: 'admin',
+          passwordHash: this.hashPassword(this.BOOTSTRAP_ADMIN_PASSWORD),
+          createdAt: new Date().toISOString(),
+        })
+        this.saveUsers(normalizedUsers)
+      } else if (normalizedUsers.length !== parsedUsers.length || normalizedUsers.some((user, index) => user.role !== parsedUsers[index]?.role)) {
+        this.saveUsers(normalizedUsers)
+      }
+
+      return normalizedUsers
     } catch {
-      return []
+      const bootstrapAdmin: StoredUser = {
+        id: 'local_admin_bootstrap',
+        username: this.BOOTSTRAP_ADMIN_USERNAME,
+        email: 'admin@perfectzenkai.local',
+        name: 'Revival Admin',
+        role: 'admin',
+        passwordHash: this.hashPassword(this.BOOTSTRAP_ADMIN_PASSWORD),
+        createdAt: new Date().toISOString(),
+      }
+      this.saveUsers([bootstrapAdmin])
+      return [bootstrapAdmin]
     }
   }
 
@@ -82,6 +117,7 @@ export class LocalAuthService {
       username: data.username,
       email: data.email,
       name: data.name || data.username,
+      role: 'user',
       passwordHash: this.hashPassword(data.password),
       createdAt: new Date().toISOString(),
     }
@@ -95,6 +131,8 @@ export class LocalAuthService {
       email: newUser.email || '',
       name: newUser.name || newUser.username,
       username: newUser.username,
+      role: newUser.role,
+      authProvider: 'local',
     }
 
     return publicUser
@@ -137,6 +175,8 @@ export class LocalAuthService {
       email: storedUser.email || '',
       name: storedUser.name || storedUser.username,
       username: storedUser.username,
+      role: storedUser.role,
+      authProvider: 'local',
     }
 
     return { user: publicUser, token }
@@ -151,6 +191,8 @@ export class LocalAuthService {
       if (!currentSession) return null
 
       const session = JSON.parse(currentSession)
+      const storedUsers = this.getStoredUsers()
+      const storedUser = storedUsers.find((user) => user.id === session.user.id)
       const loginTime = session.loginTime || 0
       const now = Date.now()
       const sessionAge = now - loginTime
@@ -162,10 +204,12 @@ export class LocalAuthService {
       }
 
       const publicUser: User = {
-        id: session.user.id,
-        email: session.user.email || '',
-        name: session.user.name || session.user.username,
-        username: session.user.username,
+        id: storedUser?.id || session.user.id,
+        email: storedUser?.email || session.user.email || '',
+        name: storedUser?.name || session.user.name || session.user.username,
+        username: storedUser?.username || session.user.username,
+        role: storedUser?.role || session.user.role || 'user',
+        authProvider: 'local',
       }
 
       return { user: publicUser, token: session.token }
@@ -194,6 +238,58 @@ export class LocalAuthService {
    */
   getAllUsernames(): string[] {
     return this.getStoredUsers().map((user) => user.username)
+  }
+
+  getBootstrapAdminCredentials(): { username: string; password: string; role: AuthRole } {
+    this.getStoredUsers()
+    return {
+      username: this.BOOTSTRAP_ADMIN_USERNAME,
+      password: this.BOOTSTRAP_ADMIN_PASSWORD,
+      role: 'admin',
+    }
+  }
+
+  listUsers(): Array<Omit<StoredUser, 'passwordHash'>> {
+    return this.getStoredUsers().map(({ passwordHash: _passwordHash, ...user }) => user)
+  }
+
+  async updateUserRole(userId: string, role: AuthRole): Promise<User> {
+    const users = this.getStoredUsers()
+    const updatedUsers = users.map((user) =>
+      user.id === userId ? { ...user, role } : user
+    )
+    const updatedUser = updatedUsers.find((user) => user.id === userId)
+
+    if (!updatedUser) {
+      throw new Error('User not found')
+    }
+
+    this.saveUsers(updatedUsers)
+
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email || '',
+      name: updatedUser.name || updatedUser.username,
+      username: updatedUser.username,
+      role: updatedUser.role,
+      authProvider: 'local',
+    }
+  }
+
+  async resetPassword(userId: string, password: string): Promise<void> {
+    const users = this.getStoredUsers()
+    const updatedUsers = users.map((user) =>
+      user.id === userId
+        ? { ...user, passwordHash: this.hashPassword(password) }
+        : user
+    )
+
+    const foundUser = updatedUsers.some((user) => user.id === userId)
+    if (!foundUser) {
+      throw new Error('User not found')
+    }
+
+    this.saveUsers(updatedUsers)
   }
 }
 

@@ -1,3 +1,6 @@
+export type AuthRole = 'user' | 'admin'
+export type AuthProvider = 'supabase' | 'local'
+
 export interface User {
   id: string
   email: string
@@ -6,6 +9,8 @@ export interface User {
   picture?: string
   given_name?: string
   family_name?: string
+  role: AuthRole
+  authProvider: AuthProvider
 }
 
 export interface AuthState {

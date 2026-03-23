@@ -1,13 +1,16 @@
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import type { AuthRole } from '../types/auth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
+  requiredRoles?: AuthRole | AuthRole[]
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
+  const location = useLocation()
   const { 
     isAuthenticated, 
     isLoading, 
@@ -111,7 +114,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
+
+  if (requiredRoles) {
+    const allowedRoles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
+    if (!user || !allowedRoles.includes(user.role)) {
+      return <Navigate to="/" replace />
+    }
   }
 
   // Render protected content

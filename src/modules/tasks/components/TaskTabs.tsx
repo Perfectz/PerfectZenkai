@@ -45,9 +45,10 @@ export function TaskTabs({ todos, activeTab, onTabChange, children }: TaskTabsPr
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
-      <Card>
-        <CardContent className="p-3">
-          <div className="flex flex-wrap gap-2">
+      <Card className="cyber-card overflow-hidden">
+        <CardContent className="p-2 sm:p-3">
+          <div className="panel-scroll-x">
+            <div className="flex min-w-max gap-2 sm:min-w-0 sm:flex-wrap">
             {TAB_CONFIGS.map((tab) => {
               const count = tab.getCount(todos)
               const isActive = activeTab === tab.id
@@ -57,11 +58,11 @@ export function TaskTabs({ todos, activeTab, onTabChange, children }: TaskTabsPr
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    "min-h-[44px] flex-1 sm:flex-none", // Mobile touch target and responsive
+                    "flex min-h-[46px] items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200",
+                    "min-w-[8.75rem] sm:min-w-0 sm:flex-1",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                   role="tab"
                   aria-selected={isActive}
@@ -83,6 +84,7 @@ export function TaskTabs({ todos, activeTab, onTabChange, children }: TaskTabsPr
                 </button>
               )
             })}
+            </div>
           </div>
         </CardContent>
       </Card>

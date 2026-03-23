@@ -25,7 +25,7 @@ export class WeightAnalyticsEngine {
    */
   analyzeTrends(weights: WeightEntry[]): WeightTrendAnalysis {
     const cacheKey = `trends_${this.hashWeights(weights)}`
-    const cached = this.getFromCache(cacheKey)
+    const cached = this.getFromCache<WeightTrendAnalysis>(cacheKey)
     if (cached) return cached
 
     if (weights.length < 2) {
@@ -35,7 +35,9 @@ export class WeightAnalyticsEngine {
         confidence: 0.1,
         totalChange: 0,
         streakDays: 0,
-        volatility: 0
+        volatility: 0,
+        weeklyChange: 0,
+        pattern: 'steady'
       }
     }
 
@@ -63,6 +65,12 @@ export class WeightAnalyticsEngine {
     const totalChange = cleanedWeights[0].kg - cleanedWeights[cleanedWeights.length - 1].kg
     const streakDays = this.calculateStreak(cleanedWeights)
     const volatility = this.calculateVolatility(cleanedWeights)
+    const weeklyChange = Number((slope * 7).toFixed(2))
+    const pattern: WeightTrendAnalysis['pattern'] = this.detectPlateaus(cleanedWeights).length > 0
+      ? 'plateau'
+      : volatility > 1.5
+        ? 'volatile'
+        : 'steady'
 
     const result: WeightTrendAnalysis = {
       trend,
@@ -70,7 +78,9 @@ export class WeightAnalyticsEngine {
       confidence: Math.min(rSquared, 0.95), // Cap confidence at 95%
       totalChange,
       streakDays,
-      volatility
+      volatility,
+      weeklyChange,
+      pattern
     }
 
     this.setCache(cacheKey, result)
@@ -82,7 +92,7 @@ export class WeightAnalyticsEngine {
    */
   identifyPatterns(weights: WeightEntry[]): string[] {
     const cacheKey = `patterns_${this.hashWeights(weights)}`
-    const cached = this.getFromCache(cacheKey)
+    const cached = this.getFromCache<string[]>(cacheKey)
     if (cached) return cached
 
     const patterns: string[] = []
@@ -132,7 +142,7 @@ export class WeightAnalyticsEngine {
    */
   calculateStatistics(weights: WeightEntry[]): WeightStatistics {
     const cacheKey = `stats_${this.hashWeights(weights)}`
-    const cached = this.getFromCache(cacheKey)
+    const cached = this.getFromCache<WeightStatistics>(cacheKey)
     if (cached) return cached
 
     if (weights.length === 0) {
@@ -192,7 +202,7 @@ export class WeightAnalyticsEngine {
    */
   detectPlateaus(weights: WeightEntry[]): WeightPlateau[] {
     const cacheKey = `plateaus_${this.hashWeights(weights)}`
-    const cached = this.getFromCache(cacheKey)
+    const cached = this.getFromCache<WeightPlateau[]>(cacheKey)
     if (cached) return cached
 
     const plateaus: WeightPlateau[] = []
@@ -352,16 +362,16 @@ export class WeightAnalyticsEngine {
     return weights.map(w => `${w.kg}-${w.dateISO}`).join('|')
   }
 
-  private getFromCache(key: string): unknown {
+  private getFromCache<T>(key: string): T | null {
     const cached = this.cache.get(key)
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-      return cached.data
+      return cached.data as T
     }
     this.cache.delete(key)
     return null
   }
 
-  private setCache(key: string, data: unknown): void {
+  private setCache<T>(key: string, data: T): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now()

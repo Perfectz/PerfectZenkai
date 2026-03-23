@@ -11,16 +11,16 @@ import AuthDebugger from '@/modules/auth/components/AuthDebugger'
 export default function AppLayout() {
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-background">
+      <div className="app-shell bg-background">
         {/* Offline Status Indicator */}
         <OfflineIndicator />
 
         {/* Navigation Bar (includes top user bar and bottom nav) */}
         <NavigationBar />
 
-        {/* Main Content - Mobile optimized with proper spacing */}
-        <main className="px-4 sm:px-6 pb-20 sm:pb-24 pt-16 sm:pt-20 max-w-7xl mx-auto">
-          <div className="min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-12rem)]">
+        {/* Main Content - Shared shell spacing for desktop and phone */}
+        <main className="app-main">
+          <div className="app-page min-h-[calc(100dvh-var(--app-top-bar-height)-var(--app-bottom-nav-height)-1.5rem)]">
             <Outlet />
           </div>
         </main>

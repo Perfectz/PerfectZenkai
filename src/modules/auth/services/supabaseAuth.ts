@@ -136,6 +136,8 @@ export class SupabaseAuthService {
         id: authData.user.id,
         name: username,
         email: authData.user.email || email,
+        role: 'user',
+        authProvider: 'supabase',
       }
 
       console.log('🎉 Registration successful:', user)
@@ -170,7 +172,7 @@ export class SupabaseAuthService {
     email: string,
     password: string
   ): Promise<{ user: User | null; error: AuthError | null }> {
-    if (!this.isSupabaseAvailable()) {
+    if (!(await this.isSupabaseAvailable())) {
       return { user: null, error: this.getUnavailableError() }
     }
 
@@ -220,6 +222,8 @@ export class SupabaseAuthService {
         id: authData.user.id,
         name: profile?.username || authData.user.user_metadata?.username || 'User',
         email: authData.user.email || email,
+        role: 'user',
+        authProvider: 'supabase',
       }
 
       info('Login successful:', user)
@@ -240,7 +244,7 @@ export class SupabaseAuthService {
     username: string,
     password: string
   ): Promise<{ user: User | null; error: AuthError | null }> {
-    if (!this.isSupabaseAvailable()) {
+    if (!(await this.isSupabaseAvailable())) {
       logError('Supabase client not available')
       return { user: null, error: this.getUnavailableError() }
     }
@@ -302,7 +306,7 @@ export class SupabaseAuthService {
    * Get current authenticated user with improved error handling
    */
   async getCurrentUser(): Promise<User | null> {
-    if (!this.isSupabaseAvailable()) {
+    if (!(await this.isSupabaseAvailable())) {
       return null
     }
 
@@ -344,14 +348,18 @@ export class SupabaseAuthService {
           warn('Profile fetch failed, using auth metadata:', error)
         }
 
-        return {
+        const user: User = {
           id: authUser.id,
           name: profile?.username || authUser.user_metadata?.username || 'User',
           email: authUser.email || '',
+          role: 'user',
+          authProvider: 'supabase',
         }
+
+        return user
       }
 
-      return await Promise.race([getCurrentUserOperation(), timeoutPromise])
+      return await Promise.race<User | null>([getCurrentUserOperation(), timeoutPromise])
     } catch (error) {
       logError('Error getting current user:', error)
       return null
@@ -402,6 +410,8 @@ export class SupabaseAuthService {
               id: newUser.id,
               name: newUser.user_metadata?.username || newUser.email || 'User',
               email: newUser.email || '',
+              role: 'user',
+              authProvider: 'supabase',
             });
           } else {
             callback(null);
@@ -441,6 +451,8 @@ export class SupabaseAuthService {
         id: session.user.id,
         name: session.user.user_metadata?.username || 'User',
         email: session.user.email || '',
+        role: 'user',
+        authProvider: 'supabase',
       }
     } catch (error) {
       logError('Error getting session:', error)

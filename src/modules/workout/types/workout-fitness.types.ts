@@ -142,6 +142,16 @@ export interface CoachingAdvice {
   commonMistakes: string[]
   progressionSuggestions: string[]
   modifications: string[]
+  exerciseName?: string
+  currentSet?: number
+  totalSets?: number
+  motivation?: string
+  techniqueReminder?: string
+  intensityAdjustment?: string
+  restRecommendation?: string
+  nextSetAdvice?: string
+  encouragement?: string
+  formCheckpoints?: string[]
 }
 
 export interface CoachingTip {
@@ -162,6 +172,22 @@ export interface InjuryModification {
   alternatives: Exercise[]
   modifications: string[]
   precautions: string[]
+  originalExercise?: string
+  injuryType?: string
+  alternativeExercises?: Exercise[]
+  progressionPlan?: string[]
+  clearanceNeeded?: boolean
+}
+
+export interface FormGuidance {
+  exerciseName: string
+  keyPoints: string[]
+  commonMistakes: string[]
+  visualCues: string[]
+  breathingPattern: string
+  setupInstructions: string[]
+  executionSteps: string[]
+  safetyTips: string[]
 }
 
 export interface RealtimeCoaching {
@@ -174,8 +200,15 @@ export interface RealtimeCoaching {
 export interface RecoveryRecommendation {
   restDayActivities: string[]
   stretchingRoutines: string[]
-  sleepRecommendations: string
-  nutritionTips: string
+  sleepRecommendations: string | string[]
+  nutritionTips: string | string[]
+  workoutIntensity?: number
+  recommendedRestDays?: number
+  activeRecovery?: string[]
+  hydrationNeeds?: string
+  stretchingRoutine?: string[]
+  warningSignsToWatch?: string[]
+  followUpActions?: string[]
 }
 
 // === PERFORMANCE ANALYSIS ===

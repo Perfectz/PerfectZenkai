@@ -25,10 +25,10 @@ export const transformRowToEntry = (row: JournalEntryRow): JournalEntry => {
     id: row.id,
     entryDate: row.entry_date,
     entryType: row.entry_type,
-    morningEntry: row.morning_entry || undefined,
-    eveningEntry: row.evening_entry || undefined,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    morningEntry: row.morning_entry ?? undefined,
+    eveningEntry: row.evening_entry ?? undefined,
+    createdAt: row.created_at ?? new Date().toISOString(),
+    updatedAt: row.updated_at ?? row.created_at ?? new Date().toISOString(),
   }
 }
 

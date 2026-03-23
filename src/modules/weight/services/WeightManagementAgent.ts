@@ -55,7 +55,7 @@ export class WeightManagementAgent {
   /**
    * Comprehensive weight trend analysis
    */
-  async analyzeWeightTrends(userId: string, entries?: WeightEntry[]): Promise<WeightTrendAnalysis> {
+  async analyzeWeightTrends(_userId: string, entries?: WeightEntry[]): Promise<WeightTrendAnalysis> {
     // In a real implementation, we'd fetch entries from the store using userId
     // For now, use provided entries or return default
     const weightEntries = entries || []
@@ -264,7 +264,7 @@ export class WeightManagementAgent {
       description: `Your weight has been ${analysis.trend} at a rate of ${Math.abs(analysis.rate * 7).toFixed(1)}kg per week.`,
       importance: analysis.confidence > 0.7 ? 'high' : 'medium',
       generatedAt: now,
-      data: analysis
+      data: { ...analysis }
     })
 
     // Goal insight
@@ -277,7 +277,7 @@ export class WeightManagementAgent {
         description: topRecommendation.reasoning,
         importance: topRecommendation.feasibility === 'high' ? 'high' : 'medium',
         generatedAt: now,
-        data: topRecommendation
+        data: { ...topRecommendation }
       })
     }
 
@@ -368,9 +368,12 @@ export class WeightManagementAgent {
       response += "I need more data points to make accurate predictions."
     }
 
-    if (goal) {
-      const timeline = this.predictionModel.estimateGoalTimeline(entries, goal)
-      response += ` At your current rate, you'll reach your goal in approximately ${timeline.estimatedDays} days.`
+    const goalTimeline = goal
+      ? this.predictionModel.estimateGoalTimeline(entries, goal)
+      : null
+
+    if (goalTimeline) {
+      response += ` At your current rate, you'll reach your goal in approximately ${goalTimeline.estimatedDays} days.`
     }
 
     return {
@@ -380,7 +383,7 @@ export class WeightManagementAgent {
         "Adjust goal timeline if needed",
         "Monitor trend changes"
       ],
-      data: { predictions, confidence, goal }
+      data: { predictions, confidence, goalTimeline }
     }
   }
 

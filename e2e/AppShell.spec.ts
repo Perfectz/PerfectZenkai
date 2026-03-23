@@ -1,42 +1,38 @@
 import { test, expect } from '@playwright/test'
+import {
+  expectCommandCenterReady,
+  loginAsBootstrapAdmin,
+  openPrimaryNav,
+} from './support/auth'
 
-test.describe('AppShell', () => {
-  test('should render header, navigation, and FAB', async ({ page }) => {
+test.describe('App shell smoke', () => {
+  test('loads the command center after bootstrap admin login', async ({ page }) => {
     await page.goto('/')
+    await expect(page.getByRole('heading', { name: /perfect zenkai/i })).toBeVisible()
 
-    // Check header is visible
-    await expect(page.getByText('Cyber Warrior')).toBeVisible()
-    await expect(page.getByText('Training Mode')).toBeVisible()
+    await loginAsBootstrapAdmin(page)
 
-    // Check navigation bar is visible - look for navigation items instead
-    await expect(page.getByText('HQ')).toBeVisible()
-    await expect(page.getByText('Weight')).toBeVisible()
-    await expect(page.getByText('Quests')).toBeVisible()
-    await expect(page.getByText('Intel')).toBeVisible()
-
-    // Check FAB is visible
-    await expect(
-      page.locator('button[class*="fixed bottom-20 right-4"]')
-    ).toBeVisible()
-
-    // Check main content - look for dashboard content
-    await expect(page.getByText('CONTROL NEXUS')).toBeVisible()
+    await expectCommandCenterReady(page)
+    await expect(page.getByText(/revival mode active|supabase session active/i)).toBeVisible()
   })
 
-  test('should have proper layout on mobile viewport', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 })
+  test('navigates from the command center into the health hub', async ({ page }) => {
     await page.goto('/')
+    await loginAsBootstrapAdmin(page)
 
-    // Verify elements are positioned correctly
-    const fab = page.locator('button[class*="fixed bottom-20 right-4"]')
+    await openPrimaryNav(page, 'Health', /\/health$/)
+    await expect(page.getByText(/health hub/i)).toBeVisible()
+    await expect(page.getByRole('tab', { name: /weight tracking tab/i })).toBeVisible()
+  })
 
-    await expect(fab).toBeVisible()
+  test('opens the protected module inventory route without a blank screen', async ({ page }) => {
+    await page.goto('/')
+    await loginAsBootstrapAdmin(page)
 
-    // Check navigation items are visible
-    await expect(page.getByText('HQ')).toBeVisible()
-    await expect(page.getByText('Weight')).toBeVisible()
+    await page.goto('/system/modules')
 
-    // Take screenshot for visual verification
-    await page.screenshot({ path: 'test-results/appshell-mobile.png' })
+    await expect(page.getByRole('heading', { name: /module inventory/i })).toBeVisible()
+    await expect(page.getByText(/openclaude module contract/i)).toBeVisible()
+    await expect(page.getByText(/registry valid|governance errors/i)).toBeVisible()
   })
 })

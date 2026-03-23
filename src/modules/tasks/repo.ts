@@ -1,8 +1,13 @@
 import Dexie, { Table } from 'dexie'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
-import { getSupabaseClient } from '@/lib/supabase-client'
+import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 import { deduplicateTodos, removeDuplicateContent } from './utils/deduplicationHelpers'
+
+type TodoRow = Database['public']['Tables']['todos']['Row']
+type TodoUpdate = Database['public']['Tables']['todos']['Update']
+type SubtaskRow = Database['public']['Tables']['subtasks']['Row']
+type SubtaskUpdate = Database['public']['Tables']['subtasks']['Update']
 
 class TasksDatabase extends Dexie {
   todos!: Table<Todo>
@@ -111,7 +116,7 @@ export const supabaseTasksRepo = {
     const supabase = await getSupabaseClient()
     if (!supabase) throw new Error('Supabase not available')
 
-    const updateData: Record<string, unknown> = {}
+    const updateData: TodoUpdate = {}
     if (updates.summary !== undefined) {
       updateData.text = updates.summary // Legacy field for compatibility
       updateData.summary = updates.summary // New field for enhanced schema
@@ -160,15 +165,7 @@ export const supabaseTasksRepo = {
 
     // Get all subtasks for these todos
     const todoIds = (todos || []).map(todo => todo.id)
-    interface SubtaskData {
-      id: string
-      todo_id: string
-      text: string
-      done: boolean
-      created_at: string
-    }
-    
-    let subtasksData: SubtaskData[] = []
+    let subtasksData: SubtaskRow[] = []
     
     if (todoIds.length > 0) {
       const { data: subtasks, error: subtasksError } = await supabase
@@ -178,7 +175,7 @@ export const supabaseTasksRepo = {
         .order('created_at', { ascending: true })
 
       if (subtasksError) throw subtasksError
-      subtasksData = (subtasks || []) as SubtaskData[]
+      subtasksData = (subtasks || []) as SubtaskRow[]
     }
 
     // Group subtasks by todo_id
@@ -187,13 +184,13 @@ export const supabaseTasksRepo = {
       acc[subtask.todo_id].push({
         id: subtask.id,
         text: subtask.text,
-        done: subtask.done,
-        createdAt: subtask.created_at,
+        done: subtask.done ?? false,
+        createdAt: subtask.created_at ?? new Date().toISOString(),
       })
       return acc
     }, {} as Record<string, Subtask[]>)
 
-    return (todos || []).map(todo => ({
+    return (todos || []).map((todo: TodoRow) => ({
       id: todo.id,
       summary: todo.summary ?? todo.text ?? '', // Handle null summary with fallback
       description: '', // Default empty description for now
@@ -207,7 +204,7 @@ export const supabaseTasksRepo = {
       subtasks: subtasksByTodo[todo.id] || [],
       completedAt: undefined, // Not in current schema
       createdAt: todo.created_at ?? new Date().toISOString(),
-      updatedAt: todo.updatedAt ?? new Date().toISOString(),
+      updatedAt: todo.updated_at ?? new Date().toISOString(),
     }))
   },
 
@@ -244,7 +241,7 @@ export const supabaseTasksRepo = {
       .update({
         text: updates.text,
         done: updates.done,
-      })
+      } as SubtaskUpdate)
       .eq('id', subtaskId)
 
     if (error) throw error
@@ -278,7 +275,9 @@ export const supabaseTasksRepo = {
 // Original IndexedDB repository (kept for offline functionality)
 export const tasksRepo = {
   // Todo methods
-  async addTodo(todo: Todo): Promise<Todo> {
+  async addTodo(
+    todo: Omit<Todo, 'id' | 'updatedAt'> & Partial<Pick<Todo, 'id' | 'updatedAt'>>
+  ): Promise<Todo> {
     const database = getDatabase()
     const now = new Date().toISOString()
     const todoWithTimestamps: Todo = {
@@ -326,7 +325,7 @@ export const tasksRepo = {
 
         if (error) throw error
 
-        return (todos || []).map(todo => ({
+        return (todos || []).map((todo: TodoRow) => ({
           id: todo.id,
           summary: todo.text ?? todo.summary ?? '', // Handle null with fallback
           description: '', // Default empty description for now
@@ -340,7 +339,7 @@ export const tasksRepo = {
           subtasks: [], // Will need to be fetched separately
           completedAt: undefined, // Not in current schema
           createdAt: todo.created_at ?? new Date().toISOString(),
-          updatedAt: todo.updatedAt ?? new Date().toISOString(),
+          updatedAt: todo.updated_at ?? new Date().toISOString(),
         }))
       } catch (error) {
         console.warn('Supabase fetch failed, using local storage:', error)
@@ -779,8 +778,27 @@ export const hybridTasksRepo = {
     }
   },
 
-  async syncData(userId: string): Promise<{ synced: number; errors: number }> {
+  async syncData(_userId?: string): Promise<{ synced: number; errors: number }> {
     console.log('Sync data not yet implemented for hybrid repo.')
     return { synced: 0, errors: 0 }
+  },
+
+  async cleanupDuplicates(userId?: string): Promise<{ removed: number; remaining: number }> {
+    const todos = await this.getAllTodos(userId)
+    const deduplicatedTodos = removeDuplicateContent(deduplicateTodos(todos))
+    const removed = Math.max(0, todos.length - deduplicatedTodos.length)
+
+    const database = getDatabase()
+    await database.transaction('rw', database.todos, async () => {
+      await database.todos.clear()
+      if (deduplicatedTodos.length > 0) {
+        await database.todos.bulkPut(deduplicatedTodos)
+      }
+    })
+
+    return {
+      removed,
+      remaining: deduplicatedTodos.length,
+    }
   }
 }

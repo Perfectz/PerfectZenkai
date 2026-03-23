@@ -179,12 +179,14 @@ export const weightAgentImplementations = {
         activeGoal || undefined
       )
 
+      const goalTimeline = predictions.data?.goalTimeline as { estimatedDays?: number } | undefined
+
       return {
         success: true,
         predictions: predictions.data?.predictions || [],
         confidence: predictions.data?.confidence,
-        goalTimeline: predictions.data?.goal ? 
-          `You'll reach your goal in approximately ${predictions.data.goal.estimatedDays} days` : 
+        goalTimeline: goalTimeline?.estimatedDays !== undefined ? 
+          `You'll reach your goal in approximately ${goalTimeline.estimatedDays} days` : 
           'No active goal set',
         summary: predictions.response
       }

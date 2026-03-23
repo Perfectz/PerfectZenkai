@@ -1,55 +1,27 @@
 import { test, expect } from '@playwright/test'
+import { loginAsBootstrapAdmin } from './support/auth'
 
-test.describe('Sample E2E Tests', () => {
-  test('should display Perfect Zenkai header and take screenshot', async ({
-    page,
-  }) => {
-    // Navigate to the home page
+test.describe('Mobile command center smoke', () => {
+  test('renders the shell cleanly on a mobile viewport', async ({ page }) => {
     await page.goto('/')
+    await loginAsBootstrapAdmin(page)
 
-    // Wait for the page to load
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByText(/daily command center/i)).toBeVisible()
+    await expect(page.getByRole('link', { name: /^journal$/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /^notes$/i })).toBeVisible()
 
-    // Check that the header contains "Perfect Zenkai" - use role selector to be specific
-    const header = page.getByRole('heading', { name: 'Perfect Zenkai' })
-    await expect(header).toBeVisible()
-
-    // Take a screenshot for visual verification
     await page.screenshot({
-      path: 'e2e/screenshots/sample.png',
+      path: 'output/playwright/command-center-mobile.png',
       fullPage: true,
     })
   })
 
-  test('should have mobile viewport dimensions', async ({ page }) => {
+  test('shows live queue panels on the home page', async ({ page }) => {
     await page.goto('/')
+    await loginAsBootstrapAdmin(page)
 
-    // Verify mobile viewport is being used
-    const viewport = page.viewportSize()
-    expect(viewport?.width).toBe(375)
-    expect(viewport?.height).toBe(667)
-  })
-
-  test('should display navigation bar at bottom', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
-    // Check that navigation bar exists
-    const nav = page.locator('nav')
-    await expect(nav).toBeVisible()
-
-    // Verify it contains navigation items
-    await expect(nav).toContainText('Dashboard')
-    await expect(nav).toContainText('Weight')
-    await expect(nav).toContainText('Tasks')
-  })
-
-  test('should display floating action button', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
-    // Check that FAB exists and is visible
-    const fab = page.locator('[data-testid="global-fab"]')
-    await expect(fab).toBeVisible()
+    await expect(page.getByText(/current task shortlist/i)).toBeVisible()
+    await expect(page.getByText(/recent notes and journal momentum/i)).toBeVisible()
+    await expect(page.getByRole('button', { name: /export data/i })).toBeVisible()
   })
 })
