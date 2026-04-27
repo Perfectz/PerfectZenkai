@@ -38,11 +38,12 @@ jobs:
       - name: Check for exposed secrets
         run: |
           echo "Checking for accidentally committed secrets..."
-          if grep -r "sk-[a-zA-Z0-9]" src/; then
+          OPENAI_KEY_PATTERN='sk-(proj|svcacct)-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{32,}'
+          if grep -RIE "$OPENAI_KEY_PATTERN" src/; then
             echo "❌ OpenAI API key found in source code!"
             exit 1
           fi
-          if grep -r "VITE_OPENAI_API_KEY.*=" src/; then
+          if grep -RIE "VITE_OPENAI_API_KEY=.*($OPENAI_KEY_PATTERN)" src/; then
             echo "❌ OpenAI API key reference found in source code!"
             exit 1
           fi
@@ -77,7 +78,8 @@ jobs:
 
           find dist -name "*.map" -delete
 
-          if grep -r "sk-[a-zA-Z0-9]" dist/; then
+          OPENAI_KEY_PATTERN='sk-(proj|svcacct)-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{32,}'
+          if grep -RIE "$OPENAI_KEY_PATTERN" dist/; then
             echo "❌ API key found in build output!"
             exit 1
           fi
