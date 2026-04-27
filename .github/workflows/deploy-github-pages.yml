@@ -114,9 +114,11 @@ jobs:
         run: npm run build:github-pages
 
       - name: Deploy to gh-pages branch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           touch dist/.nojekyll
-          npx gh-pages -d dist -u "github-actions-bot <support+actions@github.com>"
+          npx gh-pages -d dist -u "github-actions-bot <support+actions@github.com>" -r "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
   security-check:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
