@@ -12,7 +12,7 @@ interface PerformanceConfig {
   enabled?: boolean
   sampleRate?: number
   debug?: boolean
-  endpoint?: string
+  endpoint?: string | null
 }
 
 interface NetworkInformation {
@@ -50,7 +50,7 @@ export function usePerformanceMonitoring(config: PerformanceConfig = {}) {
     enabled = true,
     sampleRate = 1.0,
     debug = false,
-    endpoint = '/api/metrics'
+    endpoint = import.meta.env.VITE_METRICS_ENDPOINT || null
   } = config
 
   const logMetric = useCallback((name: string, value: number, id?: string) => {
@@ -81,8 +81,8 @@ export function usePerformanceMonitoring(config: PerformanceConfig = {}) {
     
     localStorage.setItem('performance-metrics', JSON.stringify(metrics))
 
-    // Send to analytics endpoint if available (disabled in development)
-    if (typeof fetch !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    // Keep static/PWA deployments fully local unless a backend endpoint is explicitly configured.
+    if (endpoint && typeof fetch !== 'undefined') {
       fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
