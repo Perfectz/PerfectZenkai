@@ -4,9 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 import mkcert from 'vite-plugin-mkcert'
 import path from 'path'
 
+const basePath = process.env.GITHUB_PAGES === 'true' ? '/PerfectZenkai/' : '/'
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',
+  base: basePath,
   build: {
     // Security: Remove source maps in production
     sourcemap: process.env.NODE_ENV !== 'production',
@@ -125,8 +127,8 @@ export default defineConfig({
         background_color: '#111827',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: basePath,
+        start_url: basePath,
         icons: [
           {
             src: 'icons/logo192.png',
