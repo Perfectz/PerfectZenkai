@@ -1,195 +1,96 @@
 # Perfect Zenkai
 
-A modern Progressive Web App (PWA) for weight tracking and task management, built with React 18, TypeScript, and Tailwind CSS. Features a clean, modern UI with offline-first capabilities and user-specific data isolation.
+Perfect Zenkai is an offline-first Progressive Web App for personal health, tasks, notes, journaling, and AI-assisted coaching. It is built with Vite, React, TypeScript, Tailwind CSS, Zustand, Dexie, Supabase, and Azure Functions.
 
-## 🌟 Features
+## Features
 
-- 📱 **Progressive Web App** - Install on any device, works offline
-- 🔐 **Simple Authentication** - Username/password login with secure local storage
-- 🌙 **Dark Theme** - Modern dark interface that's easy on the eyes
-- 📊 **Weight Tracking** - Log daily weights and visualize progress with sparkline charts
-- ✅ **Task Management** - Organize your day with a comprehensive todo system
-- 📝 **Notes System** - Capture thoughts and ideas with rich text notes
-- 🔄 **Offline First** - Full functionality without internet connection
-- 📈 **Dashboard** - Comprehensive overview of your progress and daily stats
-- 👤 **User Isolation** - Each user has their own secure, isolated data storage
-- 🎯 **Streak Tracking** - Monitor consistency across different activities
-- 📤 **Data Export** - Export your data for backup or analysis
+- Progressive Web App with install and offline support
+- Local-first data storage with IndexedDB via Dexie
+- Optional Supabase synchronization and user-specific data isolation
+- Task, notes, journal, weight, workout, meal, dashboard, and AI chat modules
+- Shared module registry for protected app routes and app capabilities
+- Vitest, Testing Library, Playwright, ESLint, Prettier, and Lighthouse tooling
 
-## 🚀 Tech Stack
+## Requirements
 
-- **Frontend:** Vite + React 18 + TypeScript
-- **Styling:** Tailwind CSS 3 + shadcn/ui components
-- **State Management:** Zustand with persistence
-- **Database:** Dexie (IndexedDB) with user-specific isolation
-- **Authentication:** Local username/password with secure hashing
-- **PWA:** @vite-pwa/react + Workbox for offline capabilities
-- **Testing:** Vitest + Playwright + Testing Library
-- **UI Components:** Lucide React icons + Custom component library
+- Node.js 22 or newer
+- npm 9 or newer
 
-## 🏗️ Architecture
+The root app and the Azure Functions API have separate package manifests. Install dependencies in each folder when working on both surfaces.
 
-```
-src/
-├── app/                 # App shell, navigation, global components
-├── modules/             # Feature modules
-│   ├── auth/           # Authentication system
-│   ├── weight/         # Weight tracking
-│   ├── tasks/          # Task management
-│   ├── notes/          # Notes system
-│   └── dashboard/      # Dashboard and analytics
-├── shared/             # Shared UI components, hooks, utilities
-├── types/              # Global TypeScript definitions
-└── test/               # Test utilities and setup
-```
-
-**Module Isolation Rule:** Modules may import `shared/` but never each other. The app shell imports only module routes.
-
-## 🔧 Prerequisites
-
-- **Node.js 18+** - [Download from nodejs.org](https://nodejs.org/)
-- **npm** or **pnpm** (recommended) - `npm install -g pnpm`
-
-## 💻 Development
+## Development
 
 ```bash
-# Install dependencies
 npm install
-# or with pnpm
-pnpm install
-
-# Start development server
 npm run dev
-# or with pnpm
-pnpm dev
-
-# Run tests
-npm test
-# or with pnpm
-pnpm test
-
-# Run e2e tests
-npm run test:e2e
-# or with pnpm
-pnpm test:e2e
-
-# Build for production
-npm run build
-# or with pnpm
-pnpm build
-
-# Preview production build
-npm run preview
-# or with pnpm
-pnpm preview
-
-# Run linting
-npm run lint
-# or with pnpm
-pnpm lint
-
-# Format code
-npm run format
-# or with pnpm
-pnpm format
 ```
 
-## 📱 Mobile Testing
+Useful commands:
 
-To test the PWA on your mobile device:
+```bash
+npm run type-check
+npm run lint
+npm run build
+npm run test
+npm run e2e:smoke
+npm run lighthouse
+```
 
-1. **Start dev server with LAN access:**
+For mobile testing on the same network:
 
-   ```bash
-   npm run dev -- --host
-   # or with pnpm
-   pnpm dev -- --host
-   ```
+```bash
+npm run dev -- --host
+```
 
-2. **Generate QR code for easy access:**
+## API
 
-   ```bash
-   npx qrencode -t terminal http://YOUR_IP:5173
-   ```
+Azure Functions live in `api/`.
 
-   Replace `YOUR_IP` with your computer's local IP address shown in the terminal.
+```bash
+cd api
+npm install
+npm start
+```
 
-3. **Install on mobile:**
-   - Open the URL in Chrome mobile
-   - Tap the "Install app" option when prompted
-   - The app will be added to your home screen
+The frontend can call local OpenAI directly in development when `VITE_OPENAI_API_KEY` is set. Production AI chat should go through the Azure Function endpoint so API keys stay server-side.
 
-## 🔐 Authentication
+## Architecture
 
-Perfect Zenkai uses a simple but secure local authentication system:
+```text
+src/
+  app/                 App shell, routing, module registry
+  components/          Top-level shared pages/components
+  lib/                 External service clients
+  modules/             Feature modules
+  scripts/             Development-only browser utilities
+  services/            Cross-cutting app services
+  shared/              Shared UI, hooks, utilities, services
+  styles/              Design tokens and global styles
+  test/                Test setup and utilities
+  types/               Global type declarations
+```
 
-- **Registration:** Create account with username, email, and password
-- **Login:** Username and password authentication
-- **Security:** Passwords are hashed using secure algorithms
-- **Data Isolation:** Each user gets their own isolated database
-- **Session Management:** Secure session handling with automatic expiry
+Module rule: feature modules may import `shared/`, but should not directly import from other feature modules unless the app shell or module registry owns that integration.
 
-## 💾 Data Management
+## Security Notes
 
-- **Local Storage:** All data stored locally using IndexedDB via Dexie
-- **User Isolation:** Each user has separate database instances
-- **Offline First:** Full functionality without internet connection
-- **Data Export:** Built-in export functionality for data portability
-- **Automatic Cleanup:** Session management with automatic cleanup
+- Do not ship client-side secrets. `VITE_*` variables are visible in the browser bundle.
+- Browser-console cleanup/reset helpers are loaded only in development.
+- Run `npm audit` at the root and inside `api/` before deployment.
+- Production builds disable source maps through the Vite config.
 
-## 🎯 Quality Gates
+## Deployment
 
-- ✅ **Test Coverage:** ≥80%
-- ✅ **PWA Score:** ≥90 (Lighthouse)
-- ✅ **TypeScript:** Strict mode, no `any` types
-- ✅ **ESLint:** Zero warnings/errors
-- ✅ **Mobile-First:** Optimized for 375×667 viewport
-- ✅ **Accessibility:** WCAG 2.1 AA compliance
-- ✅ **Performance:** <3s load time, 60fps animations
+The app is configured for static deployment targets including Netlify, Vercel, and GitHub Pages. Build output is generated in `dist/`.
 
-## 🚀 Deployment
+```bash
+npm run build
+npm run preview
+```
 
-The app is configured for deployment on:
+## Documentation
 
-- **Netlify** - Primary deployment platform
-- **Vercel** - Alternative deployment option
-- **GitHub Pages** - Static hosting option
-
-Build artifacts are generated in the `dist/` directory and include all PWA assets.
-
-## 🔄 Recent Updates
-
-- **Authentication System:** Migrated from Google OAuth to simple local authentication
-- **UI Improvements:** Enhanced dashboard with uniform card layouts
-- **Navigation Fixes:** Resolved React Router conflicts with protected routes
-- **User Experience:** Improved registration flow with success feedback
-- **Data Isolation:** Enhanced user-specific database separation
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📚 Documentation
-
-**📋 [Complete Documentation Index](docs/README.md) - Start here for all rules, standards, and guides**
-
-### Core Development Documentation
-- [Development Rules & Standards](docs/ai-development-rules.md) - TDD workflow, quality gates
-- [MVP Template & Standards](docs/mvp-template-standards.md) - Documentation templates
-- [Project Rules](docs/project-rules.md) - Architecture and coding standards
-- [Style Guide](docs/style-guide.md) - UI/UX design system
-- [Technical Architecture](docs/solutiondesign.md) - Complete system design
-
-### Additional Documentation
-- [Authentication Guide](AUTHENTICATION.md)
-- [MVP Sync Documentation](MVP_SUPABASE_SYNC.md)
-- [Security Policy](SECURITY.md)
-- [Image Generation Guide](IMAGE_GENERATION_PROMPTS.md)
+- [Documentation index](docs/README.md)
+- [Deployment guide](DEPLOYMENT.md)
+- [Security policy](SECURITY.md)
+- [Mobile testing](MOBILE_TESTING.md)

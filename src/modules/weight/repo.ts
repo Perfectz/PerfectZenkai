@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { WeightEntry, WeightGoal, WeightGoalInput } from './types'
 import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 
@@ -259,7 +258,7 @@ export const weightRepo = {
     } else {
       // Create new entry
       const newEntry: WeightEntry = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         ...entry,
       }
       await database.weights.add(newEntry)
@@ -619,7 +618,7 @@ export const weightGoalRepo = {
     }
 
     const newGoal: WeightGoal = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       targetWeight: goal.targetWeight,
       goalType: goal.goalType,
       targetDate: goal.targetDate,

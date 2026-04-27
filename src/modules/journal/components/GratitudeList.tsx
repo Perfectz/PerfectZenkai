@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Heart, Trash2, AlertCircle } from 'lucide-react'
+import { Plus, Heart, Trash2, AlertCircle, Sparkles } from 'lucide-react'
 
 interface GratitudeListProps {
   gratitude: string[]
@@ -8,14 +8,26 @@ interface GratitudeListProps {
   required?: boolean
 }
 
-export default function GratitudeList({ 
-  gratitude, 
-  onChange, 
+const prompts = [
+  'Something that made me smile today',
+  'A person who helped or supported me',
+  'A small moment of joy or peace',
+  'Something I learned or discovered',
+  'A challenge that helped me grow',
+  'Something beautiful I noticed',
+  'A comfort or convenience I enjoyed',
+  'Progress I made on a goal',
+]
+
+export default function GratitudeList({
+  gratitude,
+  onChange,
   maxItems = 3,
-  required = false 
+  required = false,
 }: GratitudeListProps) {
   const [newGratitude, setNewGratitude] = useState('')
   const [isAdding, setIsAdding] = useState(false)
+  const [prompt] = useState(() => prompts[Math.floor(Math.random() * prompts.length)])
 
   const handleAddGratitude = () => {
     if (newGratitude.trim() && gratitude.length < maxItems) {
@@ -26,16 +38,16 @@ export default function GratitudeList({
   }
 
   const handleRemoveGratitude = (index: number) => {
-    const updatedGratitude = gratitude.filter((_, i) => i !== index)
-    onChange(updatedGratitude)
+    onChange(gratitude.filter((_, i) => i !== index))
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
       handleAddGratitude()
     }
-    if (e.key === 'Escape') {
+
+    if (event.key === 'Escape') {
       setIsAdding(false)
       setNewGratitude('')
     }
@@ -43,59 +55,48 @@ export default function GratitudeList({
 
   const canAddMore = gratitude.length < maxItems
 
-  const gratitudePrompts = [
-    "Something that made me smile today",
-    "A person who helped or supported me",
-    "A small moment of joy or peace",
-    "Something I learned or discovered",
-    "A challenge that helped me grow",
-    "Something beautiful I noticed",
-    "A comfort or convenience I enjoyed",
-    "Progress I made on a goal"
-  ]
-
-  const getRandomPrompt = () => {
-    return gratitudePrompts[Math.floor(Math.random() * gratitudePrompts.length)]
-  }
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="rounded-[1.35rem] border border-pink-300/15 bg-pink-300/[0.04] p-4">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Heart className="h-4 w-4 text-pink-500" />
-          <label className="text-sm font-medium text-white">
-            Gratitude ({maxItems} items)
-            {required && <span className="text-red-400 ml-1">*</span>}
-          </label>
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-pink-300/20 bg-pink-300/10">
+            <Heart className="h-4 w-4 text-pink-100" />
+          </span>
+          <div>
+            <label className="text-sm font-semibold text-white">
+              Gratitude
+              {required ? <span className="ml-1 text-rose-300">*</span> : null}
+            </label>
+            <p className="text-xs text-slate-500">Bank the wins before the run ends.</p>
+          </div>
         </div>
-        <span className="text-xs text-gray-400">
+        <span className="rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-1 text-xs font-semibold text-slate-300">
           {gratitude.length}/{maxItems}
         </span>
       </div>
 
-      {/* Gratitude validation message */}
-      {required && gratitude.length === 0 && (
-        <div className="flex items-center gap-2 p-2 bg-red-500/20 border border-red-500/50 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-red-400" />
-          <span className="text-xs text-red-400">At least one gratitude item is required</span>
+      {required && gratitude.length === 0 ? (
+        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-rose-300/25 bg-rose-300/10 p-3 text-xs text-rose-100">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          At least one gratitude item is required.
         </div>
-      )}
+      ) : null}
 
-      {/* Existing gratitude items */}
-      <div className="space-y-2">
+      <div className="mt-4 space-y-2">
         {gratitude.map((item, index) => (
           <div
-            key={index}
-            className="flex items-start gap-3 p-3 bg-pink-500/10 border border-pink-500/30 rounded-lg"
+            key={`${item}-${index}`}
+            className="flex items-start gap-3 rounded-2xl border border-pink-300/15 bg-slate-950/35 p-3"
           >
-            <div className="flex items-center justify-center w-6 h-6 bg-pink-500 text-white text-xs font-bold rounded-full mt-0.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-pink-300 text-xs font-bold text-slate-950">
               {index + 1}
-            </div>
-            <span className="flex-1 text-sm text-white leading-relaxed">{item}</span>
+            </span>
+            <span className="min-w-0 flex-1 text-sm leading-6 text-slate-100">{item}</span>
             <button
               type="button"
               onClick={() => handleRemoveGratitude(index)}
-              className="text-red-400 hover:text-red-300 p-1"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-300/30 hover:bg-rose-300/10 hover:text-rose-100"
+              aria-label="Remove gratitude item"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -103,27 +104,29 @@ export default function GratitudeList({
         ))}
       </div>
 
-      {/* Add new gratitude item */}
       {isAdding ? (
-        <div className="p-4 bg-gray-800 border border-gray-600 rounded-lg space-y-3">
-          <div className="text-xs text-gray-400 mb-2">
-            💡 <strong>Prompt:</strong> {getRandomPrompt()}
+        <div className="mt-4 space-y-3 rounded-[1.25rem] border border-white/10 bg-slate-950/55 p-4">
+          <div className="flex items-start gap-2 rounded-2xl border border-pink-300/15 bg-pink-300/10 p-3 text-xs leading-5 text-pink-50">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              <strong>Prompt:</strong> {prompt}
+            </span>
           </div>
           <textarea
             value={newGratitude}
-            onChange={(e) => setNewGratitude(e.target.value)}
+            onChange={(event) => setNewGratitude(event.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="What are you grateful for today?"
             rows={2}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+            className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-pink-300/45 focus:ring-2 focus:ring-pink-300/15"
             autoFocus
           />
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
               onClick={handleAddGratitude}
               disabled={!newGratitude.trim()}
-              className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-2xl bg-pink-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-pink-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add Gratitude
             </button>
@@ -133,7 +136,7 @@ export default function GratitudeList({
                 setIsAdding(false)
                 setNewGratitude('')
               }}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
             >
               Cancel
             </button>
@@ -143,41 +146,31 @@ export default function GratitudeList({
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="w-full p-3 border-2 border-dashed border-pink-500/50 rounded-lg text-pink-400 hover:border-pink-500 hover:text-pink-300 transition-colors flex items-center justify-center gap-2"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-pink-300/25 bg-pink-300/[0.03] p-3 text-sm font-semibold text-pink-100 transition hover:border-pink-300/45 hover:bg-pink-300/10"
         >
           <Plus className="h-4 w-4" />
-          Add Gratitude ({gratitude.length}/{maxItems})
+          Add Gratitude
         </button>
       ) : (
-        <div className="text-center p-3 bg-pink-500/10 rounded-lg">
-          <span className="text-xs text-pink-400">
-            All {maxItems} gratitude items completed! 🙏
-          </span>
+        <div className="mt-4 rounded-2xl border border-pink-300/15 bg-pink-300/10 p-3 text-center text-xs font-semibold text-pink-100">
+          All {maxItems} gratitude items completed.
         </div>
       )}
 
-      {gratitude.length === 0 && !isAdding && (
-        <div className="text-center py-6 space-y-2">
-          <p className="text-xs text-gray-500">
-            Take a moment to reflect on what you're grateful for today
-          </p>
-          <div className="text-xs text-gray-600 space-y-1">
-            <p>🌟 Big wins or small moments</p>
-            <p>💝 People who made a difference</p>
-            <p>🌱 Lessons learned or growth experienced</p>
-          </div>
+      {gratitude.length === 0 && !isAdding ? (
+        <div className="px-3 py-5 text-center text-xs leading-6 text-slate-500">
+          <p>Try a win, a helpful person, or a lesson that moved you forward.</p>
         </div>
-      )}
+      ) : null}
 
-      {/* Gratitude benefits */}
-      {gratitude.length > 0 && (
-        <div className="text-xs text-gray-500 bg-pink-500/5 p-3 rounded-lg space-y-1">
-          <p>✨ <strong>Benefits of gratitude:</strong></p>
-          <p>• Improves mood and mental well-being</p>
-          <p>• Enhances sleep quality and reduces stress</p>
-          <p>• Strengthens relationships and social connections</p>
+      {gratitude.length > 0 ? (
+        <div className="mt-4 rounded-2xl border border-pink-300/10 bg-slate-950/35 p-3 text-xs leading-6 text-slate-400">
+          <p className="font-semibold text-pink-100">Gratitude bonus</p>
+          <p>- Improves mood and mental well-being</p>
+          <p>- Reduces stress before sleep</p>
+          <p>- Strengthens social connection</p>
         </div>
-      )}
+      ) : null}
     </div>
   )
-} 
+}

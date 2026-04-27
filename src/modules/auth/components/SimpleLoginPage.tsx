@@ -1,41 +1,44 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { localAuthService } from '../services/localAuth'
-import { Button } from '@/shared/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/shared/ui/card'
-import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
-import {
-  Loader2,
+  Activity,
+  ArrowRight,
+  CheckCircle2,
   Eye,
   EyeOff,
-  CheckCircle,
-  Scale,
-  CheckSquare,
-  TrendingUp,
-  Brain,
-  Calendar,
-  Camera,
-  Github,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  Lightbulb,
-  Users,
-  Code2,
-  Sparkles,
+  LockKeyhole,
   FileText,
-  Briefcase,
-  ArrowRight,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  UserPlus,
 } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
+import { localAuthService } from '../services/localAuth'
+import { isLocalOnlyMode } from '@/lib/supabase-client'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+
+const featureTiles = [
+  {
+    icon: Activity,
+    label: 'Health',
+    text: 'Track weight, meals, workouts, and daily momentum.',
+  },
+  {
+    icon: FileText,
+    label: 'Focus',
+    text: 'Manage tasks, notes, and journal check-ins offline.',
+  },
+  {
+    icon: Smartphone,
+    label: 'Phone ready',
+    text: 'Install it as a PWA and keep your data on this device.',
+  },
+]
 
 export default function SimpleLoginPage() {
   const navigate = useNavigate()
@@ -45,8 +48,10 @@ export default function SimpleLoginPage() {
   const [isRegisterMode, setIsRegisterMode] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
-  const [activeInfoSection, setActiveInfoSection] = useState<string | null>(null)
-  const bootstrapAdmin = localAuthService.getBootstrapAdminCredentials()
+  const bootstrapAdmin = useMemo(
+    () => localAuthService.getBootstrapAdminCredentials(),
+    []
+  )
 
   const [formData, setFormData] = useState({
     username: '',
@@ -60,731 +65,288 @@ export default function SimpleLoginPage() {
       ? String((location.state as { from?: string }).from || '/')
       : '/'
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      console.log(`🚀 User is authenticated, redirecting to ${redirectTarget}...`)
       navigate(redirectTarget, { replace: true })
     }
   }, [isAuthenticated, navigate, redirectTarget])
 
-  // Clear error when component mounts or mode changes
   useEffect(() => {
     clearError()
     setRegistrationSuccess(false)
   }, [clearError, isRegisterMode])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     clearError()
     setRegistrationSuccess(false)
 
-    // Validation
     if (!formData.username.trim() || !formData.password.trim()) {
       return
     }
 
     if (isRegisterMode) {
-      // Register - validate email is required
-      if (!formData.email.trim()) {
-        return
-      }
-
-      if (formData.password.length < 6) {
-        // This will be handled by the store's error state
-        return
-      }
-
-      try {
-        await register({
-          username: formData.username.trim(),
-          password: formData.password,
-          email: formData.email.trim(),
-          name: formData.name.trim() || undefined,
-        })
-
-        // If registration is successful, show success message and switch to login
-        setRegistrationSuccess(true)
-        setFormData({ username: '', password: '', email: '', name: '' })
-        setTimeout(() => {
-          setIsRegisterMode(false)
-          setRegistrationSuccess(false)
-        }, 2000)
-      } catch (error) {
-        // Error handling is already managed by the store
-        console.error('Registration failed:', error)
-      }
-    } else {
-      // Login
-      login({
+      await register({
         username: formData.username.trim(),
         password: formData.password,
+        email: formData.email.trim() || undefined,
+        name: formData.name.trim() || undefined,
       })
+
+      if (!useAuthStore.getState().error) {
+        setRegistrationSuccess(true)
+        setFormData({ username: '', password: '', email: '', name: '' })
+        window.setTimeout(() => {
+          setIsRegisterMode(false)
+          setRegistrationSuccess(false)
+        }, 1200)
+      }
+      return
     }
+
+    await login({
+      username: formData.username.trim(),
+      password: formData.password,
+    })
   }
 
   const toggleMode = () => {
-    setIsRegisterMode(!isRegisterMode)
+    setIsRegisterMode((current) => !current)
     setFormData({ username: '', password: '', email: '', name: '' })
     setRegistrationSuccess(false)
     clearError()
   }
 
   const fillBootstrapAdmin = () => {
-    setFormData((prev) => ({
-      ...prev,
+    setIsRegisterMode(false)
+    setFormData({
       username: bootstrapAdmin.username,
       password: bootstrapAdmin.password,
-    }))
-    setIsRegisterMode(false)
-  }
-
-  const InfoSection = ({ 
-    id, 
-    title, 
-    icon: Icon, 
-    children 
-  }: { 
-    id: string
-    title: string
-    icon: React.ElementType
-    children: React.ReactNode 
-  }) => {
-    const isActive = activeInfoSection === id
-    return (
-      <Card className="overflow-hidden border border-white/10 bg-slate-900/60 shadow-[0_16px_40px_rgba(2,8,23,0.2)] backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <Button
-            variant="ghost"
-            onClick={() => setActiveInfoSection(isActive ? null : id)}
-            className="flex h-auto w-full items-center justify-between p-0 text-left text-slate-100 hover:bg-transparent"
-          >
-            <div className="flex items-center gap-3">
-              <Icon className="h-6 w-6 text-ki-green" />
-              <h3 className="text-base font-semibold text-white sm:text-lg">
-                {title}
-              </h3>
-            </div>
-            {isActive ? (
-              <ChevronUp className="h-5 w-5 text-slate-400" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-slate-400" />
-            )}
-          </Button>
-        </CardHeader>
-        {isActive && (
-          <CardContent className="pt-0">
-            {children}
-          </CardContent>
-        )}
-      </Card>
-    )
+      email: '',
+      name: '',
+    })
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[radial-gradient(circle_at_top,rgba(34,255,183,0.12),transparent_28%),linear-gradient(180deg,#0f172a,#111827)]">
-      <div className="mx-auto max-w-[92rem] px-4 py-4 sm:px-6 sm:py-8">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,28rem)] lg:items-start lg:gap-8">
-          {/* App Information Section - Left Side */}
-          <div className="order-2 w-full space-y-5 lg:order-1">
-            {/* Hero Section */}
-            <div className="space-y-5 text-left">
-              <div className="mb-4 flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-ki-green to-blue-500 shadow-lg sm:h-16 sm:w-16">
-                  <Sparkles className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl" style={{
-                    textShadow: '0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                  }}>
-                    Perfect <span className="text-ki-green" style={{
-                      textShadow: '0 0 20px rgba(34, 255, 183, 0.6), 0 4px 8px rgba(0, 0, 0, 0.3)',
-                      background: 'linear-gradient(135deg, #22ffb7 0%, #1be7ff 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text'
-                    }}>Zenkai</span>
-                  </h1>
-                  <p className="mt-1 text-xs font-mono font-semibold text-slate-300 sm:text-sm" style={{
-                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-                  }}>
-                    全快 - Complete Wellness & Productivity
-                  </p>
-                </div>
-              </div>
-              <p className="max-w-3xl text-base leading-relaxed text-slate-300 sm:text-lg lg:text-xl">
-                The ultimate AI-powered personal wellness and productivity platform. 
-                Combining cutting-edge technology with intuitive design to help you 
-                achieve your <span className="font-semibold text-ki-green">perfect state of being</span>.
+    <main className="min-h-[100dvh] bg-[linear-gradient(180deg,#07111f_0%,#0f172a_48%,#111827_100%)] text-white">
+      <div className="mx-auto grid min-h-[100dvh] w-full max-w-6xl gap-8 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-center lg:py-10">
+        <section className="space-y-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-300 text-slate-950 shadow-[0_16px_40px_rgba(52,211,153,0.24)]">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
+                Perfect Zenkai
               </p>
-              
-              {/* Achievement Badge */}
-              <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-ki-green/20 bg-gradient-to-r from-ki-green/10 to-blue-500/10 px-4 py-2">
-                <TrendingUp className="h-4 w-4 text-ki-green" />
-                <span className="text-sm font-semibold text-ki-green">96.6% Code Quality Achievement</span>
-                <span className="text-xs text-slate-400">Enterprise-Grade</span>
-              </div>
-
-              <div className="rounded-2xl border border-amber-300/20 bg-amber-500/10 p-4 text-left shadow-sm backdrop-blur-sm">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h2 className="text-base font-semibold text-amber-100">
-                      Revival Mode Admin Preview
-                    </h2>
-                    <p className="mt-1 text-sm text-amber-200/90">
-                      Local auth is available right now so you can revive and inspect the app before rebuilding Supabase.
-                    </p>
-                    <div className="mt-3 space-y-1 text-sm font-mono text-amber-100">
-                      <div>username: {bootstrapAdmin.username}</div>
-                      <div>password: {bootstrapAdmin.password}</div>
-                      <div>role: {bootstrapAdmin.role}</div>
-                    </div>
-                  </div>
-                  <Button type="button" variant="outline" onClick={fillBootstrapAdmin} className="min-h-[44px] border-amber-300/30 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20">
-                    Use Admin Login
-                  </Button>
-                </div>
-              </div>
+              <p className="text-sm text-slate-400">Local-first personal command center</p>
             </div>
-
-            {/* Expandable Information Sections */}
-            <div className="space-y-4">
-              <InfoSection id="features" title="🚀 Key Features" icon={Sparkles}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <Brain className="h-5 w-5 text-ki-green mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">AI-Powered Personal Assistant</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Natural language interface with voice input and contextual intelligence</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Scale className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Weight Management System</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Smart tracking with AI coaching and predictive analytics</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Camera className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Food Analysis & Nutrition</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Photo-based food recognition with GPT-4 Vision</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <CheckSquare className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Advanced Task Management</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">AI prioritization with productivity analytics</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Brain className="h-5 w-5 text-indigo-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Mental Wellness & Journaling</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Emotional analysis with crisis support system</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Calendar className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">Daily Standup & Reflection</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">Voice-powered planning and AI insights</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </InfoSection>
-
-              <InfoSection id="architecture" title="🏗️ Technical Architecture" icon={Code2}>
-                <div className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Frontend Stack</h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                        <li>• React 18 with TypeScript</li>
-                        <li>• Vite for lightning-fast builds</li>
-                        <li>• Tailwind CSS with custom design tokens</li>
-                        <li>• Zustand for state management</li>
-                        <li>• Dexie.js for offline-first storage</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Backend & AI</h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                        <li>• Supabase for real-time database</li>
-                        <li>• Azure Functions for serverless APIs</li>
-                        <li>• OpenAI GPT-4 for AI capabilities</li>
-                        <li>• Azure Key Vault for security</li>
-                        <li>• Progressive Web App features</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Vertical Slice Architecture</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Each feature is implemented as a complete vertical slice including UI, business logic, 
-                      data layer, and comprehensive testing for maximum maintainability.
-                    </p>
-                  </div>
-                </div>
-              </InfoSection>
-
-              <InfoSection id="achievements" title="🏆 Technical Achievements" icon={TrendingUp}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-ki-green rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">96.6% ESLint Error Reduction</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">Enterprise-Grade TypeScript</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">Comprehensive AI Integration</span>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">Full Offline Support</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">Lighthouse 90+ Scores</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">Production-Ready Codebase</span>
-                    </div>
-                  </div>
-                </div>
-              </InfoSection>
-
-              <InfoSection id="getting-started" title="🚀 Getting Started" icon={Lightbulb}>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">For Users</h4>
-                    <ol className="text-sm text-gray-600 dark:text-gray-300 space-y-1 list-decimal list-inside">
-                      <li>Create an account or use offline mode</li>
-                      <li>Install as PWA for the best experience</li>
-                      <li>Start with health tracking, tasks, and journal check-ins</li>
-                      <li>Use notes and reflections to build your routine before enabling AI features</li>
-                    </ol>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">For Developers</h4>
-                    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-sm">
-                      <div className="text-gray-600 dark:text-gray-400">
-                        git clone https://github.com/Perfectz/PerfectZenkai.git<br/>
-                        npm install<br/>
-                        npm run dev
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </InfoSection>
-
-              <InfoSection id="usecase-overview" title="📋 Use Case Overview" icon={Briefcase}>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Explore a comprehensive technical showcase demonstrating enterprise-grade 
-                    development practices across modern software engineering domains.
-                  </p>
-                  
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-white">Technical Domains</h4>
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span>Vibe Coding Fundamentals</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-azure-500 rounded-full"></div>
-                          <span>Azure Cloud Integration</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span>Modern App Development</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                          <span>SDLC Best Practices</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                          <span>Machine Learning Integration</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-white">Key Highlights</h4>
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-ki-green" />
-                          <span>Vertical Slice Architecture</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-ki-green" />
-                          <span>Enterprise Security Patterns</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-ki-green" />
-                          <span>AI-Powered Function Calling</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-ki-green" />
-                          <span>Test-Driven Development</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-ki-green" />
-                          <span>Progressive Web App</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 bg-gradient-to-r from-ki-green/10 to-blue-500/10 rounded-lg border border-ki-green/20">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                          Complete Technical Portfolio
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Comprehensive documentation with architecture diagrams, code examples, 
-                          and implementation details
-                        </p>
-                      </div>
-                      <Button 
-                        onClick={() => navigate('/use-case-overview')}
-                        className="bg-ki-green hover:bg-ki-green/90 text-white flex items-center gap-2"
-                      >
-                        <FileText className="h-4 w-4" />
-                        View Portfolio
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">12+</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Modules</div>
-                    </div>
-                    <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">90%+</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Test Coverage</div>
-                    </div>
-                    <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <div className="text-lg font-bold text-purple-600">5</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">AI Agents</div>
-                    </div>
-                    <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <div className="text-lg font-bold text-orange-600">100%</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">TypeScript</div>
-                    </div>
-                  </div>
-                </div>
-              </InfoSection>
-
-              <InfoSection id="contributing" title="🤝 Contributing" icon={Users}>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    We welcome contributions from developers of all skill levels! Perfect Zenkai follows 
-                    enterprise-grade development standards with comprehensive testing and documentation.
-                  </p>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Ways to Contribute</h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                        <li>• Bug fixes and feature development</li>
-                        <li>• Documentation improvements</li>
-                        <li>• Performance optimizations</li>
-                        <li>• Test coverage enhancements</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Development Standards</h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                        <li>• TypeScript strict mode required</li>
-                        <li>• Comprehensive test coverage</li>
-                        <li>• Vertical slice architecture</li>
-                        <li>• Test-driven development</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => window.open('https://github.com/Perfectz/PerfectZenkai', '_blank')}
-                      className="flex items-center gap-2"
-                    >
-                      <Github className="h-4 w-4" />
-                      View on GitHub
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </InfoSection>
-            </div>
-
-            {/* Quick Stats */}
-            <Card className="border border-ki-green/20 bg-gradient-to-r from-ki-green/5 to-blue-500/5 backdrop-blur-sm">
-              <CardContent className="pt-6">
-                <h3 className="mb-4 text-center text-lg font-semibold text-white sm:text-xl">
-                  Platform Statistics
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-ki-green">20+</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Major Features</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-blue-500">96.6%</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Code Quality</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-purple-500">100%</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Offline Ready</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-orange-500">90+</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Lighthouse Score</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Login/Register Card - Right Side */}
-          <div className="order-1 w-full lg:sticky lg:top-6 lg:order-2">
-            <Card className="cyber-card border-white/10 bg-slate-950/88 shadow-[0_24px_70px_rgba(2,8,23,0.45)] backdrop-blur-xl">
-              <CardHeader className="space-y-1">
-                <div className="mb-2 inline-flex w-fit self-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-cyan-200">
-                  Secure sign-in
+          <div className="max-w-3xl space-y-5">
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-normal text-white sm:text-6xl">
+              Your daily system, ready on your phone.
+            </h1>
+            <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+              Track health, tasks, notes, and reflection without setting up a
+              database. Your account and app data are stored locally in this
+              browser so the PWA works on mobile.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {featureTiles.map((tile) => (
+              <div
+                key={tile.label}
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-[0_20px_40px_-32px_rgba(15,23,42,0.9)]"
+              >
+                <tile.icon className="h-5 w-5 text-emerald-200" />
+                <h2 className="mt-4 text-base font-semibold tracking-normal text-white">
+                  {tile.label}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{tile.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-sm text-slate-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-200" />
+              {isLocalOnlyMode ? 'Local-only mode' : 'Cloud sync enabled'}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">
+              <LockKeyhole className="h-4 w-4 text-slate-300" />
+              No backend required
+            </span>
+          </div>
+        </section>
+
+        <Card className="border-white/10 bg-slate-950/82 shadow-[0_26px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl">
+          <CardContent className="space-y-5 p-5 sm:p-6">
+            <div className="space-y-2 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
+                {isRegisterMode ? (
+                  <UserPlus className="h-5 w-5 text-emerald-200" />
+                ) : (
+                  <LockKeyhole className="h-5 w-5 text-emerald-200" />
+                )}
+              </div>
+              <h2 className="text-2xl font-semibold tracking-normal text-white">
+                {isRegisterMode ? 'Create local account' : 'Open your workspace'}
+              </h2>
+              <p className="text-sm leading-6 text-slate-400">
+                {isRegisterMode
+                  ? 'This account is saved on this device.'
+                  : 'Sign in with a local account stored in this browser.'}
+              </p>
+            </div>
+
+            {registrationSuccess ? (
+              <Alert className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>Account created. Sign in to continue.</AlertDescription>
+              </Alert>
+            ) : null}
+
+            {error && !registrationSuccess ? (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {isRegisterMode ? (
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-slate-200">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Optional display name"
+                    disabled={isLoading || registrationSuccess}
+                    className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
+                  />
                 </div>
-                <CardTitle className="text-center text-2xl text-white">
-                  {isRegisterMode ? 'Create Account' : 'Welcome back'}
-                </CardTitle>
-                <CardDescription className="text-center text-slate-400">
-                  {isRegisterMode
-                    ? 'Sign up to start your journey'
-                    : 'Sign in to access your dashboard'}
-                </CardDescription>
-              </CardHeader>
+              ) : null}
 
-              <CardContent className="space-y-4">
-                {/* Success Alert */}
-                {registrationSuccess && (
-                  <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <AlertDescription className="text-green-700 dark:text-green-300">
-                      Account created successfully! Redirecting to login...
-                    </AlertDescription>
-                  </Alert>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-slate-200">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="username"
+                  required
+                  disabled={isLoading || registrationSuccess}
+                  className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
+                />
+              </div>
 
-                {/* Error Alert */}
-                {error && !registrationSuccess && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
+              {isRegisterMode ? (
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-200">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Optional"
+                    disabled={isLoading || registrationSuccess}
+                    className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
+                  />
+                </div>
+              ) : null}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Username Field */}
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-slate-200">Username</Label>
-                    <Input
-                      id="username"
-                      name="username"
-                      type="text"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      placeholder="Enter your username"
-                      required
-                      disabled={isLoading || registrationSuccess}
-                      className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
-                    />
-                  </div>
-
-                  {/* Password Field */}
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-slate-200">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        placeholder="Enter your password"
-                        required
-                        disabled={isLoading || registrationSuccess}
-                        minLength={isRegisterMode ? 6 : undefined}
-                        className="h-12 rounded-xl border-white/10 bg-slate-900/80 pr-12 text-base text-white placeholder:text-slate-500"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1 h-10 px-3 py-2 text-slate-400 hover:bg-transparent hover:text-white"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading || registrationSuccess}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {isRegisterMode && (
-                      <p className="text-sm text-slate-500">
-                        Password must be at least 6 characters
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Registration Fields */}
-                  {isRegisterMode && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="name" className="text-slate-200">Full Name (optional)</Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          type="text"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="Enter your full name"
-                          disabled={isLoading || registrationSuccess}
-                          className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-slate-200">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="Enter your email"
-                          required
-                          disabled={isLoading || registrationSuccess}
-                          className="h-12 rounded-xl border-white/10 bg-slate-900/80 text-base text-white placeholder:text-slate-500"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    disabled={
-                      isLoading ||
-                      registrationSuccess ||
-                      !formData.username.trim() ||
-                      !formData.password.trim() ||
-                      (isRegisterMode && !formData.email.trim())
-                    }
-                    className="h-12 w-full rounded-xl text-base font-medium"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : null}
-                    {registrationSuccess ? (
-                      <>
-                        <CheckCircle className="mr-2 h-5 w-5" />
-                        Account Created!
-                      </>
-                    ) : (
-                      <>
-                        {isRegisterMode
-                          ? isLoading
-                            ? 'Creating Account...'
-                            : 'Create Account'
-                          : isLoading
-                            ? 'Signing in...'
-                            : 'Sign In'}
-                      </>
-                    )}
-                  </Button>
-                </form>
-
-                {/* Mode Toggle */}
-                <div className="text-center">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-slate-200">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder={isRegisterMode ? 'At least 6 characters' : 'password'}
+                    required
+                    minLength={isRegisterMode ? 6 : undefined}
+                    disabled={isLoading || registrationSuccess}
+                    className="h-12 rounded-xl border-white/10 bg-slate-900/80 pr-12 text-base text-white placeholder:text-slate-500"
+                  />
                   <Button
                     type="button"
-                    variant="link"
-                    onClick={toggleMode}
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1 h-10 px-3 text-slate-400 hover:bg-transparent hover:text-white"
+                    onClick={() => setShowPassword((current) => !current)}
                     disabled={isLoading || registrationSuccess}
-                    className="text-sm"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {isRegisterMode
-                      ? 'Already have an account? Sign in'
-                      : "Don't have an account? Sign up"}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
+              </div>
 
-                {/* Demo Account Info */}
-                {!isRegisterMode && (
-                  <div className="mt-4 rounded-xl border border-cyan-400/15 bg-cyan-400/10 p-3">
-                    <p className="text-center text-sm text-cyan-100">
-                      <strong>Cross-Device Sync:</strong> Your account works on
-                      any device with cloud backup via Supabase
-                    </p>
-                  </div>
-                )}
+              <Button
+                type="submit"
+                disabled={
+                  isLoading ||
+                  registrationSuccess ||
+                  !formData.username.trim() ||
+                  !formData.password.trim()
+                }
+                className="h-12 w-full rounded-xl bg-emerald-300 text-base font-semibold text-slate-950 hover:bg-emerald-200"
+              >
+                {isRegisterMode ? 'Create account' : 'Sign in'}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
 
-                {/* App Stats */}
-                <div className="border-t border-white/10 pt-4">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-lg font-bold text-white">
-                        Cloud
-                      </div>
-                      <div className="text-xs text-slate-500">Sync</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-white">
-                        ∞
-                      </div>
-                      <div className="text-xs text-slate-500">Devices</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-white">
-                        Secure
-                      </div>
-                      <div className="text-xs text-slate-500">Backup</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+            <div className="grid gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={toggleMode}
+                disabled={isLoading || registrationSuccess}
+                className="h-11 rounded-xl border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.07]"
+              >
+                {isRegisterMode ? 'Use existing account' : 'Create a local account'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={fillBootstrapAdmin}
+                disabled={isLoading}
+                className="h-11 rounded-xl text-slate-300 hover:bg-white/[0.06] hover:text-white"
+              >
+                Use admin preview
+              </Button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-slate-400">
+              Admin preview: <span className="font-medium text-slate-200">{bootstrapAdmin.username}</span>
+              {' / '}
+              <span className="font-medium text-slate-200">{bootstrapAdmin.password}</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </main>
   )
 }

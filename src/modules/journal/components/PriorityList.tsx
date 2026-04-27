@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Target, Trash2, AlertCircle } from 'lucide-react'
+import { AlertCircle, Plus, Target, Trash2 } from 'lucide-react'
 
 interface PriorityListProps {
   priorities: string[]
@@ -8,11 +8,11 @@ interface PriorityListProps {
   required?: boolean
 }
 
-export default function PriorityList({ 
-  priorities, 
-  onChange, 
+export default function PriorityList({
+  priorities,
+  onChange,
   maxItems = 3,
-  required = false 
+  required = false,
 }: PriorityListProps) {
   const [newPriority, setNewPriority] = useState('')
   const [isAdding, setIsAdding] = useState(false)
@@ -26,16 +26,15 @@ export default function PriorityList({
   }
 
   const handleRemovePriority = (index: number) => {
-    const updatedPriorities = priorities.filter((_, i) => i !== index)
-    onChange(updatedPriorities)
+    onChange(priorities.filter((_, itemIndex) => itemIndex !== index))
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
       handleAddPriority()
     }
-    if (e.key === 'Escape') {
+    if (event.key === 'Escape') {
       setIsAdding(false)
       setNewPriority('')
     }
@@ -47,40 +46,39 @@ export default function PriorityList({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Target className="h-4 w-4 text-green-500" />
-          <label className="text-sm font-medium text-white">
+          <Target className="h-4 w-4 text-emerald-300" />
+          <label className="text-sm font-semibold text-white">
             Top {maxItems} Priorities
-            {required && <span className="text-red-400 ml-1">*</span>}
+            {required && <span className="ml-1 text-rose-300">*</span>}
           </label>
         </div>
-        <span className="text-xs text-gray-400">
+        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-300">
           {priorities.length}/{maxItems}
         </span>
       </div>
 
-      {/* Priority validation message */}
       {required && priorities.length === 0 && (
-        <div className="flex items-center gap-2 p-2 bg-red-500/20 border border-red-500/50 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-red-400" />
-          <span className="text-xs text-red-400">At least one priority is required</span>
+        <div className="flex items-center gap-2 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-3">
+          <AlertCircle className="h-4 w-4 text-rose-200" />
+          <span className="text-xs text-rose-100">At least one priority is required</span>
         </div>
       )}
 
-      {/* Existing priorities */}
       <div className="space-y-2">
         {priorities.map((priority, index) => (
           <div
-            key={index}
-            className="flex items-center gap-3 p-3 bg-gray-800 border border-gray-600 rounded-lg"
+            key={`${priority}-${index}`}
+            className="flex items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-3"
           >
-            <div className="flex items-center justify-center w-6 h-6 bg-green-500 text-black text-xs font-bold rounded-full">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-300 text-xs font-bold text-slate-950">
               {index + 1}
             </div>
             <span className="flex-1 text-sm text-white">{priority}</span>
             <button
               type="button"
               onClick={() => handleRemovePriority(index)}
-              className="text-red-400 hover:text-red-300 p-1"
+              className="rounded-lg p-1 text-rose-200 hover:bg-rose-300/10 hover:text-rose-100"
+              aria-label="Remove priority"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -88,16 +86,15 @@ export default function PriorityList({
         ))}
       </div>
 
-      {/* Add new priority */}
       {isAdding ? (
-        <div className="p-3 bg-gray-800 border border-gray-600 rounded-lg space-y-3">
+        <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-950/60 p-3">
           <input
             type="text"
             value={newPriority}
-            onChange={(e) => setNewPriority(e.target.value)}
+            onChange={(event) => setNewPriority(event.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="What's your priority for today?"
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400"
+            placeholder="What is the highest value move?"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-cyan-300/40 focus:outline-none"
             autoFocus
           />
           <div className="flex gap-2">
@@ -105,7 +102,7 @@ export default function PriorityList({
               type="button"
               onClick={handleAddPriority}
               disabled={!newPriority.trim()}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-2xl bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add Priority
             </button>
@@ -115,7 +112,7 @@ export default function PriorityList({
                 setIsAdding(false)
                 setNewPriority('')
               }}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
             >
               Cancel
             </button>
@@ -125,32 +122,29 @@ export default function PriorityList({
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="w-full p-3 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 p-3 text-slate-400 transition-colors hover:border-cyan-300/30 hover:text-cyan-100"
         >
           <Plus className="h-4 w-4" />
           Add Priority ({priorities.length}/{maxItems})
         </button>
       ) : (
-        <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-          <span className="text-xs text-gray-500">
-            Maximum {maxItems} priorities reached
-          </span>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-center">
+          <span className="text-xs text-slate-500">Maximum {maxItems} priorities reached</span>
         </div>
       )}
 
       {priorities.length === 0 && !isAdding && (
-        <p className="text-xs text-gray-500 text-center py-4">
-          No priorities set yet. What are your top {maxItems} goals for today?
+        <p className="py-4 text-center text-xs text-slate-500">
+          No priorities set yet. Pick the top {maxItems} goals for today.
         </p>
       )}
 
-      {/* Priority tips */}
       {priorities.length > 0 && (
-        <div className="text-xs text-gray-500 space-y-1">
-          <p>💡 <strong>Tip:</strong> Focus on completing these priorities first</p>
-          <p>🎯 Keep them specific and actionable for better results</p>
+        <div className="space-y-1 rounded-2xl border border-cyan-300/15 bg-cyan-300/10 p-3 text-xs text-slate-300">
+          <p><strong>Tip:</strong> Focus on completing these priorities first.</p>
+          <p>Keep them specific and actionable for better results.</p>
         </div>
       )}
     </div>
   )
-} 
+}

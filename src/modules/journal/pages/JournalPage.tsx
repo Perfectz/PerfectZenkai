@@ -1,11 +1,34 @@
-import { useEffect, useState } from 'react'
-import { Calendar, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  AlertTriangle,
+  BookOpen,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Moon,
+  Sparkles,
+  Sun,
+  Target,
+} from 'lucide-react'
 import { format, addDays, subDays } from 'date-fns'
-import { useJournalStore, useJournalFormState, useJournalLoading, useJournalError } from '../store'
-import { getCurrentDateString, formatJournalDate } from '../utils/journalHelpers'
+import {
+  useJournalEntries,
+  useJournalError,
+  useJournalFormState,
+  useJournalLoading,
+  useJournalStore,
+} from '../store'
+import {
+  calculateStreak,
+  formatJournalDate,
+  getCurrentDateString,
+} from '../utils/journalHelpers'
 import { MorningEntry, EveningEntry } from '../types'
 import MorningStandup from '../components/MorningStandup'
 import EveningReflection from '../components/EveningReflection'
+
+const formatWeekday = (date: string) => format(new Date(date), 'EEEE')
 
 export default function JournalPage() {
   const {
@@ -17,45 +40,51 @@ export default function JournalPage() {
     setActiveTab,
     clearError,
   } = useJournalStore()
-
+  const entries = useJournalEntries()
   const formState = useJournalFormState()
   const isLoading = useJournalLoading()
   const error = useJournalError()
-
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // Load entries on mount
   useEffect(() => {
     const initializeJournal = async () => {
       await loadEntries()
       setIsInitialized(true)
     }
-    initializeJournal()
+
+    void initializeJournal()
   }, [loadEntries])
 
-  // Get current entry for selected date
   const currentEntry = getEntryByDate(formState.selectedDate)
+  const today = getCurrentDateString()
+  const isToday = formState.selectedDate === today
+  const isFuture = formState.selectedDate > today
+  const canGoNext = formState.selectedDate < today
+  const morningComplete = Boolean(currentEntry?.morningEntry)
+  const eveningComplete = Boolean(currentEntry?.eveningEntry)
+  const dayCompletion = morningComplete && eveningComplete ? 100 : morningComplete || eveningComplete ? 50 : 0
+  const streak = useMemo(() => calculateStreak(entries).current, [entries])
+  const recentEntries = useMemo(() => entries.slice(0, 7), [entries])
+  const completedRecentEntries = recentEntries.filter(
+    (entry) => entry.morningEntry || entry.eveningEntry
+  ).length
 
-  // Date navigation
   const handlePreviousDay = () => {
-    const prevDate = format(subDays(new Date(formState.selectedDate), 1), 'yyyy-MM-dd')
-    setSelectedDate(prevDate)
+    setSelectedDate(format(subDays(new Date(formState.selectedDate), 1), 'yyyy-MM-dd'))
   }
 
   const handleNextDay = () => {
-    const nextDate = format(addDays(new Date(formState.selectedDate), 1), 'yyyy-MM-dd')
-    setSelectedDate(nextDate)
+    if (!canGoNext) {
+      return
+    }
+
+    setSelectedDate(format(addDays(new Date(formState.selectedDate), 1), 'yyyy-MM-dd'))
   }
 
   const handleToday = () => {
-    setSelectedDate(getCurrentDateString())
+    setSelectedDate(today)
   }
 
-  // Check if selected date is today
-  const isToday = formState.selectedDate === getCurrentDateString()
-  const isFuture = new Date(formState.selectedDate) > new Date()
-
-  // Handle saving entries
   const handleSaveMorning = async (morningEntry: MorningEntry) => {
     await createOrUpdateMorningEntry(formState.selectedDate, morningEntry)
   }
@@ -66,145 +95,198 @@ export default function JournalPage() {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading journal...</p>
+      <div className="flex min-h-[24rem] items-center justify-center">
+        <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent" />
+          <p className="text-sm text-slate-400">Loading journal...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 pb-20 pt-16">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blue-500/20 rounded-lg">
-            <BookOpen className="h-6 w-6 text-blue-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Daily Journal</h1>
-            <p className="text-sm text-gray-400">Reflect, plan, and grow every day</p>
-          </div>
-        </div>
+    <div className="space-y-6 pb-32 pt-2">
+      <section className="overflow-hidden rounded-3xl border border-violet-300/20 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(76,29,149,0.52)),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))] p-5 shadow-[0_30px_90px_-46px_rgba(167,139,250,0.65)] sm:p-7">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.75fr)] lg:items-end">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">
+                <BookOpen className="h-3.5 w-3.5" />
+                Journal quest log
+              </span>
+              <span className="rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-violet-100">
+                {isToday ? 'Today' : formatJournalDate(formState.selectedDate)}
+              </span>
+            </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-red-400">{error}</span>
-              <button
-                onClick={clearError}
-                className="text-red-400 hover:text-red-300 text-sm"
-              >
-                Dismiss
-              </button>
+            <div>
+              <h1 className="text-3xl font-semibold tracking-normal text-white sm:text-5xl">
+                Plan the run. Close the loop.
+              </h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                Morning sets the mission. Evening converts the day into XP,
+                lessons, and tomorrow&apos;s next move.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: 'Day loop', value: `${dayCompletion}%`, icon: Target },
+                { label: 'Streak', value: `${streak}d`, icon: Sparkles },
+                { label: 'Last 7', value: `${completedRecentEntries}/7`, icon: CheckCircle2 },
+                { label: 'Entries', value: `${entries.length}`, icon: BookOpen },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-white/10 bg-slate-950/55 p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                      {stat.label}
+                    </p>
+                    <stat.icon className="h-4 w-4 text-cyan-200" />
+                  </div>
+                  <p className="mt-2 text-xl font-semibold text-white">{stat.value}</p>
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Date Navigation */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={handlePreviousDay}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
+          <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/65 p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handlePreviousDay}
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                aria-label="Previous day"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
 
-            <div className="flex items-center gap-4">
               <div className="text-center">
-                <div className="flex items-center gap-2 text-white font-medium">
-                  <Calendar className="h-4 w-4 text-green-500" />
+                <div className="flex items-center justify-center gap-2 text-base font-semibold text-white">
+                  <Calendar className="h-4 w-4 text-cyan-200" />
                   {formatJournalDate(formState.selectedDate)}
                 </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {format(new Date(formState.selectedDate), 'EEEE')}
-                </div>
+                <p className="mt-1 text-sm text-slate-400">{formatWeekday(formState.selectedDate)}</p>
               </div>
 
-              {!isToday && (
-                <button
-                  onClick={handleToday}
-                  className="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  Today
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleNextDay}
+                disabled={!canGoNext}
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Next day"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
 
+            {!isToday ? (
+              <button
+                type="button"
+                onClick={handleToday}
+                className="w-full rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/15"
+              >
+                Return to today
+              </button>
+            ) : (
+              <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-center text-sm font-semibold text-emerald-100">
+                Current day selected
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {error ? (
+        <div className="rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-rose-100">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="text-sm">{error}</span>
+            </div>
             <button
-              onClick={handleNextDay}
-              disabled={isFuture}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={clearError}
+              className="text-sm font-semibold text-rose-100 hover:text-white"
             >
-              <ChevronRight className="h-5 w-5" />
+              Dismiss
             </button>
           </div>
         </div>
+      ) : null}
 
-        {/* Entry Status */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-400">
-              Entry Status for {formatJournalDate(formState.selectedDate)}
-            </div>
-            <div className="flex gap-2">
-              <div className={`px-2 py-1 rounded-full text-xs ${
-                currentEntry?.morningEntry 
-                  ? 'bg-green-500/20 text-green-400' 
-                  : 'bg-gray-600/20 text-gray-500'
-              }`}>
-                Morning {currentEntry?.morningEntry ? '✓' : '○'}
-              </div>
-              <div className={`px-2 py-1 rounded-full text-xs ${
-                currentEntry?.eveningEntry 
-                  ? 'bg-purple-500/20 text-purple-400' 
-                  : 'bg-gray-600/20 text-gray-500'
-              }`}>
-                Evening {currentEntry?.eveningEntry ? '✓' : '○'}
-              </div>
+      {isFuture ? (
+        <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+          You are viewing a future date. Journal entries are designed for today or previous days.
+        </div>
+      ) : null}
+
+      <section className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
+        <aside className="space-y-4">
+          <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80">
+              Loop status
+            </p>
+            <div className="mt-4 space-y-3">
+              {[
+                {
+                  id: 'morning',
+                  label: 'Morning',
+                  complete: morningComplete,
+                  icon: Sun,
+                  tone: 'text-amber-100',
+                },
+                {
+                  id: 'evening',
+                  label: 'Evening',
+                  complete: eveningComplete,
+                  icon: Moon,
+                  tone: 'text-violet-100',
+                },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id as 'morning' | 'evening')}
+                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition ${
+                    formState.activeTab === item.id
+                      ? 'border-cyan-300/30 bg-cyan-300/10'
+                      : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <item.icon className={`h-4 w-4 ${item.tone}`} />
+                    <span className="text-sm font-semibold text-white">{item.label}</span>
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${
+                      item.complete
+                        ? 'bg-emerald-300/15 text-emerald-100'
+                        : 'bg-slate-700/70 text-slate-400'
+                    }`}
+                  >
+                    {item.complete ? 'Done' : 'Open'}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="flex bg-gray-800 rounded-lg p-1 mb-6">
-          <button
-            onClick={() => setActiveTab('morning')}
-            className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
-              formState.activeTab === 'morning'
-                ? 'bg-yellow-500/20 text-yellow-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            🌅 Morning Standup
-          </button>
-          <button
-            onClick={() => setActiveTab('evening')}
-            className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
-              formState.activeTab === 'evening'
-                ? 'bg-purple-500/20 text-purple-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            🌙 Evening Reflection
-          </button>
-        </div>
-
-        {/* Future Date Warning */}
-        {isFuture && (
-          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-6">
-            <p className="text-yellow-400 text-sm">
-              📅 You're viewing a future date. Journal entries are typically made for today or past dates.
+          <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Current mission
+            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              {formState.activeTab === 'morning'
+                ? 'Choose a few outcomes and blockers before opening the task queue.'
+                : 'Capture wins and lessons before they disappear from memory.'}
             </p>
           </div>
-        )}
+        </aside>
 
-        {/* Journal Content */}
-        <div className="bg-gray-800 rounded-lg p-6">
+        <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/75 p-4 shadow-[0_24px_70px_rgba(2,8,23,0.4)] sm:p-6">
           {formState.activeTab === 'morning' ? (
             <MorningStandup
               entry={currentEntry?.morningEntry}
@@ -219,48 +301,7 @@ export default function JournalPage() {
             />
           )}
         </div>
-
-        {/* Quick Stats */}
-        {currentEntry && (
-          <div className="mt-6 bg-gray-800 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-white mb-3">Entry Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              {currentEntry.morningEntry && (
-                <>
-                  <div>
-                    <div className="text-lg font-bold text-yellow-400">
-                      {currentEntry.morningEntry.mood}/5
-                    </div>
-                    <div className="text-xs text-gray-400">Morning Mood</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-blue-400">
-                      {currentEntry.morningEntry.energy}/5
-                    </div>
-                    <div className="text-xs text-gray-400">Energy Level</div>
-                  </div>
-                </>
-              )}
-              {currentEntry.eveningEntry && (
-                <>
-                  <div>
-                    <div className="text-lg font-bold text-green-400">
-                      {currentEntry.eveningEntry.productivity}/5
-                    </div>
-                    <div className="text-xs text-gray-400">Productivity</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-purple-400">
-                      {currentEntry.eveningEntry.satisfaction}/5
-                    </div>
-                    <div className="text-xs text-gray-400">Satisfaction</div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      </section>
     </div>
   )
-} 
+}

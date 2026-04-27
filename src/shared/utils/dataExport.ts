@@ -4,6 +4,7 @@ import { notesRepo } from '@/modules/notes/repo'
 import { useMealStore } from '@/modules/meals/store'
 import { useWorkoutStore } from '@/modules/workout/store'
 import { useJournalStore } from '@/modules/journal/store'
+import { journalRepo } from '@/modules/journal/repo'
 
 import { useAuthStore } from '@/modules/auth'
 import type { WeightEntry, WeightGoal } from '@/modules/weight/types'
@@ -195,6 +196,17 @@ export interface PerfectZenkaiDataExport {
     validationErrors: string[]
     warnings: string[]
   }
+}
+
+export interface DataRestoreResult {
+  imported: {
+    weights: number
+    tasks: number
+    notes: number
+    journalEntries: number
+  }
+  skipped: string[]
+  warnings: string[]
 }
 
 // Helper function to get standup data from localStorage
@@ -588,6 +600,130 @@ export const downloadDataAsFile = (data: PerfectZenkaiDataExport, filename?: str
     size: `${(blob.size / 1024 / 1024).toFixed(2)} MB`,
     records: data.exportMetadata.totalRecords
   })
+}
+
+const readJsonFile = async (file: File): Promise<Record<string, unknown>> => {
+  const text = await file.text()
+  const parsed = JSON.parse(text) as unknown
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Backup file is not a valid Perfect Zenkai JSON export.')
+  }
+
+  return parsed as Record<string, unknown>
+}
+
+export const restoreDataFromExport = async (
+  data: Record<string, unknown>
+): Promise<DataRestoreResult> => {
+  const validation = validateImportData(data)
+
+  if (!validation.isValid) {
+    throw new Error(validation.errors.join('\n'))
+  }
+
+  const exportData = data as unknown as PerfectZenkaiDataExport
+  const result: DataRestoreResult = {
+    imported: {
+      weights: 0,
+      tasks: 0,
+      notes: 0,
+      journalEntries: 0,
+    },
+    skipped: [],
+    warnings: [...validation.warnings],
+  }
+
+  for (const weight of exportData.healthData.weights.entries || []) {
+    if (!weight.dateISO || typeof weight.kg !== 'number') {
+      result.skipped.push(`Skipped invalid weight entry ${weight.id || 'without id'}.`)
+      continue
+    }
+
+    await weightRepo.addWeight({
+      dateISO: weight.dateISO,
+      kg: weight.kg,
+      weight: weight.weight ?? weight.kg,
+    })
+    result.imported.weights += 1
+  }
+
+  for (const task of exportData.productivityData.tasks.entries || []) {
+    if (!task.summary) {
+      result.skipped.push(`Skipped invalid task ${task.id || 'without id'}.`)
+      continue
+    }
+
+    const existingTask = await simpleTodoRepo.getTodoById(task.id)
+    if (existingTask) {
+      await simpleTodoRepo.updateTodo(task.id, task)
+    } else {
+      await simpleTodoRepo.addTodo({
+        summary: task.summary,
+        description: task.description,
+        descriptionFormat: task.descriptionFormat || 'plaintext',
+        done: task.done,
+        priority: task.priority || 'medium',
+        category: task.category || 'other',
+        points: task.points,
+        dueDate: task.dueDate,
+        dueDateTime: task.dueDateTime,
+        reminders: task.reminders || [],
+        subtasks: task.subtasks || [],
+        templateId: task.templateId,
+        goalId: task.goalId,
+        completedAt: task.completedAt,
+      })
+    }
+    result.imported.tasks += 1
+  }
+
+  for (const note of exportData.wellnessData.notes.entries || []) {
+    if (!note.title && !note.content) {
+      result.skipped.push(`Skipped empty note ${note.id || 'without id'}.`)
+      continue
+    }
+
+    const existingNote = await notesRepo.getNoteById(note.id)
+    if (existingNote) {
+      await notesRepo.updateNote(note.id, {
+        title: note.title,
+        content: note.content,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+      })
+    } else {
+      await notesRepo.addNote({
+        title: note.title || 'Imported note',
+        content: note.content || '',
+        createdAt: note.createdAt || new Date().toISOString(),
+        updatedAt: note.updatedAt || note.createdAt || new Date().toISOString(),
+      })
+    }
+    result.imported.notes += 1
+  }
+
+  for (const entry of exportData.wellnessData.journal.entries || []) {
+    if (!entry.entryDate) {
+      result.skipped.push(`Skipped journal entry ${entry.id || 'without id'} without date.`)
+      continue
+    }
+
+    await journalRepo.upsertEntry({
+      ...entry,
+      id: entry.id || crypto.randomUUID(),
+      createdAt: entry.createdAt || new Date().toISOString(),
+      updatedAt: entry.updatedAt || new Date().toISOString(),
+    })
+    result.imported.journalEntries += 1
+  }
+
+  return result
+}
+
+export const restoreDataFromFile = async (file: File): Promise<DataRestoreResult> => {
+  const parsed = await readJsonFile(file)
+  return restoreDataFromExport(parsed)
 }
 
 // Enhanced summary function with comprehensive statistics

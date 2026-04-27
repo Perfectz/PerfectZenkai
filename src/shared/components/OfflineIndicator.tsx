@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Cloud,
+  CloudOff,
+  Database,
+  RotateCw,
+  Wifi,
+  WifiOff,
+} from 'lucide-react'
+import { isLocalOnlyMode } from '@/lib/supabase-client'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
-import { 
-  Wifi, 
-  WifiOff, 
-  Cloud, 
-  CloudOff, 
-  RotateCw, 
-  AlertCircle, 
-  CheckCircle2,
-  Clock
-} from 'lucide-react'
 
 export interface OfflineStatus {
   isOnline: boolean
@@ -27,20 +29,19 @@ export function OfflineIndicator() {
     lastSync: localStorage.getItem('last-sync'),
     pendingOperations: 0,
     syncInProgress: false,
-    hasErrors: false
+    hasErrors: false,
   })
-
   const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     const handleOnline = () => {
-      setStatus(prev => ({ ...prev, isOnline: true }))
-      console.log('🌐 Network connection restored')
+      setStatus((prev) => ({ ...prev, isOnline: true }))
+      console.log('Network connection restored')
     }
 
     const handleOffline = () => {
-      setStatus(prev => ({ ...prev, isOnline: false }))
-      console.log('📵 Network connection lost')
+      setStatus((prev) => ({ ...prev, isOnline: false }))
+      console.log('Network connection lost')
     }
 
     window.addEventListener('online', handleOnline)
@@ -53,26 +54,16 @@ export function OfflineIndicator() {
   }, [])
 
   const getStatusIcon = () => {
-    if (status.syncInProgress) {
-      return <RotateCw className="h-4 w-4 animate-spin" />
-    }
-    
-    if (!status.isOnline) {
-      return <WifiOff className="h-4 w-4" />
-    }
-    
-    if (status.hasErrors) {
-      return <AlertCircle className="h-4 w-4" />
-    }
-    
-    if (status.pendingOperations > 0) {
-      return <Clock className="h-4 w-4" />
-    }
-    
+    if (isLocalOnlyMode) return <Database className="h-4 w-4" />
+    if (status.syncInProgress) return <RotateCw className="h-4 w-4 animate-spin" />
+    if (!status.isOnline) return <WifiOff className="h-4 w-4" />
+    if (status.hasErrors) return <AlertCircle className="h-4 w-4" />
+    if (status.pendingOperations > 0) return <Clock className="h-4 w-4" />
     return <CheckCircle2 className="h-4 w-4" />
   }
 
   const getStatusColor = () => {
+    if (isLocalOnlyMode) return 'text-ki-green border-ki-green/30 bg-ki-green/10'
     if (status.syncInProgress) return 'text-blue-400 border-blue-400/30 bg-blue-400/10'
     if (!status.isOnline) return 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'
     if (status.hasErrors) return 'text-red-400 border-red-400/30 bg-red-400/10'
@@ -81,6 +72,7 @@ export function OfflineIndicator() {
   }
 
   const getStatusText = () => {
+    if (isLocalOnlyMode) return 'On device'
     if (status.syncInProgress) return 'Syncing...'
     if (!status.isOnline) return 'Offline'
     if (status.hasErrors) return 'Sync Error'
@@ -89,35 +81,38 @@ export function OfflineIndicator() {
   }
 
   const formatLastSync = (lastSync: string | null) => {
+    if (isLocalOnlyMode) return 'Not used'
     if (!lastSync) return 'Never'
-    
+
     const date = new Date(lastSync)
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const minutes = Math.floor(diff / 60000)
-    
+
     if (minutes < 1) return 'Just now'
     if (minutes < 60) return `${minutes}m ago`
-    
+
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours}h ago`
-    
+
     const days = Math.floor(hours / 24)
     return `${days}d ago`
   }
 
   const handleManualSync = async () => {
-    setStatus(prev => ({ ...prev, syncInProgress: true }))
-    
-    // Simulate sync process
+    if (isLocalOnlyMode) return
+
+    setStatus((prev) => ({ ...prev, syncInProgress: true }))
+
     setTimeout(() => {
-      setStatus(prev => ({
+      const lastSync = new Date().toISOString()
+      setStatus((prev) => ({
         ...prev,
         syncInProgress: false,
-        lastSync: new Date().toISOString(),
-        pendingOperations: 0
+        lastSync,
+        pendingOperations: 0,
       }))
-      localStorage.setItem('last-sync', new Date().toISOString())
+      localStorage.setItem('last-sync', lastSync)
     }, 2000)
   }
 
@@ -137,25 +132,24 @@ export function OfflineIndicator() {
   }
 
   return (
-    <Card className="fixed right-4 top-[calc(var(--app-top-bar-height)+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] cyber-card animate-in slide-in-from-bottom-2 sm:left-6 sm:right-auto sm:top-auto sm:bottom-6 sm:w-72">
-      <CardContent className="p-4 space-y-3">
-        {/* Header */}
+    <Card className="cyber-card fixed right-4 top-[calc(var(--app-top-bar-height)+0.75rem)] z-50 w-[min(20rem,calc(100vw-2rem))] animate-in slide-in-from-bottom-2 sm:bottom-6 sm:left-6 sm:right-auto sm:top-auto sm:w-72">
+      <CardContent className="space-y-3 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {getStatusIcon()}
-            <span className="font-medium text-sm">{getStatusText()}</span>
+            <span className="text-sm font-medium">{getStatusText()}</span>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setExpanded(false)}
             className="h-8 w-8 p-0"
+            aria-label="Close storage status"
           >
-            ×
+            &times;
           </Button>
         </div>
 
-        {/* Connection Status */}
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             {status.isOnline ? (
@@ -163,33 +157,36 @@ export function OfflineIndicator() {
             ) : (
               <WifiOff className="h-3 w-3 text-yellow-400" />
             )}
-            <span>{status.isOnline ? 'Connected' : 'Offline Mode'}</span>
+            <span>{status.isOnline ? 'Network available' : 'Offline'}</span>
           </div>
           <div className="flex items-center gap-2">
-            {status.isOnline ? (
+            {isLocalOnlyMode ? (
+              <Database className="h-3 w-3 text-ki-green" />
+            ) : status.isOnline ? (
               <Cloud className="h-3 w-3 text-plasma-cyan" />
             ) : (
               <CloudOff className="h-3 w-3 text-gray-500" />
             )}
-            <span>{status.isOnline ? 'Cloud Sync' : 'Local Only'}</span>
+            <span>
+              {isLocalOnlyMode ? 'Device storage' : status.isOnline ? 'Cloud sync' : 'Local only'}
+            </span>
           </div>
         </div>
 
-        {/* Sync Information */}
         <div className="space-y-2 text-xs text-gray-400">
           <div className="flex justify-between">
-            <span>Last Sync:</span>
+            <span>{isLocalOnlyMode ? 'Cloud sync:' : 'Last sync:'}</span>
             <span>{formatLastSync(status.lastSync)}</span>
           </div>
-          
-          {status.pendingOperations > 0 && (
+
+          {!isLocalOnlyMode && status.pendingOperations > 0 && (
             <div className="flex justify-between">
               <span>Pending:</span>
               <span className="text-orange-400">{status.pendingOperations} operations</span>
             </div>
           )}
-          
-          {status.hasErrors && (
+
+          {!isLocalOnlyMode && status.hasErrors && (
             <div className="flex justify-between">
               <span>Status:</span>
               <span className="text-red-400">Sync errors detected</span>
@@ -197,59 +194,65 @@ export function OfflineIndicator() {
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          {status.isOnline && (
+          {!isLocalOnlyMode && status.isOnline && (
             <Button
               variant="outline"
               size="sm"
               onClick={handleManualSync}
               disabled={status.syncInProgress}
-              className="flex-1 h-8"
+              className="h-8 flex-1"
             >
               {status.syncInProgress ? (
                 <>
-                  <RotateCw className="h-3 w-3 mr-1 animate-spin" />
+                  <RotateCw className="mr-1 h-3 w-3 animate-spin" />
                   Syncing...
                 </>
               ) : (
                 <>
-                  <RotateCw className="h-3 w-3 mr-1" />
+                  <RotateCw className="mr-1 h-3 w-3" />
                   Sync Now
                 </>
               )}
             </Button>
           )}
-          
-          {status.hasErrors && (
+
+          {!isLocalOnlyMode && status.hasErrors && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                setStatus(prev => ({ ...prev, hasErrors: false }))
+                setStatus((prev) => ({ ...prev, hasErrors: false }))
                 console.log('Cleared sync errors')
               }}
-              className="flex-1 h-8"
+              className="h-8 flex-1"
             >
-              <AlertCircle className="h-3 w-3 mr-1" />
+              <AlertCircle className="mr-1 h-3 w-3" />
               Clear Errors
             </Button>
           )}
         </div>
 
-        {/* Status Messages */}
-        {!status.isOnline && (
-          <div className="text-xs text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded p-2">
-            You're working offline. Changes will sync when connection is restored.
+        {isLocalOnlyMode && (
+          <div className="rounded border border-ki-green/20 bg-ki-green/10 p-2 text-xs text-ki-green">
+            Data is saved in this browser on this device. Export a backup before clearing browser data.
           </div>
         )}
-        
-        {status.pendingOperations > 0 && status.isOnline && (
-          <div className="text-xs text-orange-400 bg-orange-400/10 border border-orange-400/20 rounded p-2">
+
+        {!status.isOnline && (
+          <div className="rounded border border-yellow-400/20 bg-yellow-400/10 p-2 text-xs text-yellow-400">
+            {isLocalOnlyMode
+              ? 'You can keep working offline. Your changes stay on this device.'
+              : "You're working offline. Changes will sync when connection is restored."}
+          </div>
+        )}
+
+        {!isLocalOnlyMode && status.pendingOperations > 0 && status.isOnline && (
+          <div className="rounded border border-orange-400/20 bg-orange-400/10 p-2 text-xs text-orange-400">
             {status.pendingOperations} changes are queued for sync.
           </div>
         )}
       </CardContent>
     </Card>
   )
-} 
+}

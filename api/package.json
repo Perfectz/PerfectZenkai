@@ -9,8 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@azure/keyvault-secrets": "^4.8.0",
     "@azure/identity": "^4.0.1",
+    "@azure/keyvault-secrets": "^4.8.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -18,5 +18,8 @@
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "overrides": {
+    "uuid": "^14.0.0"
   }
-} 
+}

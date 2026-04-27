@@ -27,7 +27,7 @@ export async function runDuplicateCleanup() {
   }
 }
 
-// Export for global window access
-if (typeof window !== 'undefined') {
+// Export for browser-console access during local development only.
+if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as unknown as { cleanupDuplicates: typeof runDuplicateCleanup }).cleanupDuplicates = runDuplicateCleanup
 } 

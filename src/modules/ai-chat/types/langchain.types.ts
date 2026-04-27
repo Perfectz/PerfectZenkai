@@ -1,6 +1,9 @@
 // src/modules/ai-chat/types/langchain.types.ts
 
-import { BaseMessage } from '@langchain/core/messages'
+export interface AiContextMessage {
+  role?: string
+  content: unknown
+}
 
 export interface LangchainConfig {
   apiKey: string
@@ -134,7 +137,7 @@ export interface ContextBuilder {
 }
 
 export interface MessageProcessor {
-  processMessage: (content: string, context: UserContext) => Promise<BaseMessage[]>
+  processMessage: (content: string, context: UserContext) => Promise<AiContextMessage[]>
   createSystemPrompt: (context: UserContext) => string
 }
 

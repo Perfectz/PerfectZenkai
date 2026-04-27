@@ -21,35 +21,35 @@ export default function MoodEnergySelector({
   const ratings = [1, 2, 3, 4, 5]
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
       <div className="flex items-center gap-2">
-        {icon && <span className="text-green-500">{icon}</span>}
-        <label className="text-sm font-medium text-white">
+        {icon && <span className="text-cyan-200">{icon}</span>}
+        <label className="text-sm font-semibold text-white">
           {label}
-          {required && <span className="text-red-400 ml-1">*</span>}
+          {required && <span className="ml-1 text-rose-300">*</span>}
         </label>
       </div>
       
       {description && (
-        <p className="text-xs text-gray-400">{description}</p>
+        <p className="mt-2 text-xs leading-5 text-slate-400">{description}</p>
       )}
       
-      <div className="flex items-center justify-between">
+      <div className="mt-4 grid grid-cols-5 gap-2">
         {ratings.map((rating) => (
           <button
             key={rating}
             type="button"
             onClick={() => onChange(rating)}
             className={`
-              flex flex-col items-center p-3 rounded-lg border-2 transition-all
+              flex min-h-[4.25rem] flex-col items-center justify-center rounded-2xl border px-2 py-3 transition-all
               ${value === rating
-                ? 'border-green-500 bg-green-500/20 text-green-400'
-                : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                ? 'border-cyan-300/50 bg-cyan-300/15 text-cyan-100'
+                : 'border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-slate-200'
               }
             `}
           >
-            <span className="text-lg font-bold">{rating}</span>
-            <span className="text-xs mt-1 text-center leading-tight">
+            <span className="text-lg font-semibold">{rating}</span>
+            <span className="mt-1 text-center text-[0.65rem] leading-tight">
               {getRatingLabel(rating)}
             </span>
           </button>
@@ -57,7 +57,7 @@ export default function MoodEnergySelector({
       </div>
       
       {value > 0 && (
-        <div className="text-center">
+        <div className="mt-3 text-center">
           <span className={`text-sm font-medium ${getRatingColor(value)}`}>
             Current: {getRatingLabel(value)} ({value}/5)
           </span>

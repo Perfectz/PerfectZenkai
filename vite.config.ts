@@ -27,9 +27,6 @@ export default defineConfig({
           // Database and storage
           'storage': ['dexie', 'zustand'],
           
-          // Authentication and cloud services
-          'auth': ['@supabase/supabase-js', 'jwt-decode'],
-          
           // Icons and UI utilities
           'ui-utils': ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority'],
           
@@ -37,7 +34,7 @@ export default defineConfig({
           'content': ['react-markdown', 'react-syntax-highlighter', 'remark-gfm', 'rehype-raw'],
           
           // Additional utilities
-          'utils': ['uuid', 'react-swipeable'],
+          'utils': ['react-swipeable'],
         },
       },
     },

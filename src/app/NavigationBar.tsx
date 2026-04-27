@@ -1,6 +1,7 @@
 import type { ElementType } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
+  Database,
   LogOut,
   User,
   Shield,
@@ -8,6 +9,7 @@ import {
 import { useAuthStore } from '@/modules/auth'
 import { Button } from '@/shared/ui/button'
 import { getPrimaryNavigation } from './module-system/registry'
+import { isLocalOnlyMode } from '@/lib/supabase-client'
 
 export default function NavigationBar() {
   const { user, logout } = useAuthStore()
@@ -17,7 +19,7 @@ export default function NavigationBar() {
   const handleLogout = async () => {
     if (
       confirm(
-        'Are you sure you want to log out? This will clear all your local data.'
+        'Log out of this session? Your local app data will stay on this device.'
       )
     ) {
       await logout()
@@ -52,10 +54,10 @@ export default function NavigationBar() {
   return (
     <>
       {/* Top user bar */}
-      <div className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/88 backdrop-blur-xl safe-area-top">
+      <div className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl safe-area-top">
         <div className="mx-auto flex h-[var(--app-top-bar-height)] max-w-[92rem] items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-cyan-400 shadow-[0_8px_24px_rgba(27,231,255,0.18)]">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-300 shadow-[0_10px_26px_rgba(52,211,153,0.22)]">
               <User className="h-4 w-4 text-black" />
             </div>
             <div className="min-w-0 flex-1">
@@ -63,10 +65,10 @@ export default function NavigationBar() {
                 {user?.name || user?.username || 'User'}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-400">
-                <span className="hidden sm:inline">Local-first session</span>
-                <span className="sm:hidden">Online</span>
+                <Database className="h-3.5 w-3.5 text-emerald-200" />
+                <span>{isLocalOnlyMode ? 'Stored on this device' : 'Cloud sync enabled'}</span>
                 {isAdmin && (
-                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
+                  <span className="hidden rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300 sm:inline-flex">
                     Admin
                   </span>
                 )}
@@ -103,7 +105,7 @@ export default function NavigationBar() {
 
       {/* Bottom navigation */}
       <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 pt-2 sm:bottom-4 sm:px-6 sm:pb-0 safe-area-bottom">
-        <div className="mx-auto flex h-[var(--app-bottom-nav-height)] max-w-2xl items-center justify-between gap-1 rounded-[1.4rem] border border-white/10 bg-slate-950/88 px-2 shadow-[0_18px_50px_rgba(2,8,23,0.5)] backdrop-blur-xl sm:h-auto sm:gap-2 sm:px-3 sm:py-2">
+        <div className="mx-auto flex h-[var(--app-bottom-nav-height)] max-w-2xl items-center justify-between gap-1 rounded-2xl border border-white/10 bg-slate-950/90 px-2 shadow-[0_18px_50px_rgba(2,8,23,0.5)] backdrop-blur-xl sm:h-auto sm:gap-2 sm:px-3 sm:py-2">
           {primaryNavItems.map((item) => (
             <NavItem key={item.id} to={item.to} icon={item.icon} label={item.label} />
           ))}

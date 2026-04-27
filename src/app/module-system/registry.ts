@@ -12,6 +12,7 @@ import { healthModule } from '@/modules/health/manifest'
 import { tasksModule } from '@/modules/tasks/manifest'
 import { journalModule } from '@/modules/journal/manifest'
 import { notesModule } from '@/modules/notes/manifest'
+import { aiChatModule } from '@/modules/ai-chat/manifest'
 
 export const appModuleRegistry: AppModuleManifest[] = [
   authModule,
@@ -20,6 +21,7 @@ export const appModuleRegistry: AppModuleManifest[] = [
   tasksModule,
   journalModule,
   notesModule,
+  aiChatModule,
 ]
 
 export const getEnabledModules = () =>

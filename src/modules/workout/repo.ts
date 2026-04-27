@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import type { Exercise, WorkoutEntry, WorkoutGoal, WorkoutTemplate } from './types'
 
@@ -109,7 +108,7 @@ const readStringArray = (record: RecordLike, ...keys: string[]): string[] | unde
 }
 
 const mapWorkoutRecord = (record: RecordLike): WorkoutEntry => ({
-  id: readString(record, 'id') || uuidv4(),
+  id: readString(record, 'id') || crypto.randomUUID(),
   exerciseId: readString(record, 'exerciseId', 'exercise_id') || '',
   exerciseName: readString(record, 'exerciseName', 'exercise_name') || '',
   exerciseType: (readString(record, 'exerciseType', 'exercise_type') as WorkoutEntry['exerciseType']) || 'other',
@@ -126,7 +125,7 @@ const mapWorkoutRecord = (record: RecordLike): WorkoutEntry => ({
 })
 
 const mapExerciseRecord = (record: RecordLike): Exercise => ({
-  id: readString(record, 'id') || uuidv4(),
+  id: readString(record, 'id') || crypto.randomUUID(),
   name: readString(record, 'name') || '',
   type: (readString(record, 'type') as Exercise['type']) || 'other',
   category: readString(record, 'category') || 'General',
@@ -156,7 +155,7 @@ const mapTemplateExercises = (record: RecordLike): WorkoutTemplate['exercises'] 
 }
 
 const mapTemplateRecord = (record: RecordLike): WorkoutTemplate => ({
-  id: readString(record, 'id') || uuidv4(),
+  id: readString(record, 'id') || crypto.randomUUID(),
   name: readString(record, 'name') || '',
   description: readString(record, 'description'),
   exercises: mapTemplateExercises(record),
@@ -169,7 +168,7 @@ const mapTemplateRecord = (record: RecordLike): WorkoutTemplate => ({
 })
 
 const mapGoalRecord = (record: RecordLike): WorkoutGoal => ({
-  id: readString(record, 'id') || uuidv4(),
+  id: readString(record, 'id') || crypto.randomUUID(),
   type: (readString(record, 'type') as WorkoutGoal['type']) || 'duration',
   target: readNumber(record, 'target') || 0,
   period: (readString(record, 'period') as WorkoutGoal['period']) || 'weekly',
@@ -198,7 +197,7 @@ const workoutLocalRepo = {
     const database = getDatabase()
     const newWorkout: WorkoutEntry = {
       ...withTimestamps(workout),
-      id: uuidv4(),
+      id: crypto.randomUUID(),
     }
     await database.workouts.put(newWorkout)
     return newWorkout
@@ -235,7 +234,7 @@ const exerciseLocalRepo = {
     const database = getDatabase()
     const newExercise: Exercise = {
       ...withTimestamps(exercise),
-      id: uuidv4(),
+      id: crypto.randomUUID(),
     }
     await database.exercises.put(newExercise)
     return newExercise
@@ -272,7 +271,7 @@ const templateLocalRepo = {
     const database = getDatabase()
     const newTemplate: WorkoutTemplate = {
       ...withTimestamps(template),
-      id: uuidv4(),
+      id: crypto.randomUUID(),
     }
     await database.templates.put(newTemplate)
     return newTemplate
@@ -309,7 +308,7 @@ const goalLocalRepo = {
     const database = getDatabase()
     const newGoal: WorkoutGoal = {
       ...withTimestamps(goal),
-      id: uuidv4(),
+      id: crypto.randomUUID(),
     }
     await database.goals.put(newGoal)
     return newGoal
@@ -374,7 +373,7 @@ const supabaseWorkoutRepo = {
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
-      })
+      } as never)
       .eq('id', id)
       .select()
       .single()
@@ -486,7 +485,7 @@ const supabaseTemplateRepo = {
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
-      })
+      } as never)
       .eq('id', id)
       .select()
       .single()
@@ -535,7 +534,7 @@ const supabaseGoalRepo = {
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
-      })
+      } as never)
       .eq('id', id)
       .select()
       .single()

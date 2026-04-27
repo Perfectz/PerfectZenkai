@@ -238,7 +238,11 @@ export async function runSmartCleanup() {
   return { cleaned: duplicatesToDelete.length, remaining: uniqueTasks.size }
 }
 
-// Make it available globally
-if (typeof window !== 'undefined') {
-  (window as unknown as { runImmediateCleanup: typeof runImmediateCleanup }).runImmediateCleanup = runImmediateCleanup
+// Make cleanup helpers available globally during local development only.
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  Object.assign(window, {
+    runImmediateCleanup,
+    runCompleteReset,
+    runSmartCleanup,
+  })
 } 

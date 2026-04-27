@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import type { JournalEntry, JournalEntryRow } from './types'
 import { transformEntryToRow, transformRowToEntry } from './utils/journalHelpers'
@@ -48,7 +47,7 @@ export const journalRepo = {
     const now = new Date().toISOString()
     const newEntry: JournalEntry = {
       ...entry,
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
     }

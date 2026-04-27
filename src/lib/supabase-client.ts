@@ -8,11 +8,17 @@ let supabaseClient: TypedSupabaseClient | null = null
 let initializationPromise: Promise<TypedSupabaseClient | null> | null = null
 
 const isTestEnvironment = import.meta.env.MODE === 'test' || process.env.NODE_ENV === 'test'
+export const isLocalOnlyMode = import.meta.env.VITE_LOCAL_ONLY !== 'false'
 
 async function initializeSupabase(): Promise<TypedSupabaseClient | null> {
   // This function should only be called once.
   if (supabaseClient) {
     return supabaseClient;
+  }
+
+  if (isLocalOnlyMode) {
+    console.info('Local-only mode active; Supabase client disabled.')
+    return null
   }
 
   if (isTestEnvironment) {

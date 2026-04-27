@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '@/lib/supabase-client'
+import { getSupabaseClient, isLocalOnlyMode } from '@/lib/supabase-client'
 import { simpleTodoRepo } from '@/modules/tasks/repositories/SimpleTodoRepo'
 import { weightRepo } from '@/modules/weight/repo'
 
@@ -49,6 +49,18 @@ export class OfflineSyncService {
   private intervalId: NodeJS.Timeout | null = null
   
   constructor() {
+    if (isLocalOnlyMode) {
+      this.status = {
+        ...this.status,
+        isOnline: navigator.onLine,
+        lastSync: null,
+        pendingOperations: 0,
+        syncInProgress: false,
+        errors: [],
+      }
+      return
+    }
+
     this.setupNetworkListeners()
     this.loadSyncQueue()
     this.startSyncTimer()
@@ -61,6 +73,10 @@ export class OfflineSyncService {
     operation: Omit<SyncOperation, 'id' | 'retries' | 'maxRetries' | 'priority'> &
       Partial<Pick<SyncOperation, 'maxRetries' | 'priority'>>
   ): Promise<void> {
+    if (isLocalOnlyMode) {
+      return
+    }
+
     const syncOp: SyncOperation = {
       id: crypto.randomUUID(),
       retries: 0,
@@ -83,6 +99,10 @@ export class OfflineSyncService {
    * Process the sync queue and attempt to sync with server
    */
   async processSyncQueue(): Promise<void> {
+    if (isLocalOnlyMode) {
+      return
+    }
+
     if (this.status.syncInProgress || !this.status.isOnline || this.syncQueue.length === 0) {
       return
     }
@@ -302,6 +322,10 @@ export class OfflineSyncService {
    * Force full sync of all data
    */
   async fullSync(): Promise<void> {
+    if (isLocalOnlyMode) {
+      return
+    }
+
     if (!this.status.isOnline) {
       throw new Error('Cannot perform full sync while offline')
     }

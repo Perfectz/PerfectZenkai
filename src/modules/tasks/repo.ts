@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { Todo, TaskTemplate, Subtask, Priority, Category } from './types'
 import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 import { deduplicateTodos, removeDuplicateContent } from './utils/deduplicationHelpers'
@@ -282,7 +281,7 @@ export const tasksRepo = {
     const now = new Date().toISOString()
     const todoWithTimestamps: Todo = {
       ...todo,
-      id: todo.id || uuidv4(), // Use existing ID or generate new one
+      id: todo.id || crypto.randomUUID(), // Use existing ID or generate new one
       updatedAt: now,
       createdAt: todo.createdAt || now,
       // Ensure defaults for required fields if not provided
@@ -383,7 +382,7 @@ export const tasksRepo = {
     if (!todo) return
 
     const newSubtask: Subtask = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       text: subtaskText,
       done: false,
       createdAt: new Date().toISOString(),
@@ -423,7 +422,7 @@ export const tasksRepo = {
   async addTemplate(template: Omit<TaskTemplate, 'id'>): Promise<TaskTemplate> {
     const database = getDatabase()
     const newTemplate: TaskTemplate = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       ...template,
     }
 
@@ -467,7 +466,7 @@ export const tasksRepo = {
       category: template.category,
       points: 5,
       subtasks: template.subtasks.map(st => ({
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         text: st.text,
         done: st.done,
         createdAt: new Date().toISOString(),
@@ -662,7 +661,7 @@ export const hybridTasksRepo = {
     if (!supabase || !userId) {
       // Fallback to local storage only (offline mode)
       const newSubtask: Subtask = {
-        id: uuidv4(), // Generate a new ID for local-only subtask
+        id: crypto.randomUUID(), // Generate a new ID for local-only subtask
         text,
         done: false,
         createdAt: new Date().toISOString(),

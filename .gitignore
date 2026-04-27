@@ -139,6 +139,7 @@ dist-ssr/
 
 # Test/debug output
 output/
+.codex-qa/
 
 # Vitest
 coverage/

@@ -1,5 +1,4 @@
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { Note } from './types'
 import { getSupabaseClient } from '@/lib/supabase-client'
 
@@ -161,7 +160,7 @@ export const notesRepo = {
   async addNote(note: Omit<Note, 'id'>): Promise<Note> {
     const database = getDatabase()
     const newNote: Note = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       ...note,
     }
 

@@ -1,18 +1,15 @@
 #!/usr/bin/env node
 
 import { spawn } from 'child_process'
-import { readFileSync } from 'fs'
-
-const PWA_SCORE_THRESHOLD = 90
 
 async function runCommand(command, args = []) {
   return new Promise((resolve, reject) => {
-    const process = spawn(command, args, {
+    const child = spawn(command, args, {
       stdio: 'inherit',
       shell: true,
     })
 
-    process.on('close', (code) => {
+    child.on('close', (code) => {
       if (code === 0) {
         resolve()
       } else {
@@ -23,21 +20,23 @@ async function runCommand(command, args = []) {
 }
 
 async function runLighthouse() {
+  let previewProcess
+
   try {
-    console.log('🏗️  Building production bundle...')
+    console.log('Building production bundle...')
     await runCommand('npm', ['run', 'build'])
 
-    console.log('🚀 Starting preview server...')
-    const previewProcess = spawn('npm', ['run', 'preview'], {
+    console.log('Starting preview server...')
+    previewProcess = spawn('npm', ['run', 'preview'], {
       stdio: 'pipe',
       shell: true,
     })
 
-    // Wait for server to start
     await new Promise((resolve) => setTimeout(resolve, 3000))
 
-    console.log('🔍 Running Lighthouse PWA audit...')
+    console.log('Running Lighthouse PWA audit...')
     await runCommand('npx', [
+      '--yes',
       '@lhci/cli',
       'autorun',
       '--collect.url=http://localhost:4173',
@@ -51,17 +50,15 @@ async function runLighthouse() {
       '--upload.target=temporary-public-storage',
     ])
 
-    // Kill preview server
-    previewProcess.kill()
-
-    console.log('✅ Lighthouse audit completed successfully!')
+    console.log('Lighthouse audit completed successfully.')
   } catch (error) {
-    console.error('❌ Lighthouse audit failed:', error.message)
-    process.exit(1)
+    console.error('Lighthouse audit failed:', error.message)
+    process.exitCode = 1
+  } finally {
+    previewProcess?.kill()
   }
 }
 
-// Check if we're running this script directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   runLighthouse()
 }

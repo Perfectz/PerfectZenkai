@@ -1,5 +1,13 @@
-import { useState, useEffect } from 'react'
-import { Moon, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, Save, AlertCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle,
+  Lightbulb,
+  Moon,
+  Save,
+} from 'lucide-react'
 import { EveningEntry } from '../types'
 import { createDefaultEveningEntry, validateEveningEntry } from '../utils/journalHelpers'
 import MoodEnergySelector from './MoodEnergySelector'
@@ -10,6 +18,9 @@ interface EveningReflectionProps {
   onSave: (entry: EveningEntry) => Promise<void>
   isLoading?: boolean
 }
+
+const fieldClass =
+  'min-h-[6rem] w-full resize-none rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-violet-300/40 focus:outline-none'
 
 export default function EveningReflection({ entry, onSave, isLoading = false }: EveningReflectionProps) {
   const [formData, setFormData] = useState<EveningEntry>(entry || createDefaultEveningEntry())
@@ -24,10 +35,9 @@ export default function EveningReflection({ entry, onSave, isLoading = false }: 
   }, [entry])
 
   const handleFieldChange = (field: keyof EveningEntry, value: EveningEntry[keyof EveningEntry]) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
     setHasUnsavedChanges(true)
-    
-    // Clear errors when user starts typing
+
     if (errors.length > 0) {
       setErrors([])
     }
@@ -48,115 +58,117 @@ export default function EveningReflection({ entry, onSave, isLoading = false }: 
       await onSave(formData)
       setHasUnsavedChanges(false)
       setErrors([])
-    } catch (error) {
+    } catch {
       setErrors(['Failed to save evening entry. Please try again.'])
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-purple-500/20 rounded-lg">
-          <Moon className="h-6 w-6 text-purple-500" />
+      <div className="flex items-center gap-3 rounded-2xl border border-violet-300/20 bg-violet-300/10 p-4">
+        <div className="rounded-2xl bg-violet-300/15 p-3">
+          <Moon className="h-6 w-6 text-violet-100" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white">Evening Reflection</h2>
-          <p className="text-sm text-gray-400">Review your day and prepare for tomorrow</p>
+          <h2 className="text-xl font-semibold text-white">Evening Reflection</h2>
+          <p className="text-sm text-slate-300">Convert the day into lessons, gratitude, and tomorrow&apos;s route.</p>
         </div>
       </div>
 
-      {/* Error messages */}
       {errors.length > 0 && (
-        <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg space-y-2">
+        <div className="space-y-2 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4">
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-red-400" />
-            <span className="text-sm font-medium text-red-400">Please fix the following issues:</span>
+            <AlertCircle className="h-4 w-4 text-rose-200" />
+            <span className="text-sm font-medium text-rose-100">Please fix the following issues:</span>
           </div>
-          <ul className="text-sm text-red-300 space-y-1">
+          <ul className="space-y-1 text-sm text-rose-100">
             {errors.map((error, index) => (
-              <li key={index}>• {error}</li>
+              <li key={index}>- {error}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Today's Accomplishments */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 text-green-500" />
-          <label className="text-sm font-medium text-white">What did I accomplish today?</label>
+          <CheckCircle className="h-4 w-4 text-emerald-300" />
+          <label className="text-sm font-semibold text-white">What did I accomplish today?</label>
         </div>
         <textarea
           value={formData.accomplishments.join('\n')}
-          onChange={(e) => handleArrayFieldChange('accomplishments', e.target.value.split('\n').filter(Boolean))}
-          placeholder="List your accomplishments from today (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('accomplishments', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="List your wins from today, one per line."
           rows={3}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Challenges */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-orange-500" />
-          <label className="text-sm font-medium text-white">What challenges did I face and how did I handle them?</label>
+          <AlertTriangle className="h-4 w-4 text-amber-300" />
+          <label className="text-sm font-semibold text-white">What challenges did I face?</label>
         </div>
         <textarea
           value={formData.challenges.join('\n')}
-          onChange={(e) => handleArrayFieldChange('challenges', e.target.value.split('\n').filter(Boolean))}
-          placeholder="Describe challenges you faced and how you dealt with them (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('challenges', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="Capture friction, blockers, or decisions that cost energy."
           rows={3}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Learnings */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Lightbulb className="h-4 w-4 text-yellow-500" />
-          <label className="text-sm font-medium text-white">What did I learn today?</label>
+          <Lightbulb className="h-4 w-4 text-yellow-300" />
+          <label className="text-sm font-semibold text-white">What did I learn today?</label>
         </div>
         <textarea
           value={formData.learnings.join('\n')}
-          onChange={(e) => handleArrayFieldChange('learnings', e.target.value.split('\n').filter(Boolean))}
-          placeholder="What insights, skills, or knowledge did you gain? (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('learnings', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="Write insights, pattern changes, or useful discoveries."
           rows={3}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Tomorrow's Focus */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <ArrowRight className="h-4 w-4 text-blue-500" />
-          <label className="text-sm font-medium text-white">What should I focus on tomorrow?</label>
+          <ArrowRight className="h-4 w-4 text-cyan-300" />
+          <label className="text-sm font-semibold text-white">What should I focus on tomorrow?</label>
         </div>
         <textarea
           value={formData.tomorrowFocus.join('\n')}
-          onChange={(e) => handleArrayFieldChange('tomorrowFocus', e.target.value.split('\n').filter(Boolean))}
-          placeholder="What are your key focus areas for tomorrow? (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('tomorrowFocus', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="Set tomorrow&apos;s opening move, one line at a time."
           rows={3}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Unfinished Tasks */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-red-500" />
-          <label className="text-sm font-medium text-white">Unfinished tasks to carry over</label>
+          <AlertCircle className="h-4 w-4 text-rose-300" />
+          <label className="text-sm font-semibold text-white">Unfinished tasks to carry over</label>
         </div>
         <textarea
           value={formData.unfinishedTasks.join('\n')}
-          onChange={(e) => handleArrayFieldChange('unfinishedTasks', e.target.value.split('\n').filter(Boolean))}
-          placeholder="Tasks that didn't get completed today (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('unfinishedTasks', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="Name the tasks that need another run tomorrow."
           rows={2}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Gratitude */}
       <GratitudeList
         gratitude={formData.gratitude}
         onChange={(gratitude) => handleFieldChange('gratitude', gratitude)}
@@ -164,86 +176,89 @@ export default function EveningReflection({ entry, onSave, isLoading = false }: 
         required
       />
 
-      {/* Improvements */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <ArrowRight className="h-4 w-4 text-purple-500" />
-          <label className="text-sm font-medium text-white">Areas for improvement</label>
+          <ArrowRight className="h-4 w-4 text-violet-200" />
+          <label className="text-sm font-semibold text-white">Areas for improvement</label>
         </div>
         <textarea
           value={formData.improvements.join('\n')}
-          onChange={(e) => handleArrayFieldChange('improvements', e.target.value.split('\n').filter(Boolean))}
-          placeholder="What could you do better or differently? (one per line)"
+          onChange={(event) =>
+            handleArrayFieldChange('improvements', event.target.value.split('\n').filter(Boolean))
+          }
+          placeholder="What would make the next run cleaner?"
           rows={2}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Wellness Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <MoodEnergySelector
           label="Productivity"
           value={formData.productivity}
           onChange={(value) => handleFieldChange('productivity', value)}
           icon={<CheckCircle className="h-4 w-4" />}
-          description="How productive were you today?"
+          description="How much did the day move?"
           required
         />
-        
+
         <MoodEnergySelector
           label="Stress Level"
           value={formData.stressLevel}
           onChange={(value) => handleFieldChange('stressLevel', value)}
           icon={<AlertTriangle className="h-4 w-4" />}
-          description="How stressed did you feel?"
+          description="How heavy was the load?"
           required
         />
-        
+
         <MoodEnergySelector
           label="Satisfaction"
           value={formData.satisfaction}
           onChange={(value) => handleFieldChange('satisfaction', value)}
           icon={<Moon className="h-4 w-4" />}
-          description="How satisfied are you with today?"
+          description="How good does the run feel?"
           required
         />
       </div>
 
-      {/* Notes */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Additional Notes</label>
+        <label className="text-sm font-semibold text-white">Additional notes</label>
         <textarea
           value={formData.notes}
-          onChange={(e) => handleFieldChange('notes', e.target.value)}
-          placeholder="Any additional thoughts, reflections, or notes about your day..."
+          onChange={(event) => handleFieldChange('notes', event.target.value)}
+          placeholder="Any extra reflections, loose ends, or signals..."
           rows={3}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 resize-none"
+          className={fieldClass}
         />
       </div>
 
-      {/* Save Button */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-        <div className="text-xs text-gray-500">
-          {hasUnsavedChanges && '• Unsaved changes'}
+      <div className="flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xs font-medium text-violet-100">
+          {hasUnsavedChanges ? 'Unsaved changes' : ''}
         </div>
         <button
+          type="button"
           onClick={handleSave}
           disabled={isLoading}
-          className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-violet-300 px-6 py-3 font-semibold text-slate-950 transition hover:bg-violet-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {isLoading ? 'Saving...' : 'Save Evening Entry'}
         </button>
       </div>
 
-      {/* Evening Tips */}
-      <div className="text-xs text-gray-500 bg-gray-800/50 p-4 rounded-lg space-y-2">
-        <p><strong>🌙 Evening Reflection Tips:</strong></p>
-        <p>• Celebrate your wins, no matter how small</p>
-        <p>• Learn from challenges without self-judgment</p>
-        <p>• Practice gratitude to end the day positively</p>
-        <p>• Set clear intentions for tomorrow</p>
+      <div className="rounded-2xl border border-violet-300/15 bg-violet-300/10 p-4 text-xs text-slate-300">
+        <div className="mb-2 flex items-center gap-2 font-semibold text-violet-100">
+          <Lightbulb className="h-4 w-4" />
+          Evening run tips
+        </div>
+        <div className="space-y-1">
+          <p>- Celebrate wins before judging gaps.</p>
+          <p>- Convert challenges into a small lesson.</p>
+          <p>- Carry over tasks deliberately, not by accident.</p>
+          <p>- Pick tomorrow&apos;s first move before logging off.</p>
+        </div>
       </div>
     </div>
   )
-} 
+}

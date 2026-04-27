@@ -3,9 +3,11 @@ import { appRoutes } from './app/routes'
 import { usePerformanceMonitoring } from '@/shared/hooks/usePerformanceMonitoring'
 import { AccessibilityProvider } from '@/shared/components/AccessibilityProvider'
 import AppLifecycleManager from '@/app/module-system/AppLifecycleManager'
-import '@/scripts/cleanupDuplicates'
-import { runDuplicateCleanup } from './scripts/cleanupDuplicates'
-import { runImmediateCleanup, runCompleteReset, runSmartCleanup } from './scripts/immediateCleanup'
+
+if (import.meta.env.DEV) {
+  void import('@/scripts/cleanupDuplicates')
+  void import('@/scripts/immediateCleanup')
+}
 
 function App() {
   // Initialize performance monitoring
@@ -16,8 +18,6 @@ function App() {
   })
 
   const element = useRoutes(appRoutes)
-  
-  
 
   return (
     <AccessibilityProvider>

@@ -2,7 +2,6 @@
 // Simplified todo repository with single source of truth
 
 import Dexie, { Table } from 'dexie'
-import { v4 as uuidv4 } from 'uuid'
 import { Todo, Priority, Category } from '../types'
 import { getSupabaseClient, type Database } from '@/lib/supabase-client'
 import { useAuthStore } from '@/modules/auth'
@@ -42,7 +41,7 @@ export const simpleTodoRepo = {
     
     const newTodo: Todo = {
       ...todo,
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
